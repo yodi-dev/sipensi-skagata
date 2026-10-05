@@ -20,16 +20,81 @@ class Admin extends BaseController
         $db = Database::connect();
         $builder = $db->table('users');
 
+        // Hitung statistik keseluruhan pengguna
+        $totalUsers = (clone $builder)->countAllResults();
+        $totalMahasiswa = (clone $builder)->where('role', 'mahasiswa')->countAllResults();
+        $totalGuru = (clone $builder)->where('role', 'guru')->countAllResults();
+        $totalAdmin = (clone $builder)->where('role', 'admin')->countAllResults();
+
+        // Ambil data presensi hari ini untuk Live Snapshot Feed
+        $today = date('Y-m-d');
+        $presensiHariIni = $db->table('presensi')
+            ->select('presensi.*, users.nama, users.jurusan, users.role')
+            ->join('users', 'users.id = presensi.user_id')
+            ->where('presensi.tanggal', $today)
+            ->orderBy('presensi.jam_masuk', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $totalHadirHariIni = 0;
+        $totalTerlambatHariIni = 0;
+        $totalIzinSakitHariIni = 0;
+        foreach ($presensiHariIni as $p) {
+            if ($p['status'] === 'hadir') {
+                $totalHadirHariIni++;
+            } elseif ($p['status'] === 'terlambat') {
+                $totalTerlambatHariIni++;
+            } elseif (in_array($p['status'], ['izin', 'sakit'], true)) {
+                $totalIzinSakitHariIni++;
+            }
+        }
+
+        // Ambil data admin saat ini untuk modal profil
+        $currentAdmin = $this->userModel->find(session()->get('id_user'));
+
+        // Ambil ringkasan pengaturan sistem operasional
+        $settings = SettingModel::getAllSettings();
+        $config = config('Presensi') ?? new \Config\Presensi();
+        $schoolRadius = (int) ($settings['school_radius'] ?? $config->schoolRadius);
+        $geofenceActive = isset($settings['geofence_active']) ? ($settings['geofence_active'] === '1' || $settings['geofence_active'] === 'true') : $config->geofenceActive;
+        $jamMasukMax = $settings['jam_masuk_max'] ?? $config->jamMasukMax;
+        $jamPulangMin = $settings['jam_pulang_min'] ?? $config->jamPulangMin;
+        $schoolName = $settings['school_name'] ?? $config->schoolName;
+
+        $data = [
+            'current_admin'         => $currentAdmin,
+            'totalUsers'            => $totalUsers,
+            'totalMahasiswa'        => $totalMahasiswa,
+            'totalGuru'             => $totalGuru,
+            'totalAdmin'            => $totalAdmin,
+            'presensiHariIni'       => $presensiHariIni,
+            'totalHadirHariIni'     => $totalHadirHariIni,
+            'totalTerlambatHariIni' => $totalTerlambatHariIni,
+            'totalIzinSakitHariIni' => $totalIzinSakitHariIni,
+            'school_name'           => $schoolName,
+            'school_radius'         => $schoolRadius,
+            'geofence_active'       => $geofenceActive,
+            'jam_masuk_max'         => $jamMasukMax,
+            'jam_pulang_min'        => $jamPulangMin,
+            'title'                 => 'Dashboard Administrator - SIPENSI SKAGATA'
+        ];
+
+        return view('admin/index', $data);
+    }
+
+    public function pengguna()
+    {
+        $db = Database::connect();
+        $builder = $db->table('users');
+
         // Parameter pencarian & filter
         $keyword = trim((string) $this->request->getGet('keyword'));
         $roleFilter = $this->request->getGet('role');
         $jurusanFilter = $this->request->getGet('jurusan');
 
-        // Hitung statistik keseluruhan
-        $totalUsers = (clone $builder)->countAllResults();
+        // Hitung statistik
         $totalMahasiswa = (clone $builder)->where('role', 'mahasiswa')->countAllResults();
         $totalGuru = (clone $builder)->where('role', 'guru')->countAllResults();
-        $totalAdmin = (clone $builder)->where('role', 'admin')->countAllResults();
 
         // Terapkan filter query
         if (!empty($keyword)) {
@@ -71,35 +136,19 @@ class Admin extends BaseController
         $daftarJurusan = array_values(array_unique(array_merge($defaultJurusan, $jurusanFromDb)));
         sort($daftarJurusan);
 
-        // Ambil ringkasan pengaturan sistem operasional
-        $settings = SettingModel::getAllSettings();
-        $config = config('Presensi') ?? new \Config\Presensi();
-        $schoolRadius = (int) ($settings['school_radius'] ?? $config->schoolRadius);
-        $geofenceActive = isset($settings['geofence_active']) ? ($settings['geofence_active'] === '1' || $settings['geofence_active'] === 'true') : $config->geofenceActive;
-        $jamMasukMax = $settings['jam_masuk_max'] ?? $config->jamMasukMax;
-        $jamPulangMin = $settings['jam_pulang_min'] ?? $config->jamPulangMin;
-        $schoolName = $settings['school_name'] ?? $config->schoolName;
-
         $data = [
-            'users'           => $users,
-            'current_admin'   => $currentAdmin,
-            'totalUsers'      => $totalUsers,
-            'totalMahasiswa'  => $totalMahasiswa,
-            'totalGuru'       => $totalGuru,
-            'totalAdmin'      => $totalAdmin,
-            'keyword'         => $keyword,
-            'role_terpilih'   => $roleFilter,
-            'jurusan_pilih'   => $jurusanFilter,
-            'daftar_jurusan'  => $daftarJurusan,
-            'school_name'     => $schoolName,
-            'school_radius'   => $schoolRadius,
-            'geofence_active' => $geofenceActive,
-            'jam_masuk_max'   => $jamMasukMax,
-            'jam_pulang_min'  => $jamPulangMin,
-            'title'           => 'Beranda Admin - SIPENSI SKAGATA'
+            'users'          => $users,
+            'current_admin'  => $currentAdmin,
+            'totalMahasiswa' => $totalMahasiswa,
+            'totalGuru'      => $totalGuru,
+            'keyword'        => $keyword,
+            'role_terpilih'  => $roleFilter,
+            'jurusan_pilih'  => $jurusanFilter,
+            'daftar_jurusan' => $daftarJurusan,
+            'title'          => 'Manajemen Pengguna - SIPENSI SKAGATA'
         ];
 
-        return view('admin/index', $data);
+        return view('admin/pengguna', $data);
     }
 
     public function tambahUser()
@@ -130,7 +179,7 @@ class Admin extends BaseController
             'password' => password_hash($password, PASSWORD_BCRYPT)
         ]);
 
-        return redirect()->to('/admin')->with('pesan', "Pengguna {$nama} ({$username}) berhasil ditambahkan!");
+        return redirect()->to('/admin/pengguna')->with('pesan', "Pengguna {$nama} ({$username}) berhasil ditambahkan!");
     }
 
     public function editUser()
@@ -168,7 +217,7 @@ class Admin extends BaseController
             'jurusan'  => !empty($jurusan) ? $jurusan : null
         ]);
 
-        return redirect()->to('/admin')->with('pesan', "Data pengguna {$nama} berhasil diperbarui!");
+        return redirect()->to('/admin/pengguna')->with('pesan', "Data pengguna {$nama} berhasil diperbarui!");
     }
 
     public function hapusUser()
@@ -197,7 +246,7 @@ class Admin extends BaseController
         // Hapus pengguna
         $this->userModel->delete($userId);
 
-        return redirect()->to('/admin')->with('pesan', "Pengguna {$user['nama']} ({$user['username']}) berhasil dihapus!");
+        return redirect()->to('/admin/pengguna')->with('pesan', "Pengguna {$user['nama']} ({$user['username']}) berhasil dihapus!");
     }
 
     public function resetPassword()
@@ -224,7 +273,7 @@ class Admin extends BaseController
             'password' => password_hash($passwordToSet, PASSWORD_BCRYPT)
         ]);
 
-        return redirect()->to('/admin')->with('pesan', "Password untuk pengguna {$user['nama']} berhasil direset!");
+        return redirect()->to('/admin/pengguna')->with('pesan', "Password untuk pengguna {$user['nama']} berhasil direset!");
     }
 
     public function pengaturan()

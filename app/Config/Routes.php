@@ -38,6 +38,7 @@ $routes->group('mahasiswa', ['filter' => ['auth', 'role:mahasiswa']], static fun
 // Rute khusus Admin
 $routes->group('admin', ['filter' => ['auth', 'role:admin']], static function ($routes) {
     $routes->get('/', 'Admin::index');
+    $routes->get('pengguna', 'Admin::pengguna');
     $routes->post('tambah-user', 'Admin::tambahUser');
     $routes->post('edit-user', 'Admin::editUser');
     $routes->post('hapus-user', 'Admin::hapusUser');

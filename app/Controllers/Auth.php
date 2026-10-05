@@ -39,6 +39,7 @@ class Auth extends BaseController
                 $dataSession = [
                     'id_user'    => $user['id'],
                     'nama'       => $user['nama'],
+                    'username'   => $user['username'],
                     'role'       => $user['role'],
                     'isLoggedIn' => true,
                     'logged_in'  => true

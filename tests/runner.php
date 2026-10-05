@@ -586,29 +586,44 @@ $runner->it("Controller Mahasiswa::riwayat harus menghitung persentase kehadiran
 
 $runner->describe("15. Pengujian Beranda Admin & Manajemen Pengguna");
 
-$runner->it("View admin/index harus memuat operational banner, avatar inisial, dan modal profil", function() use ($runner) {
+$runner->it("View admin/index harus memuat operational banner, avatar inisial, dan quick action", function() use ($runner) {
     $viewFile = APPPATH . 'Views/admin/index.php';
     $runner->assertTrue(file_exists($viewFile));
     $content = file_get_contents($viewFile);
     $runner->assertTrue(strpos($content, 'operational-banner') !== false, "Harus memuat operational-banner status sistem");
     $runner->assertTrue(strpos($content, 'avatar-initial') !== false, "Harus memuat avatar inisial pengguna");
     $runner->assertTrue(strpos($content, 'stat-card-modern') !== false, "Harus memuat stat-card-modern tema Skagata");
-    $runner->assertTrue(strpos($content, 'modalProfilAdmin') !== false, "Harus memuat modalProfilAdmin");
+    $runner->assertTrue(strpos($content, 'quick-action-item') !== false, "Harus memuat quick-action-item");
     $runner->assertTrue(strpos($content, 'modalTambahUser') !== false, "Harus memuat modalTambahUser");
 });
 
-$runner->it("Layout template harus menyediakan dedicated admin-sidebar dan tombol logout", function() use ($runner) {
+$runner->it("View admin/pengguna harus memuat tabel pengguna, filter toolbar, dan modal CRUD", function() use ($runner) {
+    $viewFile = APPPATH . 'Views/admin/pengguna.php';
+    $runner->assertTrue(file_exists($viewFile));
+    $content = file_get_contents($viewFile);
+    $runner->assertTrue(strpos($content, 'table-custom') !== false, "Harus memuat table-custom");
+    $runner->assertTrue(strpos($content, 'filter-wrapper') !== false, "Harus memuat filter-wrapper");
+    $runner->assertTrue(strpos($content, 'modalTambahUser') !== false, "Harus memuat modalTambahUser");
+    $runner->assertTrue(strpos($content, 'modalEditUser') !== false, "Harus memuat modalEditUser");
+    $runner->assertTrue(strpos($content, 'modalResetPassword') !== false, "Harus memuat modalResetPassword");
+});
+
+$runner->it("Layout template harus menyediakan dedicated admin-sidebar dan modal profil admin", function() use ($runner) {
     $templateFile = APPPATH . 'Views/layout/template.php';
     $runner->assertTrue(file_exists($templateFile));
     $content = file_get_contents($templateFile);
     $runner->assertTrue(strpos($content, 'admin-sidebar') !== false, "Template harus memuat admin-sidebar");
+    $runner->assertTrue(strpos($content, 'admin/pengguna') !== false, "Template harus memuat navigasi ke admin/pengguna");
     $runner->assertTrue(strpos($content, 'auth/logout') !== false, "Template harus memuat auth/logout");
     $runner->assertTrue(strpos($content, 'toggleAdminSidebar') !== false, "Template harus memuat toggleAdminSidebar");
     $runner->assertTrue(strpos($content, "session()->get('isLoggedIn')") !== false, "Template harus mengecek session isLoggedIn");
+    $runner->assertTrue(strpos($content, 'modalProfilAdmin') !== false, "Template harus memuat modalProfilAdmin global");
 });
 
-$runner->it("Controller Admin harus memiliki updateProfil dan mengecualikan akun admin dari list pengguna", function() use ($runner) {
+$runner->it("Controller Admin harus memiliki method pengguna, updateProfil, dan CRUD lengkap", function() use ($runner) {
     $controller = new \App\Controllers\Admin();
+    $runner->assertTrue(method_exists($controller, 'index'), "Controller Admin harus memiliki method index");
+    $runner->assertTrue(method_exists($controller, 'pengguna'), "Controller Admin harus memiliki method pengguna");
     $runner->assertTrue(method_exists($controller, 'updateProfil'), "Controller Admin harus memiliki method updateProfil");
     $controllerFile = APPPATH . 'Controllers/Admin.php';
     $runner->assertTrue(file_exists($controllerFile));
