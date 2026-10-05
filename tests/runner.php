@@ -565,5 +565,25 @@ $runner->it("Controller Mahasiswa harus memberikan pesan error spesifik jika sud
     $runner->assertTrue(strpos($content, "Anda telah mengajukan") !== false, "Pesan harus mengindikasikan pengajuan izin/sakit");
 });
 
+$runner->describe("14. Pengujian Riwayat Presensi Mahasiswa & Tampilan Adaptive");
+
+$runner->it("View mahasiswa/riwayat harus mendukung dual-view (kartu mobile dan tabel desktop)", function() use ($runner) {
+    $viewFile = APPPATH . 'Views/mahasiswa/riwayat.php';
+    $runner->assertTrue(file_exists($viewFile));
+    $content = file_get_contents($viewFile);
+    $runner->assertTrue(strpos($content, 'presence-item-card') !== false, "Harus memuat kartu mobile 'presence-item-card'");
+    $runner->assertTrue(strpos($content, 'table-custom') !== false, "Harus memuat tabel desktop 'table-custom'");
+    $runner->assertTrue(strpos($content, '@media print') !== false, "Harus memuat stylesheet print");
+    $runner->assertTrue(strpos($content, 'persenKehadiran') !== false, "Harus memuat metrik persen kehadiran terpadu");
+});
+
+$runner->it("Controller Mahasiswa::riwayat harus menghitung persentase kehadiran dan mengirimkan data pengguna", function() use ($runner) {
+    $controllerFile = APPPATH . 'Controllers/Mahasiswa.php';
+    $runner->assertTrue(file_exists($controllerFile));
+    $content = file_get_contents($controllerFile);
+    $runner->assertTrue(strpos($content, 'persenKehadiran') !== false, "Controller harus menghitung persenKehadiran");
+    $runner->assertTrue(strpos($content, 'totalHadirFisik') !== false, "Controller harus menghitung totalHadirFisik");
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());

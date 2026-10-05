@@ -2,6 +2,7 @@
 
 <?= $this->section('styles') ?>
 <style>
+    /* Card & Container Polish */
     .history-card {
         border-radius: 1rem;
         border: 1px solid #e2e8f0;
@@ -10,23 +11,34 @@
         overflow: hidden;
     }
 
-    .card-header-custom {
-        background-color: #ffffff;
-        border-bottom: 1px solid #f1f5f9;
-        padding: 1.25rem 1.5rem;
-    }
-
-    .stat-card {
-        border-radius: 0.75rem;
+    .summary-card {
+        border-radius: 1rem;
         border: 1px solid #e2e8f0;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-        transition: transform 0.2s;
+        background: #ffffff;
+        box-shadow: 0 2px 10px rgba(15, 81, 50, 0.03);
     }
 
-    .stat-card:hover {
-        transform: translateY(-2px);
+    .rate-pill {
+        background-color: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        border-radius: 2rem;
+        padding: 0.4rem 0.85rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
     }
 
+    .filter-wrapper {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 2rem;
+        padding: 0.35rem 0.75rem;
+    }
+
+    /* Desktop Table Styling */
     .table-custom thead th {
         background-color: #0f5132;
         color: #ffffff;
@@ -35,6 +47,7 @@
         padding: 0.85rem;
         white-space: nowrap;
         font-size: 0.85rem;
+        letter-spacing: 0.3px;
     }
 
     .table-custom tbody td {
@@ -43,87 +56,207 @@
         font-size: 0.875rem;
     }
 
-    .filter-wrapper {
-        background-color: #f8fafc;
+    /* Mobile Timeline Card Styling */
+    .presence-item-card {
+        border-radius: 1rem;
         border: 1px solid #e2e8f0;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .presence-item-card:active {
+        transform: scale(0.99);
+    }
+
+    .time-chip {
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
         border-radius: 0.75rem;
-        padding: 0.4rem 0.75rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    /* Print Document Styles */
+    @media print {
+        body {
+            background-color: #ffffff !important;
+            font-size: 11pt !important;
+            color: #000000 !important;
+        }
+
+        .no-print,
+        .navbar,
+        .footer-skagata,
+        .filter-wrapper,
+        .btn,
+        .modal {
+            display: none !important;
+        }
+
+        .container {
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .print-only {
+            display: block !important;
+        }
+
+        .table-custom thead th {
+            background-color: #f1f5f9 !important;
+            color: #000000 !important;
+            border: 1px solid #000000 !important;
+        }
+
+        .table-custom tbody td {
+            border: 1px solid #000000 !important;
+        }
+
+        .table-responsive {
+            overflow: visible !important;
+        }
+
+        .history-card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+    }
+
+    .print-only {
+        display: none;
     }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?php
+// Helper translasi hari & bulan Bahasa Indonesia
+$namaHariIndo = [
+    'Sunday'    => 'Minggu',
+    'Monday'    => 'Senin',
+    'Tuesday'   => 'Selasa',
+    'Wednesday' => 'Rabu',
+    'Thursday'  => 'Kamis',
+    'Friday'    => 'Jumat',
+    'Saturday'  => 'Sabtu'
+];
+
+$namaBulanIndo = [
+    '01' => 'Januari',   '02' => 'Februari', '03' => 'Maret',
+    '04' => 'April',     '05' => 'Mei',      '06' => 'Juni',
+    '07' => 'Juli',      '08' => 'Agustus',  '09' => 'September',
+    '10' => 'Oktober',   '11' => 'November', '12' => 'Desember'
+];
+
+$namaBulanSingkat = [
+    '01' => 'Jan', '02' => 'Feb', '03' => 'Mar',
+    '04' => 'Apr', '05' => 'Mei', '06' => 'Jun',
+    '07' => 'Jul', '08' => 'Agu', '09' => 'Sep',
+    '10' => 'Okt', '11' => 'Nov', '12' => 'Des'
+];
+
+$namaMhs = session()->get('nama') ?? 'Mahasiswa Praktikan';
+$jurusanMhs = session()->get('jurusan') ?? ($userData['jurusan'] ?? 'PPL / Magang');
+$periodeText = ($namaBulanIndo[$bulan_pilih] ?? $bulan_pilih) . ' ' . $tahun_pilih;
+?>
+
 <div class="container py-4">
 
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-        <div>
-            <h4 class="fw-bold text-dark mb-0">
-                <i class="bi bi-clock-history text-success me-2"></i>Riwayat Presensi Mandiri
-            </h4>
-            <p class="text-muted small mt-1 mb-0">Catatan riwayat kehadiran <strong><?= esc(session()->get('nama')) ?></strong> di SMKN 3 Yogyakarta</p>
+    <!-- Kop Khusus Print Resmi -->
+    <div class="print-only text-center mb-4 pb-3 border-bottom border-dark">
+        <h4 class="fw-bold mb-1 text-dark">SMK NEGERI 3 YOGYAKARTA</h4>
+        <div class="small fw-semibold text-uppercase text-secondary" style="letter-spacing: 1px;">Sistem Informasi Presensi &amp; Piket KBM (SIPENSI SKAGATA)</div>
+        <div class="small text-muted mt-1">Laporan Rekapitulasi Presensi Mandiri Mahasiswa Praktikan</div>
+        <div class="mt-2 pt-2 border-top border-1 small d-flex justify-content-between">
+            <span><strong>Nama:</strong> <?= esc($namaMhs) ?></span>
+            <span><strong>Jurusan/Prodi:</strong> <?= esc($jurusanMhs) ?></span>
+            <span><strong>Periode:</strong> <?= esc($periodeText) ?></span>
         </div>
+    </div>
+
+    <!-- Header Halaman & Tombol Aksi -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 no-print">
         <div>
-            <a href="<?= base_url('mahasiswa') ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                <i class="bi bi-arrow-left me-1"></i> Dashboard
+            <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-clock-history text-success"></i>
+                <span>Riwayat Presensi Mandiri</span>
+            </h4>
+            <p class="text-muted small mt-1 mb-0">
+                Catatan kehadiran <strong><?= esc($namaMhs) ?></strong> (<?= esc($jurusanMhs) ?>) di SMKN 3 Yogyakarta
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-sm" onclick="window.print()" title="Cetak Rekap Presensi">
+                <i class="bi bi-printer"></i>
+                <span>Cetak Rekap</span>
+            </button>
+            <a href="<?= base_url('mahasiswa') ?>" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-arrow-left"></i>
+                <span>Dashboard</span>
             </a>
         </div>
     </div>
 
-    <!-- Statistik Ringkas Bulan Terpilih -->
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-4 col-lg-2">
-            <div class="card stat-card bg-white p-3 text-center border-start border-4 border-success">
-                <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Hadir</small>
-                <h3 class="fw-bold text-success mb-0 mt-1"><?= $rekap['hadir'] ?></h3>
+    <!-- Ringkasan Kehadiran Terpadu (Elegan, Bukan Warna-warni Pelangi) -->
+    <div class="card summary-card p-3 p-md-4 mb-4 no-print">
+        <div class="row align-items-center g-3">
+            <!-- Sisi Kiri: Indikator Tingkat Kehadiran -->
+            <div class="col-12 col-md-5 border-md-end">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex flex-column">
+                        <span class="text-muted small fw-medium">Tingkat Kehadiran Efektif</span>
+                        <div class="d-flex align-items-baseline gap-2 mt-1">
+                            <h2 class="fw-bold text-success mb-0"><?= $persenKehadiran ?>%</h2>
+                            <span class="text-muted small">(<?= $totalHadirFisik ?> dari <?= $totalPresensi ?> hari presensi)</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-2">
-            <div class="card stat-card bg-white p-3 text-center border-start border-4 border-warning">
-                <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Terlambat</small>
-                <h3 class="fw-bold text-warning mb-0 mt-1"><?= $rekap['terlambat'] ?></h3>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-2">
-            <div class="card stat-card bg-white p-3 text-center border-start border-4 border-info">
-                <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Izin</small>
-                <h3 class="fw-bold text-info mb-0 mt-1"><?= $rekap['izin'] ?></h3>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-2">
-            <div class="card stat-card bg-white p-3 text-center border-start border-4 border-secondary">
-                <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Sakit</small>
-                <h3 class="fw-bold text-secondary mb-0 mt-1"><?= $rekap['sakit'] ?></h3>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-2">
-            <div class="card stat-card bg-white p-3 text-center border-start border-4 border-danger">
-                <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Alpa</small>
-                <h3 class="fw-bold text-danger mb-0 mt-1"><?= $rekap['alpa'] ?></h3>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-2">
-            <div class="card stat-card bg-white p-3 text-center border-start border-4 border-dark">
-                <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Total Presensi</small>
-                <h3 class="fw-bold text-dark mb-0 mt-1"><?= array_sum($rekap) ?></h3>
+
+            <!-- Sisi Kanan: Rincian Status dalam Soft Badges Netral -->
+            <div class="col-12 col-md-7">
+                <div class="d-flex flex-wrap align-items-center justify-content-start justify-content-md-end gap-2">
+                    <div class="rate-pill">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Hadir: <strong><?= $rekap['hadir'] ?></strong></span>
+                    </div>
+                    <div class="rate-pill" style="background-color: #fffbeb; border-color: #fef3c7; color: #92400e;">
+                        <i class="bi bi-alarm-fill text-warning"></i>
+                        <span>Terlambat: <strong><?= $rekap['terlambat'] ?></strong></span>
+                    </div>
+                    <div class="rate-pill" style="background-color: #f0f9ff; border-color: #e0f2fe; color: #075985;">
+                        <i class="bi bi-info-circle-fill text-info"></i>
+                        <span>Izin: <strong><?= $rekap['izin'] ?></strong></span>
+                    </div>
+                    <div class="rate-pill" style="background-color: #f8fafc; border-color: #e2e8f0; color: #475569;">
+                        <i class="bi bi-heart-pulse-fill text-secondary"></i>
+                        <span>Sakit: <strong><?= $rekap['sakit'] ?></strong></span>
+                    </div>
+                    <div class="rate-pill" style="background-color: #fef2f2; border-color: #fee2e2; color: #991b1b;">
+                        <i class="bi bi-x-circle-fill text-danger"></i>
+                        <span>Alpa: <strong><?= $rekap['alpa'] ?></strong></span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Card Riwayat dan Filter Otomatis ala Sibenka -->
-    <div class="card history-card">
-        <div class="card-header-custom d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <div>
-                <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-calendar3 me-2 text-success"></i>Daftar Presensi Bulanan</h6>
+    <!-- Filter Periode ala Sibenka & Kontrol Tampilan -->
+    <div class="card history-card mb-4">
+        <div class="p-3 border-bottom d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 bg-white no-print">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-semibold">
+                    <i class="bi bi-calendar-check me-1"></i> Periode: <?= esc($periodeText) ?>
+                </span>
             </div>
 
-            <form action="<?= base_url('mahasiswa/riwayat') ?>" method="GET" class="filter-wrapper d-flex align-items-center flex-wrap gap-2 m-0">
+            <!-- Form Filter Otomatis (Onchange Submit) -->
+            <form action="<?= base_url('mahasiswa/riwayat') ?>" method="GET" class="filter-wrapper d-flex align-items-center flex-wrap gap-2 m-0 shadow-xs">
                 <div class="input-group input-group-sm" style="width: auto;">
-                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-calendar-month"></i></span>
-                    <select name="bulan" class="form-select border-start-0" onchange="this.form.submit()">
-                        <?php
-                        $namaBulan = ['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'];
-                        foreach ($namaBulan as $angka => $nama):
-                        ?>
+                    <span class="input-group-text bg-white border-0 text-muted ps-2 pe-1"><i class="bi bi-calendar-month text-success"></i></span>
+                    <select name="bulan" class="form-select form-select-sm border-0 bg-transparent fw-medium" onchange="this.form.submit()" aria-label="Pilih Bulan">
+                        <?php foreach ($namaBulanIndo as $angka => $nama): ?>
                             <option value="<?= $angka ?>" <?= ($bulan_pilih == $angka) ? 'selected' : '' ?>>
                                 <?= $nama ?>
                             </option>
@@ -131,9 +264,11 @@
                     </select>
                 </div>
 
+                <div class="vr my-1 text-muted d-none d-sm-block"></div>
+
                 <div class="input-group input-group-sm" style="width: auto;">
-                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-calendar-event"></i></span>
-                    <select name="tahun" class="form-select border-start-0" onchange="this.form.submit()">
+                    <span class="input-group-text bg-white border-0 text-muted ps-2 pe-1"><i class="bi bi-calendar-event text-success"></i></span>
+                    <select name="tahun" class="form-select form-select-sm border-0 bg-transparent fw-medium" onchange="this.form.submit()" aria-label="Pilih Tahun">
                         <?php
                         $tahunSekarang = date('Y');
                         for ($t = $tahunSekarang; $t >= 2023; $t--):
@@ -147,57 +282,174 @@
             </form>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered table-custom text-center mb-0">
-                <thead>
-                    <tr>
-                        <th width="5%">No</th>
-                        <th width="15%">Tanggal</th>
-                        <th width="12%">Status</th>
-                        <th width="12%">Jam Masuk</th>
-                        <th width="12%">Jam Pulang</th>
-                        <th width="24%" class="text-start">Keterangan</th>
-                        <th width="20%">Bukti Surat</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($riwayat)): ?>
+        <?php if (empty($riwayat)): ?>
+            <!-- Empty State -->
+            <div class="text-center py-5 p-4 text-muted">
+                <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 64px; height: 64px;">
+                    <i class="bi bi-calendar-x fs-2 text-secondary"></i>
+                </div>
+                <h6 class="fw-semibold text-dark mb-1">Belum Ada Presensi Tercatat</h6>
+                <p class="small text-muted mb-0">Tidak ditemukan riwayat kehadiran untuk periode <strong><?= esc($periodeText) ?></strong>.</p>
+            </div>
+        <?php else: ?>
+
+            <!-- ========================================== -->
+            <!-- 1. MOBILE VIEW: Timeline Card Feed (< 768px) -->
+            <!-- ========================================== -->
+            <div class="d-block d-md-none p-3 bg-light bg-opacity-50 no-print">
+                <div class="d-flex flex-column gap-3">
+                    <?php foreach ($riwayat as $key => $row): ?>
+                        <?php
+                        $ts = strtotime($row['tanggal']);
+                        $hariEn = date('l', $ts);
+                        $hariId = $namaHariIndo[$hariEn] ?? $hariEn;
+                        $tglFmt = date('d', $ts) . ' ' . ($namaBulanSingkat[date('m', $ts)] ?? date('M', $ts)) . ' ' . date('Y', $ts);
+                        ?>
+                        <div class="card presence-item-card p-3">
+                            <!-- Card Header: Hari & Tanggal + Status Badge -->
+                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                <div>
+                                    <span class="fw-bold text-dark d-block"><?= esc($hariId) ?>, <?= esc($tglFmt) ?></span>
+                                    <small class="text-muted" style="font-size: 0.72rem;">#<?= esc($key + 1) ?></small>
+                                </div>
+                                <div>
+                                    <?php if ($row['status'] === 'hadir'): ?>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
+                                            <i class="bi bi-check2 me-1"></i>Hadir
+                                        </span>
+                                    <?php elseif ($row['status'] === 'terlambat'): ?>
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1">
+                                            <i class="bi bi-alarm me-1"></i>Terlambat
+                                        </span>
+                                    <?php elseif ($row['status'] === 'izin'): ?>
+                                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-2 py-1">
+                                            <i class="bi bi-info-circle me-1"></i>Izin
+                                        </span>
+                                    <?php elseif ($row['status'] === 'sakit'): ?>
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2 py-1">
+                                            <i class="bi bi-heart-pulse me-1"></i>Sakit
+                                        </span>
+                                    <?php elseif ($row['status'] === 'alpa'): ?>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1">
+                                            <i class="bi bi-x-circle me-1"></i>Alpa
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-light text-dark border rounded-pill px-2 py-1"><?= esc($row['status']) ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <!-- Card Body: Grid Jam Masuk & Jam Pulang -->
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <div class="time-chip text-center">
+                                        <div class="text-muted small" style="font-size: 0.72rem;">
+                                            <i class="bi bi-box-arrow-in-right text-success me-1"></i>Jam Datang
+                                        </div>
+                                        <div class="fw-bold mt-1 <?= !empty($row['jam_masuk']) ? ($row['status'] === 'terlambat' ? 'text-warning-emphasis' : 'text-success') : 'text-muted' ?>" style="font-size: 0.95rem;">
+                                            <?= !empty($row['jam_masuk']) ? esc(substr($row['jam_masuk'], 0, 5)) . ' WIB' : '--:--' ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="time-chip text-center">
+                                        <div class="text-muted small" style="font-size: 0.72rem;">
+                                            <i class="bi bi-box-arrow-right text-warning me-1"></i>Jam Pulang
+                                        </div>
+                                        <div class="fw-bold mt-1 <?= !empty($row['jam_keluar']) ? 'text-dark' : 'text-muted' ?>" style="font-size: 0.95rem;">
+                                            <?= !empty($row['jam_keluar']) ? esc(substr($row['jam_keluar'], 0, 5)) . ' WIB' : '--:--' ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Keterangan (Jika Ada) -->
+                            <?php if (!empty($row['keterangan'])): ?>
+                                <div class="bg-light rounded-3 p-2 small text-muted mb-2" style="font-size: 0.8rem;">
+                                    <i class="bi bi-chat-quote me-1 text-secondary"></i><?= esc($row['keterangan']) ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Bukti Surat / Tombol Susulan -->
+                            <?php if (!empty($row['bukti_surat'])): ?>
+                                <a href="<?= base_url('uploads/surat/' . esc($row['bukti_surat'])) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success rounded-pill w-100 mt-1 d-flex align-items-center justify-content-center gap-1">
+                                    <i class="bi bi-file-earmark-check"></i>
+                                    <span>Lihat Bukti Surat</span>
+                                </a>
+                            <?php elseif (in_array($row['status'], ['izin', 'sakit'], true)): ?>
+                                <button type="button" class="btn btn-sm btn-outline-warning rounded-pill w-100 mt-1 d-flex align-items-center justify-content-center gap-1" onclick="bukaModalSusulan(<?= (int) $row['id'] ?>, '<?= esc($row['tanggal']) ?>')">
+                                    <i class="bi bi-upload"></i>
+                                    <span>Unggah Bukti Susulan</span>
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 2. DESKTOP VIEW & PRINT VIEW: Full Data Table  -->
+            <!-- ============================================== -->
+            <div class="table-responsive d-none d-md-block">
+                <table class="table table-hover table-bordered table-custom text-center mb-0 align-middle">
+                    <thead>
                         <tr>
-                            <td colspan="7" class="text-center py-5 text-muted">
-                                <i class="bi bi-calendar-x fs-1 d-block mb-2 text-muted"></i>
-                                Belum ada data presensi pada bulan ini.
-                            </td>
+                            <th width="4%">No</th>
+                            <th width="18%">Hari &amp; Tanggal</th>
+                            <th width="12%">Status</th>
+                            <th width="12%">Jam Masuk</th>
+                            <th width="12%">Jam Pulang</th>
+                            <th width="24%" class="text-start">Keterangan</th>
+                            <th width="18%" class="no-print">Bukti Surat</th>
                         </tr>
-                    <?php else: ?>
+                    </thead>
+                    <tbody>
                         <?php foreach ($riwayat as $key => $row): ?>
+                            <?php
+                            $ts = strtotime($row['tanggal']);
+                            $hariEn = date('l', $ts);
+                            $hariId = $namaHariIndo[$hariEn] ?? $hariEn;
+                            $tglFmt = date('d', $ts) . ' ' . ($namaBulanSingkat[date('m', $ts)] ?? date('M', $ts)) . ' ' . date('Y', $ts);
+                            ?>
                             <tr>
                                 <td><span class="text-muted"><?= esc($key + 1) ?></span></td>
-                                <td class="fw-semibold text-dark"><?= esc(date('d M Y', strtotime($row['tanggal']))) ?></td>
+                                <td class="fw-semibold text-dark text-nowrap">
+                                    <span><?= esc($hariId) ?>, <?= esc($tglFmt) ?></span>
+                                </td>
 
                                 <td>
                                     <?php if ($row['status'] === 'hadir'): ?>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Hadir</span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill">Hadir</span>
                                     <?php elseif ($row['status'] === 'terlambat'): ?>
-                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">Terlambat</span>
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 rounded-pill">Terlambat</span>
                                     <?php elseif ($row['status'] === 'izin'): ?>
-                                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">Izin</span>
+                                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1 rounded-pill">Izin</span>
                                     <?php elseif ($row['status'] === 'sakit'): ?>
-                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">Sakit</span>
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 rounded-pill">Sakit</span>
                                     <?php elseif ($row['status'] === 'alpa'): ?>
-                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Alpa</span>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded-pill">Alpa</span>
                                     <?php else: ?>
-                                        <span class="badge bg-light text-dark border px-2 py-1"><?= esc($row['status']) ?></span>
+                                        <span class="badge bg-light text-dark border px-2 py-1 rounded-pill"><?= esc($row['status']) ?></span>
                                     <?php endif; ?>
                                 </td>
 
-                                <td><span class="fw-semibold <?= !empty($row['jam_masuk']) ? ($row['status'] === 'terlambat' ? 'text-warning' : 'text-success') : 'text-muted' ?>"><?= esc($row['jam_masuk'] ?: '--:--') ?></span></td>
-                                <td><span class="fw-semibold <?= !empty($row['jam_keluar']) ? 'text-dark' : 'text-muted' ?>"><?= esc($row['jam_keluar'] ?: '--:--') ?></span></td>
+                                <td>
+                                    <span class="fw-semibold <?= !empty($row['jam_masuk']) ? ($row['status'] === 'terlambat' ? 'text-warning-emphasis' : 'text-success') : 'text-muted' ?>">
+                                        <?= !empty($row['jam_masuk']) ? esc(substr($row['jam_masuk'], 0, 5)) . ' WIB' : '--:--' ?>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="fw-semibold <?= !empty($row['jam_keluar']) ? 'text-dark' : 'text-muted' ?>">
+                                        <?= !empty($row['jam_keluar']) ? esc(substr($row['jam_keluar'], 0, 5)) . ' WIB' : '--:--' ?>
+                                    </span>
+                                </td>
 
                                 <td class="text-start text-muted small">
                                     <?= !empty($row['keterangan']) ? esc($row['keterangan']) : '<span class="text-muted fst-italic">-</span>' ?>
                                 </td>
 
-                                <td>
+                                <td class="no-print">
                                     <?php if (!empty($row['bukti_surat'])): ?>
                                         <a href="<?= base_url('uploads/surat/' . esc($row['bukti_surat'])) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success rounded-pill px-3">
                                             <i class="bi bi-file-earmark-check me-1"></i> Bukti Surat
@@ -212,38 +464,67 @@
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
+
+        <?php endif; ?>
+    </div>
+
+    <!-- Lembar Tanda Tangan Cetak Resmi (Print Only) -->
+    <div class="print-only mt-5 pt-4">
+        <div class="row text-center">
+            <div class="col-6">
+                <p class="mb-5">Mengetahui,<br><strong>Guru Pamong SMKN 3 Yogyakarta</strong></p>
+                <p class="mt-4 fw-bold"><u>___________________________</u><br><span class="small text-muted">NIP. -</span></p>
+            </div>
+            <div class="col-6">
+                <p class="mb-5">Yogyakarta, <?= date('d') ?> <?= $namaBulanIndo[date('m')] ?? date('F') ?> <?= date('Y') ?><br><strong>Mahasiswa Praktikan</strong></p>
+                <p class="mt-4 fw-bold"><u><?= esc($namaMhs) ?></u><br><span class="small text-muted"><?= esc($jurusanMhs) ?></span></p>
+            </div>
         </div>
     </div>
 
 </div>
 
-<!-- Modal Upload Bukti Susulan -->
+<!-- Modal Upload Bukti Susulan yang Dipoles -->
 <div class="modal fade" id="modalSusulan" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow rounded-4">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-dark">Upload Bukti Surat Susulan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-success text-white py-3">
+                <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <span>Unggah Bukti Surat Susulan</span>
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('mahasiswa/upload-bukti-susulan') ?>" method="POST" enctype="multipart/form-data">
+            <form action="<?= base_url('mahasiswa/upload-bukti-susulan') ?>" method="POST" enctype="multipart/form-data" id="formSusulan">
                 <?= csrf_field() ?>
                 <input type="hidden" name="presensi_id" id="susulanPresensiId">
                 <div class="modal-body text-start p-4">
-                    <p class="text-muted small mb-3">
-                        Mengunggah berkas surat dokter atau keterangan izin untuk presensi tanggal: <strong id="susulanTanggalText" class="text-dark"></strong>
-                    </p>
+                    <div class="alert alert-light border d-flex align-items-center gap-2 py-2 px-3 rounded-3 mb-3">
+                        <i class="bi bi-calendar-event text-success fs-5"></i>
+                        <div class="small">
+                            Presensi Tanggal: <strong id="susulanTanggalText" class="text-dark"></strong>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small">Pilih Berkas Bukti</label>
-                        <input type="file" name="bukti_surat" class="form-control" accept=".jpg,.jpeg,.png,.webp,.pdf" required>
-                        <div class="form-text small">Maksimal 2MB. Format didukung: JPG, PNG, WEBP, atau PDF.</div>
+                        <label class="form-label fw-semibold small text-dark">Pilih Berkas Bukti (Surat Dokter / Izin)</label>
+                        <input type="file" name="bukti_surat" id="inputBuktiSurat" class="form-control" accept=".jpg,.jpeg,.png,.webp,.pdf" required onchange="handleFileChange(this)">
+                        <div class="form-text small mt-1">
+                            Format didukung: <strong>JPG, PNG, WEBP, atau PDF</strong> (Maks. 2MB).
+                        </div>
+                        <div id="fileInfoLabel" class="small text-success fw-medium mt-2 d-none">
+                            <i class="bi bi-check2-circle me-1"></i>Berkas terpilih: <span id="fileNameDisplay"></span>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-skagata rounded-pill px-4">Unggah Berkas</button>
+                <div class="modal-footer border-0 bg-light py-2 px-4">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitSusulan">
+                        <i class="bi bi-upload me-1"></i> Unggah Berkas
+                    </button>
                 </div>
             </form>
         </div>
@@ -256,8 +537,39 @@
     function bukaModalSusulan(presensiId, tanggal) {
         document.getElementById('susulanPresensiId').value = presensiId;
         document.getElementById('susulanTanggalText').innerText = tanggal;
+        
+        // Reset file info
+        const fileInput = document.getElementById('inputBuktiSurat');
+        if (fileInput) fileInput.value = '';
+        const infoLabel = document.getElementById('fileInfoLabel');
+        if (infoLabel) infoLabel.classList.add('d-none');
+
         const modal = new bootstrap.Modal(document.getElementById('modalSusulan'));
         modal.show();
+    }
+
+    function handleFileChange(input) {
+        const infoLabel = document.getElementById('fileInfoLabel');
+        const nameDisplay = document.getElementById('fileNameDisplay');
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const sizeMb = file.size / (1024 * 1024);
+            if (sizeMb > 2) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Ukuran Terlalu Besar',
+                    text: 'Ukuran berkas melebihi batas 2MB. Silakan pilih berkas yang lebih kecil.',
+                    confirmButtonColor: '#0f5132'
+                });
+                input.value = '';
+                infoLabel.classList.add('d-none');
+                return;
+            }
+            nameDisplay.innerText = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+            infoLabel.classList.remove('d-none');
+        } else {
+            infoLabel.classList.add('d-none');
+        }
     }
 </script>
 <?= $this->endSection() ?>

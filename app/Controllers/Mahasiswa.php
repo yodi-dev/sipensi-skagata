@@ -225,12 +225,23 @@ class Mahasiswa extends BaseController
             }
         }
 
+        $totalPresensi = count($dataRiwayat);
+        $totalHadirFisik = $rekap['hadir'] + $rekap['terlambat'];
+        $persenKehadiran = $totalPresensi > 0 ? round(($totalHadirFisik / $totalPresensi) * 100) : 0;
+
+        $userModel = new \App\Models\UserModel();
+        $userData = $userModel->find($userId);
+
         $data = [
-            'riwayat'     => $dataRiwayat,
-            'rekap'       => $rekap,
-            'bulan_pilih' => $bulan,
-            'tahun_pilih' => $tahun,
-            'title'       => 'Riwayat Presensi Mandiri - Mahasiswa'
+            'riwayat'         => $dataRiwayat,
+            'rekap'           => $rekap,
+            'totalPresensi'   => $totalPresensi,
+            'totalHadirFisik' => $totalHadirFisik,
+            'persenKehadiran' => $persenKehadiran,
+            'userData'        => $userData,
+            'bulan_pilih'     => $bulan,
+            'tahun_pilih'     => $tahun,
+            'title'           => 'Riwayat Presensi Mandiri - Mahasiswa'
         ];
 
         return view('mahasiswa/riwayat', $data);
