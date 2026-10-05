@@ -110,35 +110,15 @@ function getInitials($name)
 }
 ?>
 
-<div class="container py-4">
+<div class="container-fluid px-4 py-4">
 
-    <!-- Top Header & Aksi Cepat (Termasuk Profil & Logout) -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-        <div>
-            <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                <i class="bi bi-shield-lock-fill text-success"></i>
-                <span>Beranda Manajemen &amp; Sistem</span>
-            </h4>
-            <p class="text-muted small mt-1 mb-0">Kelola akun pengguna dan pantau kebijakan presensi di <?= esc($school_name ?? 'SMK Negeri 3 Yogyakarta') ?></p>
-        </div>
-        <div class="d-flex flex-wrap align-items-center gap-2">
-            <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
-                <i class="bi bi-person-plus"></i>
-                <span>Tambah Pengguna</span>
-            </button>
-            <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalProfilAdmin" title="Kelola Profil & Kata Sandi Administrator">
-                <i class="bi bi-person-gear"></i>
-                <span>Profil Saya</span>
-            </button>
-            <a href="<?= base_url('admin/pengaturan') ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-sm">
-                <i class="bi bi-gear"></i>
-                <span>Pengaturan Presensi</span>
-            </a>
-            <a href="<?= base_url('auth/logout') ?>" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1" title="Keluar dari Sistem">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Logout</span>
-            </a>
-        </div>
+    <!-- Top Header: Judul Bersih Tanpa Tumpukan Tombol -->
+    <div class="mb-4">
+        <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+            <i class="bi bi-grid-1x2-fill text-success"></i>
+            <span>Manajemen Pengguna &amp; Sistem</span>
+        </h4>
+        <p class="text-muted small mt-1 mb-0">Kelola akun Guru Pamong, GTT, dan Mahasiswa Praktikan di <?= esc($school_name ?? 'SMK Negeri 3 Yogyakarta') ?></p>
     </div>
 
     <!-- Quick Status Bar: Kebijakan Operasional Presensi -->
@@ -248,15 +228,22 @@ function getInitials($name)
     <!-- Daftar Pengguna Card (Khusus Mahasiswa & Guru) -->
     <div class="card admin-card">
         <div class="card-header-custom d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-            <div>
-                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                    <i class="bi bi-person-lines-fill text-success"></i>
-                    <span>Daftar Pengguna Terkelola</span>
-                </h6>
-                <small class="text-muted">Total terfilter: <?= count($users) ?> orang (Guru &amp; Mahasiswa)</small>
+            <!-- Sisi Kiri: Judul Tabel + Tombol Tambah Pengguna Tepat di Sampingnya -->
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div>
+                    <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-person-lines-fill text-success"></i>
+                        <span>Daftar Pengguna Terkelola</span>
+                    </h6>
+                    <small class="text-muted">Total: <?= count($users) ?> orang (Guru &amp; Mahasiswa)</small>
+                </div>
+                <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Tambah Pengguna</span>
+                </button>
             </div>
 
-            <!-- Toolbar Filter Otomatis (Onchange Submit ala Sibenka) -->
+            <!-- Sisi Kanan: Toolbar Filter Otomatis (Onchange Submit ala Sibenka) -->
             <form action="<?= base_url('admin') ?>" method="GET" class="filter-wrapper d-flex align-items-center flex-wrap gap-2 m-0 shadow-xs">
                 <div class="input-group input-group-sm" style="width: auto;">
                     <span class="input-group-text bg-white border-0 text-muted ps-2 pe-1"><i class="bi bi-search text-success"></i></span>
