@@ -573,7 +573,6 @@ $runner->it("View mahasiswa/riwayat harus mendukung dual-view (kartu mobile dan 
     $content = file_get_contents($viewFile);
     $runner->assertTrue(strpos($content, 'presence-item-card') !== false, "Harus memuat kartu mobile 'presence-item-card'");
     $runner->assertTrue(strpos($content, 'table-custom') !== false, "Harus memuat tabel desktop 'table-custom'");
-    $runner->assertTrue(strpos($content, '@media print') !== false, "Harus memuat stylesheet print");
     $runner->assertTrue(strpos($content, 'persenKehadiran') !== false, "Harus memuat metrik persen kehadiran terpadu");
 });
 

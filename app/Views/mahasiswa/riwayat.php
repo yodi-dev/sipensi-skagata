@@ -75,57 +75,6 @@
         border-radius: 0.75rem;
         padding: 0.5rem 0.75rem;
     }
-
-    /* Print Document Styles */
-    @media print {
-        body {
-            background-color: #ffffff !important;
-            font-size: 11pt !important;
-            color: #000000 !important;
-        }
-
-        .no-print,
-        .navbar,
-        .footer-skagata,
-        .filter-wrapper,
-        .btn,
-        .modal {
-            display: none !important;
-        }
-
-        .container {
-            max-width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-
-        .print-only {
-            display: block !important;
-        }
-
-        .table-custom thead th {
-            background-color: #f1f5f9 !important;
-            color: #000000 !important;
-            border: 1px solid #000000 !important;
-        }
-
-        .table-custom tbody td {
-            border: 1px solid #000000 !important;
-        }
-
-        .table-responsive {
-            overflow: visible !important;
-        }
-
-        .history-card {
-            border: none !important;
-            box-shadow: none !important;
-        }
-    }
-
-    .print-only {
-        display: none;
-    }
 </style>
 <?= $this->endSection() ?>
 
@@ -163,20 +112,8 @@ $periodeText = ($namaBulanIndo[$bulan_pilih] ?? $bulan_pilih) . ' ' . $tahun_pil
 
 <div class="container py-4">
 
-    <!-- Kop Khusus Print Resmi -->
-    <div class="print-only text-center mb-4 pb-3 border-bottom border-dark">
-        <h4 class="fw-bold mb-1 text-dark">SMK NEGERI 3 YOGYAKARTA</h4>
-        <div class="small fw-semibold text-uppercase text-secondary" style="letter-spacing: 1px;">Sistem Informasi Presensi &amp; Piket KBM (SIPENSI SKAGATA)</div>
-        <div class="small text-muted mt-1">Laporan Rekapitulasi Presensi Mandiri Mahasiswa Praktikan</div>
-        <div class="mt-2 pt-2 border-top border-1 small d-flex justify-content-between">
-            <span><strong>Nama:</strong> <?= esc($namaMhs) ?></span>
-            <span><strong>Jurusan/Prodi:</strong> <?= esc($jurusanMhs) ?></span>
-            <span><strong>Periode:</strong> <?= esc($periodeText) ?></span>
-        </div>
-    </div>
-
-    <!-- Header Halaman & Tombol Aksi -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 no-print">
+    <!-- Header Halaman & Tombol Navigasi -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
         <div>
             <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
                 <i class="bi bi-clock-history text-success"></i>
@@ -186,11 +123,7 @@ $periodeText = ($namaBulanIndo[$bulan_pilih] ?? $bulan_pilih) . ' ' . $tahun_pil
                 Catatan kehadiran <strong><?= esc($namaMhs) ?></strong> (<?= esc($jurusanMhs) ?>) di SMKN 3 Yogyakarta
             </p>
         </div>
-        <div class="d-flex align-items-center gap-2 flex-wrap">
-            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-sm" onclick="window.print()" title="Cetak Rekap Presensi">
-                <i class="bi bi-printer"></i>
-                <span>Cetak Rekap</span>
-            </button>
+        <div>
             <a href="<?= base_url('mahasiswa') ?>" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-sm">
                 <i class="bi bi-arrow-left"></i>
                 <span>Dashboard</span>
@@ -199,7 +132,7 @@ $periodeText = ($namaBulanIndo[$bulan_pilih] ?? $bulan_pilih) . ' ' . $tahun_pil
     </div>
 
     <!-- Ringkasan Kehadiran Terpadu (Elegan, Bukan Warna-warni Pelangi) -->
-    <div class="card summary-card p-3 p-md-4 mb-4 no-print">
+    <div class="card summary-card p-3 p-md-4 mb-4">
         <div class="row align-items-center g-3">
             <!-- Sisi Kiri: Indikator Tingkat Kehadiran -->
             <div class="col-12 col-md-5 border-md-end">
@@ -244,7 +177,7 @@ $periodeText = ($namaBulanIndo[$bulan_pilih] ?? $bulan_pilih) . ' ' . $tahun_pil
 
     <!-- Filter Periode ala Sibenka & Kontrol Tampilan -->
     <div class="card history-card mb-4">
-        <div class="p-3 border-bottom d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 bg-white no-print">
+        <div class="p-3 border-bottom d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 bg-white">
             <div class="d-flex align-items-center gap-2">
                 <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-semibold">
                     <i class="bi bi-calendar-check me-1"></i> Periode: <?= esc($periodeText) ?>
@@ -296,7 +229,7 @@ $periodeText = ($namaBulanIndo[$bulan_pilih] ?? $bulan_pilih) . ' ' . $tahun_pil
             <!-- ========================================== -->
             <!-- 1. MOBILE VIEW: Timeline Card Feed (< 768px) -->
             <!-- ========================================== -->
-            <div class="d-block d-md-none p-3 bg-light bg-opacity-50 no-print">
+            <div class="d-block d-md-none p-3 bg-light bg-opacity-50">
                 <div class="d-flex flex-column gap-3">
                     <?php foreach ($riwayat as $key => $row): ?>
                         <?php
@@ -388,7 +321,7 @@ $periodeText = ($namaBulanIndo[$bulan_pilih] ?? $bulan_pilih) . ' ' . $tahun_pil
             </div>
 
             <!-- ============================================== -->
-            <!-- 2. DESKTOP VIEW & PRINT VIEW: Full Data Table  -->
+            <!-- 2. DESKTOP VIEW: Full Data Table              -->
             <!-- ============================================== -->
             <div class="table-responsive d-none d-md-block">
                 <table class="table table-hover table-bordered table-custom text-center mb-0 align-middle">
@@ -400,7 +333,7 @@ $periodeText = ($namaBulanIndo[$bulan_pilih] ?? $bulan_pilih) . ' ' . $tahun_pil
                             <th width="12%">Jam Masuk</th>
                             <th width="12%">Jam Pulang</th>
                             <th width="24%" class="text-start">Keterangan</th>
-                            <th width="18%" class="no-print">Bukti Surat</th>
+                            <th width="18%">Bukti Surat</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -449,7 +382,7 @@ $periodeText = ($namaBulanIndo[$bulan_pilih] ?? $bulan_pilih) . ' ' . $tahun_pil
                                     <?= !empty($row['keterangan']) ? esc($row['keterangan']) : '<span class="text-muted fst-italic">-</span>' ?>
                                 </td>
 
-                                <td class="no-print">
+                                <td>
                                     <?php if (!empty($row['bukti_surat'])): ?>
                                         <a href="<?= base_url('uploads/surat/' . esc($row['bukti_surat'])) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success rounded-pill px-3">
                                             <i class="bi bi-file-earmark-check me-1"></i> Bukti Surat
@@ -469,20 +402,6 @@ $periodeText = ($namaBulanIndo[$bulan_pilih] ?? $bulan_pilih) . ' ' . $tahun_pil
             </div>
 
         <?php endif; ?>
-    </div>
-
-    <!-- Lembar Tanda Tangan Cetak Resmi (Print Only) -->
-    <div class="print-only mt-5 pt-4">
-        <div class="row text-center">
-            <div class="col-6">
-                <p class="mb-5">Mengetahui,<br><strong>Guru Pamong SMKN 3 Yogyakarta</strong></p>
-                <p class="mt-4 fw-bold"><u>___________________________</u><br><span class="small text-muted">NIP. -</span></p>
-            </div>
-            <div class="col-6">
-                <p class="mb-5">Yogyakarta, <?= date('d') ?> <?= $namaBulanIndo[date('m')] ?? date('F') ?> <?= date('Y') ?><br><strong>Mahasiswa Praktikan</strong></p>
-                <p class="mt-4 fw-bold"><u><?= esc($namaMhs) ?></u><br><span class="small text-muted"><?= esc($jurusanMhs) ?></span></p>
-            </div>
-        </div>
     </div>
 
 </div>
