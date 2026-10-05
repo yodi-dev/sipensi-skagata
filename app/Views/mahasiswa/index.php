@@ -146,7 +146,7 @@
                         <input type="hidden" name="longitude">
                         <button type="button" id="btnDatang" class="btn btn-absen btn-datang"
                             onclick="prosesAbsen('formDatang', 'btnDatang', 'DATANG')"
-                            <?= ($presensi_hari_ini && $presensi_hari_ini['jam_masuk']) ? 'disabled' : '' ?>>
+                            <?= ($presensi_hari_ini) ? 'disabled' : '' ?>>
                             <i class="bi bi-box-arrow-in-right fs-4 mb-1"></i>
                             <span>Datang</span>
                         </button>

@@ -548,5 +548,22 @@ $runner->it("Layout template harus memuat brand SIPENSI SKAGATA dan kredit awanb
     $runner->assertTrue(strpos($content, 'SMK Negeri 3 Yogyakarta') !== false, "Template harus memuat 'SMK Negeri 3 Yogyakarta'");
 });
 
+$runner->describe("13. Pengujian Mekanisme Tombol Datang & Status Izin/Sakit");
+
+$runner->it("Tombol datang pada view mahasiswa harus disabled jika presensi hari ini sudah ada", function() use ($runner) {
+    $viewFile = APPPATH . 'Views/mahasiswa/index.php';
+    $runner->assertTrue(file_exists($viewFile));
+    $content = file_get_contents($viewFile);
+    $runner->assertTrue(strpos($content, "(\$presensi_hari_ini) ? 'disabled' : ''") !== false, "Tombol datang harus disabled saat presensi_hari_ini ada");
+});
+
+$runner->it("Controller Mahasiswa harus memberikan pesan error spesifik jika sudah izin atau sakit", function() use ($runner) {
+    $controllerFile = APPPATH . 'Controllers/Mahasiswa.php';
+    $runner->assertTrue(file_exists($controllerFile));
+    $content = file_get_contents($controllerFile);
+    $runner->assertTrue(strpos($content, "in_array(\$cek['status'], ['izin', 'sakit'], true)") !== false, "Harus membedakan pesan jika status izin/sakit");
+    $runner->assertTrue(strpos($content, "Anda telah mengajukan") !== false, "Pesan harus mengindikasikan pengajuan izin/sakit");
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());

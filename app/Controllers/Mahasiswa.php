@@ -89,7 +89,11 @@ class Mahasiswa extends BaseController
                 session()->setFlashdata('pesan', 'Berhasil absen datang tepat waktu! Semangat belajarnya.');
             }
         } else {
-            session()->setFlashdata('error', 'Kamu sudah absen datang hari ini!');
+            if (in_array($cek['status'], ['izin', 'sakit'], true)) {
+                session()->setFlashdata('error', 'Anda telah mengajukan ' . strtoupper($cek['status']) . ' hari ini.');
+            } else {
+                session()->setFlashdata('error', 'Kamu sudah absen datang hari ini!');
+            }
         }
 
         return redirect()->to('/mahasiswa');
