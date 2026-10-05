@@ -40,7 +40,8 @@ class Auth extends BaseController
                     'id_user'    => $user['id'],
                     'nama'       => $user['nama'],
                     'role'       => $user['role'],
-                    'isLoggedIn' => true
+                    'isLoggedIn' => true,
+                    'logged_in'  => true
                 ];
                 $session->set($dataSession);
 

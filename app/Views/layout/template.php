@@ -237,7 +237,7 @@
 
 <body>
 
-    <?php if (session()->get('logged_in')): ?>
+    <?php if (session()->get('isLoggedIn') || session()->get('logged_in')): ?>
         <?php
         $role = session()->get('role');
         $namaUser = session()->get('nama') ?? 'Pengguna';

@@ -604,6 +604,7 @@ $runner->it("Layout template harus menyediakan dedicated admin-sidebar dan tombo
     $runner->assertTrue(strpos($content, 'admin-sidebar') !== false, "Template harus memuat admin-sidebar");
     $runner->assertTrue(strpos($content, 'auth/logout') !== false, "Template harus memuat auth/logout");
     $runner->assertTrue(strpos($content, 'toggleAdminSidebar') !== false, "Template harus memuat toggleAdminSidebar");
+    $runner->assertTrue(strpos($content, "session()->get('isLoggedIn')") !== false, "Template harus mengecek session isLoggedIn");
 });
 
 $runner->it("Controller Admin harus memiliki updateProfil dan mengecualikan akun admin dari list pengguna", function() use ($runner) {
