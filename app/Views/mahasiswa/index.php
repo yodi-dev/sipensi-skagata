@@ -99,25 +99,6 @@
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-
-            <!-- Sambutan & Tombol Akun Cepat (Ubah Password & Logout) -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="text-start">
-                    <span class="text-muted small">Selamat datang,</span>
-                    <h5 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 190px;" title="<?= esc(session()->get('nama')) ?>">
-                        <?= esc(session()->get('nama')) ?>
-                    </h5>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="<?= base_url('ubah_password') ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm d-flex align-items-center gap-1" title="Ubah Password">
-                        <i class="bi bi-key"></i> <span class="small">Password</span>
-                    </a>
-                    <a href="<?= base_url('auth/logout') ?>" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm d-flex align-items-center gap-1" title="Keluar">
-                        <i class="bi bi-box-arrow-right"></i> <span class="small">Logout</span>
-                    </a>
-                </div>
-            </div>
-
             <!-- Banner Jam Operasional Resmi Skagata -->
             <div class="operational-pill d-flex align-items-center justify-content-between mb-3 shadow-sm">
                 <div class="d-flex align-items-center gap-2">
@@ -228,33 +209,6 @@
                 </div>
 
             </div>
-
-            <!-- Tautan Cepat Navigasi Tambahan Bawah (Ergonomis Ponsel) -->
-            <div class="row g-2 mb-3">
-                <div class="col-6">
-                    <a href="<?= base_url('mahasiswa/piket') ?>" class="btn btn-light border w-100 text-start p-3 rounded-4 shadow-sm text-decoration-none">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-camera-video text-success fs-4"></i>
-                            <div>
-                                <div class="fw-bold text-dark small lh-1">Piket KBM</div>
-                                <span class="text-muted" style="font-size: 0.72rem;">Dokumentasi harian</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-6">
-                    <a href="<?= base_url('mahasiswa/riwayat') ?>" class="btn btn-light border w-100 text-start p-3 rounded-4 shadow-sm text-decoration-none">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-calendar-check text-success fs-4"></i>
-                            <div>
-                                <div class="fw-bold text-dark small lh-1">Riwayat Saya</div>
-                                <span class="text-muted" style="font-size: 0.72rem;">Rekapitulasi bulanan</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
         </div>
     </div>
 </div>
