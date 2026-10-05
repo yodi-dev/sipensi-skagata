@@ -90,17 +90,6 @@
         border: 1px solid #bbf7d0;
         flex-shrink: 0;
     }
-
-    .btn-action {
-        width: 32px;
-        height: 32px;
-        padding: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        font-size: 0.85rem;
-    }
 </style>
 <?= $this->endSection() ?>
 
@@ -123,7 +112,7 @@ function getInitials($name)
 
 <div class="container py-4">
 
-    <!-- Top Header & Aksi Cepat -->
+    <!-- Top Header & Aksi Cepat (Termasuk Profil & Logout) -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
         <div>
             <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
@@ -132,14 +121,22 @@ function getInitials($name)
             </h4>
             <p class="text-muted small mt-1 mb-0">Kelola akun pengguna dan pantau kebijakan presensi di <?= esc($school_name ?? 'SMK Negeri 3 Yogyakarta') ?></p>
         </div>
-        <div class="d-flex flex-wrap gap-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
             <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
                 <i class="bi bi-person-plus"></i>
                 <span>Tambah Pengguna</span>
             </button>
+            <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalProfilAdmin" title="Kelola Profil & Kata Sandi Administrator">
+                <i class="bi bi-person-gear"></i>
+                <span>Profil Saya</span>
+            </button>
             <a href="<?= base_url('admin/pengaturan') ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-sm">
                 <i class="bi bi-gear"></i>
                 <span>Pengaturan Presensi</span>
+            </a>
+            <a href="<?= base_url('auth/logout') ?>" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1" title="Keluar dari Sistem">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
             </a>
         </div>
     </div>
@@ -194,13 +191,13 @@ function getInitials($name)
         <div class="col-6 col-lg-3">
             <div class="card stat-card-modern p-3">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted small fw-medium">Total Pengguna</span>
+                    <span class="text-muted small fw-medium">Pengguna Terkelola</span>
                     <div class="stat-icon-circle bg-success-subtle text-success">
                         <i class="bi bi-people-fill"></i>
                     </div>
                 </div>
-                <h3 class="fw-bold text-dark mb-0"><?= $totalUsers ?></h3>
-                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Semua akun terdaftar</small>
+                <h3 class="fw-bold text-dark mb-0"><?= $totalMahasiswa + $totalGuru ?></h3>
+                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Mahasiswa &amp; Guru</small>
             </div>
         </div>
 
@@ -233,26 +230,30 @@ function getInitials($name)
         <div class="col-6 col-lg-3">
             <div class="card stat-card-modern p-3">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted small fw-medium">Administrator</span>
+                    <span class="text-muted small fw-medium">Profil Administrator</span>
                     <div class="stat-icon-circle" style="background-color: #f1f5f9; color: #334155;">
                         <i class="bi bi-shield-lock-fill"></i>
                     </div>
                 </div>
-                <h3 class="fw-bold text-dark mb-0"><?= $totalAdmin ?></h3>
-                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Akses penuh sistem</small>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h6 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 140px;"><?= esc($current_admin['nama'] ?? 'Administrator') ?></h6>
+                </div>
+                <a href="#" class="small text-success text-decoration-none fw-semibold mt-1 d-inline-block" data-bs-toggle="modal" data-bs-target="#modalProfilAdmin">
+                    <i class="bi bi-pencil-square me-1"></i>Kelola Profil Saya
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Daftar Pengguna Card -->
+    <!-- Daftar Pengguna Card (Khusus Mahasiswa & Guru) -->
     <div class="card admin-card">
         <div class="card-header-custom d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
             <div>
                 <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
                     <i class="bi bi-person-lines-fill text-success"></i>
-                    <span>Daftar Akun Pengguna</span>
+                    <span>Daftar Pengguna Terkelola</span>
                 </h6>
-                <small class="text-muted">Total terfilter: <?= count($users) ?> orang</small>
+                <small class="text-muted">Total terfilter: <?= count($users) ?> orang (Guru &amp; Mahasiswa)</small>
             </div>
 
             <!-- Toolbar Filter Otomatis (Onchange Submit ala Sibenka) -->
@@ -267,9 +268,8 @@ function getInitials($name)
                 <div class="input-group input-group-sm" style="width: auto;">
                     <select name="role" class="form-select form-select-sm border-0 bg-transparent fw-medium" onchange="this.form.submit()" aria-label="Filter Role">
                         <option value="">Semua Role</option>
-                        <option value="mahasiswa" <?= ($role_terpilih === 'mahasiswa') ? 'selected' : '' ?>>Mahasiswa</option>
+                        <option value="mahasiswa" <?= ($role_terpilih === 'mahasiswa') ? 'selected' : '' ?>>Mahasiswa Praktikan</option>
                         <option value="guru" <?= ($role_terpilih === 'guru') ? 'selected' : '' ?>>Guru Pamong / GTT</option>
-                        <option value="admin" <?= ($role_terpilih === 'admin') ? 'selected' : '' ?>>Administrator</option>
                     </select>
                 </div>
 
@@ -297,11 +297,11 @@ function getInitials($name)
                 <thead>
                     <tr>
                         <th width="5%">No</th>
-                        <th width="28%" class="text-start">Pengguna</th>
+                        <th width="30%" class="text-start">Pengguna</th>
                         <th width="16%">Username</th>
                         <th width="15%">Role</th>
                         <th width="16%">Jurusan Mahasiswa</th>
-                        <th width="20%">Aksi</th>
+                        <th width="18%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -326,9 +326,6 @@ function getInitials($name)
                                         </div>
                                         <div>
                                             <div class="fw-bold text-dark lh-sm"><?= esc($row['nama']) ?></div>
-                                            <?php if ((int) $row['id'] === (int) session()->get('id_user')): ?>
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle mt-1" style="font-size: 0.65rem;">Akun Anda</span>
-                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </td>
@@ -338,9 +335,7 @@ function getInitials($name)
                                     </span>
                                 </td>
                                 <td>
-                                    <?php if ($row['role'] === 'admin'): ?>
-                                        <span class="badge bg-dark-subtle text-dark border border-dark-subtle rounded-pill px-2 py-1">Administrator</span>
-                                    <?php elseif ($row['role'] === 'guru'): ?>
+                                    <?php if ($row['role'] === 'guru'): ?>
                                         <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">Guru Pamong / GTT</span>
                                     <?php else: ?>
                                         <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1">Mahasiswa Praktikan</span>
@@ -363,14 +358,12 @@ function getInitials($name)
                                             <i class="bi bi-key"></i>
                                             <span class="d-none d-xl-inline">Reset</span>
                                         </button>
-                                        <?php if ((int) $row['id'] !== (int) session()->get('id_user')): ?>
-                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1"
-                                                title="Hapus Pengguna"
-                                                onclick="konfirmasiHapus(<?= (int) $row['id'] ?>, '<?= esc(addslashes($row['nama'])) ?>')">
-                                                <i class="bi bi-trash"></i>
-                                                <span class="d-none d-xl-inline">Hapus</span>
-                                            </button>
-                                        <?php endif; ?>
+                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1"
+                                            title="Hapus Pengguna"
+                                            onclick="konfirmasiHapus(<?= (int) $row['id'] ?>, '<?= esc(addslashes($row['nama'])) ?>')">
+                                            <i class="bi bi-trash"></i>
+                                            <span class="d-none d-xl-inline">Hapus</span>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -381,6 +374,70 @@ function getInitials($name)
         </div>
     </div>
 
+</div>
+
+<!-- Modal Profil Administrator (Ubah Nama, Username, & Password) -->
+<div class="modal fade" id="modalProfilAdmin" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-success text-white py-3">
+                <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-person-gear"></i>
+                    <span>Kelola Profil Administrator</span>
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="<?= base_url('admin/update-profil') ?>" method="POST">
+                <?= csrf_field() ?>
+                <div class="modal-body text-start p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-dark">Nama Administrator</label>
+                        <input type="text" name="nama" class="form-control" value="<?= esc($current_admin['nama'] ?? '') ?>" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-dark">Username Administrator</label>
+                        <input type="text" name="username" class="form-control" value="<?= esc($current_admin['username'] ?? '') ?>" required>
+                    </div>
+
+                    <hr class="my-3 text-muted">
+                    <div class="small fw-bold text-dark mb-2 d-flex align-items-center gap-1">
+                        <i class="bi bi-shield-lock text-success"></i>
+                        <span>Ubah Kata Sandi (Opsional)</span>
+                    </div>
+                    <p class="text-muted small mb-3" style="font-size: 0.78rem;">
+                        Biarkan kolom kata sandi di bawah kosong jika Anda tidak ingin mengganti password akun admin.
+                    </p>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-dark">Password Saat Ini</label>
+                        <div class="input-group">
+                            <input type="password" name="password_lama" id="inputAdminPasswordLama" class="form-control border-end-0" placeholder="Masukkan jika ingin mengganti password">
+                            <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibility('inputAdminPasswordLama', 'iconToggleAdminLama')">
+                                <i class="bi bi-eye" id="iconToggleAdminLama"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-dark">Password Baru</label>
+                        <div class="input-group">
+                            <input type="password" name="password_baru" id="inputAdminPasswordBaru" class="form-control border-end-0" placeholder="Minimal 6 karakter">
+                            <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibility('inputAdminPasswordBaru', 'iconToggleAdminBaru')">
+                                <i class="bi bi-eye" id="iconToggleAdminBaru"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light py-2 px-4">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4">
+                        <i class="bi bi-check2-circle me-1"></i> Simpan Profil
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <!-- Modal Tambah Pengguna Modern -->
@@ -410,7 +467,6 @@ function getInitials($name)
                         <select name="role" class="form-select" id="tambahRoleSelect" onchange="toggleJurusanField('tambahRoleSelect', 'tambahJurusanWrapper')" required>
                             <option value="mahasiswa" selected>Mahasiswa Praktikan (PPL/PK)</option>
                             <option value="guru">Guru Pamong / GTT</option>
-                            <option value="admin">Administrator</option>
                         </select>
                     </div>
                     <div class="mb-3" id="tambahJurusanWrapper">
@@ -473,7 +529,6 @@ function getInitials($name)
                         <select name="role" id="editRole" class="form-select" onchange="toggleJurusanField('editRole', 'editJurusanWrapper')" required>
                             <option value="mahasiswa">Mahasiswa Praktikan (PPL/PK)</option>
                             <option value="guru">Guru Pamong / GTT</option>
-                            <option value="admin">Administrator</option>
                         </select>
                     </div>
                     <div class="mb-3" id="editJurusanWrapper">

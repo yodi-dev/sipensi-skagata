@@ -113,7 +113,13 @@ class Auth extends BaseController
         ]);
 
         // 7. Arahkan kembali ke dashboard yang sesuai berdasarkan role
-        $redirectUrl = ($role === 'guru') ? '/guru' : '/mahasiswa';
+        if ($role === 'admin') {
+            $redirectUrl = '/admin';
+        } elseif ($role === 'guru') {
+            $redirectUrl = '/guru';
+        } else {
+            $redirectUrl = '/mahasiswa';
+        }
         return redirect()->to($redirectUrl)->with('pesan', 'Mantap! Password berhasil diubah.');
     }
 

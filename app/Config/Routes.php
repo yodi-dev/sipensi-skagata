@@ -44,4 +44,5 @@ $routes->group('admin', ['filter' => ['auth', 'role:admin']], static function ($
     $routes->post('reset-password', 'Admin::resetPassword');
     $routes->get('pengaturan', 'Admin::pengaturan');
     $routes->post('pengaturan/simpan', 'Admin::simpanPengaturan');
+    $routes->post('update-profil', 'Admin::updateProfil');
 });

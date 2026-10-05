@@ -39,7 +39,10 @@ class Admin extends BaseController
                 ->groupEnd();
         }
 
-        if (!empty($roleFilter) && in_array($roleFilter, ['mahasiswa', 'guru', 'admin'], true)) {
+        // Kecualikan akun administrator dari tabel daftar pengguna
+        $builder->where('role !=', 'admin');
+
+        if (!empty($roleFilter) && in_array($roleFilter, ['mahasiswa', 'guru'], true)) {
             $builder->where('role', $roleFilter);
         }
 
@@ -51,6 +54,9 @@ class Admin extends BaseController
             ->orderBy('nama', 'ASC')
             ->get()
             ->getResultArray();
+
+        // Ambil data admin saat ini untuk modal ubah profil
+        $currentAdmin = $this->userModel->find(session()->get('id_user'));
 
         // Ambil daftar jurusan dinamis dari database + daftar standar
         $jurusanRaw = $db->table('users')
@@ -76,6 +82,7 @@ class Admin extends BaseController
 
         $data = [
             'users'           => $users,
+            'current_admin'   => $currentAdmin,
             'totalUsers'      => $totalUsers,
             'totalMahasiswa'  => $totalMahasiswa,
             'totalGuru'       => $totalGuru,
@@ -291,5 +298,64 @@ class Admin extends BaseController
         \App\Models\SettingModel::setSetting('geofence_active', $geofenceActive);
 
         return redirect()->to('/admin/pengaturan')->with('pesan', 'Pengaturan lokasi presensi dan jam kerja berhasil disimpan!');
+    }
+
+    public function updateProfil()
+    {
+        $userId = session()->get('id_user');
+        $user = $this->userModel->find($userId);
+        if (!$user || $user['role'] !== 'admin') {
+            return redirect()->back()->with('error', 'Akses tidak sah atau akun bukan administrator!');
+        }
+
+        $nama = trim(strip_tags((string) $this->request->getPost('nama')));
+        $username = trim((string) $this->request->getPost('username'));
+        $passwordBaru = (string) $this->request->getPost('password_baru');
+        $passwordLama = (string) $this->request->getPost('password_lama');
+
+        if (empty($nama) || mb_strlen($nama) < 2) {
+            return redirect()->back()->with('error', 'Nama lengkap minimal 2 karakter!');
+        }
+
+        if (empty($username) || mb_strlen($username) < 3) {
+            return redirect()->back()->with('error', 'Username minimal 3 karakter!');
+        }
+
+        // Cek jika username diganti, pastikan tidak bentrok dengan akun lain
+        if ($username !== $user['username']) {
+            $cek = $this->userModel->where('username', $username)->where('id !=', $userId)->first();
+            if ($cek) {
+                return redirect()->back()->with('error', "Username '{$username}' sudah digunakan oleh pengguna lain!");
+            }
+        }
+
+        $updateData = [
+            'nama'     => $nama,
+            'username' => $username
+        ];
+
+        // Jika ingin ganti password
+        if (!empty($passwordBaru)) {
+            if (strlen($passwordBaru) < 6) {
+                return redirect()->back()->with('error', 'Password baru minimal 6 karakter!');
+            }
+            if (empty($passwordLama)) {
+                return redirect()->back()->with('error', 'Masukkan password saat ini untuk memverifikasi perubahan password!');
+            }
+            if (!password_verify($passwordLama, $user['password'])) {
+                return redirect()->back()->with('error', 'Password saat ini yang Anda masukkan salah!');
+            }
+            $updateData['password'] = password_hash($passwordBaru, PASSWORD_BCRYPT);
+        }
+
+        $this->userModel->update($userId, $updateData);
+
+        // Update data session
+        session()->set([
+            'nama'     => $nama,
+            'username' => $username
+        ]);
+
+        return redirect()->to('/admin')->with('pesan', 'Profil administrator dan kata sandi berhasil diperbarui!');
     }
 }
