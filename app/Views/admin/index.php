@@ -2,6 +2,7 @@
 
 <?= $this->section('styles') ?>
 <style>
+    /* Admin Container & Cards */
     .admin-card {
         border-radius: 1rem;
         border: 1px solid #e2e8f0;
@@ -16,12 +17,40 @@
         padding: 1.25rem 1.5rem;
     }
 
-    .stat-card {
-        border-radius: 0.75rem;
+    /* Operational Status Banner */
+    .operational-banner {
+        border-radius: 1rem;
+        background: #ffffff;
         border: 1px solid #e2e8f0;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 2px 10px rgba(15, 81, 50, 0.03);
     }
 
+    /* Stat Cards */
+    .stat-card-modern {
+        border-radius: 1rem;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        height: 100%;
+    }
+
+    .stat-card-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(15, 81, 50, 0.06);
+    }
+
+    .stat-icon-circle {
+        width: 44px;
+        height: 44px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    /* Table & Filter Toolbar */
     .table-custom thead th {
         background-color: #0f5132;
         color: #ffffff;
@@ -30,6 +59,7 @@
         padding: 0.9rem;
         white-space: nowrap;
         font-size: 0.85rem;
+        letter-spacing: 0.3px;
     }
 
     .table-custom tbody td {
@@ -41,57 +71,175 @@
     .filter-wrapper {
         background-color: #f8fafc;
         border: 1px solid #e2e8f0;
-        border-radius: 0.75rem;
-        padding: 0.4rem 0.75rem;
+        border-radius: 2rem;
+        padding: 0.35rem 0.75rem;
+    }
+
+    /* User Avatar Circle */
+    .avatar-initial {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.8rem;
+        background-color: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+        flex-shrink: 0;
+    }
+
+    .btn-action {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 0.85rem;
     }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?php
+// Helper inisial avatar
+function getInitials($name)
+{
+    $parts = preg_split("/\s+/", trim((string) $name));
+    $initials = '';
+    foreach ($parts as $p) {
+        if (!empty($p)) {
+            $initials .= mb_strtoupper(mb_substr($p, 0, 1));
+            if (mb_strlen($initials) >= 2) break;
+        }
+    }
+    return $initials ?: 'U';
+}
+?>
+
 <div class="container py-4">
 
-    <!-- Top Header -->
+    <!-- Top Header & Aksi Cepat -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
         <div>
-            <h4 class="fw-bold text-dark mb-0">
-                <i class="bi bi-people text-success me-2"></i>Manajemen Pengguna &amp; Akun
+            <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-shield-lock-fill text-success"></i>
+                <span>Beranda Manajemen &amp; Sistem</span>
             </h4>
-            <p class="text-muted small mt-1 mb-0">Kelola akun Guru Pamong, GTT, dan Mahasiswa Praktikan di SMKN 3 Yogyakarta</p>
+            <p class="text-muted small mt-1 mb-0">Kelola akun pengguna dan pantau kebijakan presensi di <?= esc($school_name ?? 'SMK Negeri 3 Yogyakarta') ?></p>
         </div>
         <div class="d-flex flex-wrap gap-2">
-            <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
-                <i class="bi bi-person-plus me-1"></i> Tambah Pengguna
+            <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
+                <i class="bi bi-person-plus"></i>
+                <span>Tambah Pengguna</span>
             </button>
-            <a href="<?= base_url('admin/pengaturan') ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                <i class="bi bi-gear me-1"></i> Pengaturan Presensi
+            <a href="<?= base_url('admin/pengaturan') ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-gear"></i>
+                <span>Pengaturan Presensi</span>
             </a>
         </div>
     </div>
 
-    <!-- Ringkasan Statistik -->
+    <!-- Quick Status Bar: Kebijakan Operasional Presensi -->
+    <div class="operational-banner p-3 p-md-4 mb-4">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small fw-medium">Status Geofencing:</span>
+                    <?php if (!empty($geofence_active)): ?>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
+                            <i class="bi bi-geo-alt-fill me-1"></i>Radius <?= esc($school_radius) ?>m Aktif
+                        </span>
+                    <?php else: ?>
+                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1">
+                            <i class="bi bi-geo-alt me-1"></i>Bebas Radius (Toleransi Nonaktif)
+                        </span>
+                    <?php endif; ?>
+                </div>
+
+                <div class="vr text-muted d-none d-sm-block my-1"></div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small fw-medium">Jam Masuk Maks.:</span>
+                    <span class="badge bg-light text-dark border rounded-pill px-2 py-1 font-monospace">
+                        <i class="bi bi-alarm me-1 text-success"></i><?= esc(substr($jam_masuk_max ?? '07:15:00', 0, 5)) ?> WIB
+                    </span>
+                </div>
+
+                <div class="vr text-muted d-none d-sm-block my-1"></div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small fw-medium">Jam Pulang Min.:</span>
+                    <span class="badge bg-light text-dark border rounded-pill px-2 py-1 font-monospace">
+                        <i class="bi bi-box-arrow-right me-1 text-warning"></i><?= esc(substr($jam_pulang_min ?? '15:00:00', 0, 5)) ?> WIB
+                    </span>
+                </div>
+            </div>
+
+            <div>
+                <a href="<?= base_url('admin/pengaturan') ?>" class="text-decoration-none small fw-semibold text-success d-inline-flex align-items-center gap-1">
+                    <span>Ubah Konfigurasi GPS &amp; Jam</span>
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ringkasan Statistik Modern (Tema Skagata Emerald) -->
     <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-            <div class="card stat-card bg-white p-3 border-start border-4 border-success">
-                <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Total Pengguna</small>
-                <h3 class="fw-bold text-success mb-0 mt-1"><?= $totalUsers ?></h3>
+        <div class="col-6 col-lg-3">
+            <div class="card stat-card-modern p-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-medium">Total Pengguna</span>
+                    <div class="stat-icon-circle bg-success-subtle text-success">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-dark mb-0"><?= $totalUsers ?></h3>
+                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Semua akun terdaftar</small>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card stat-card bg-white p-3 border-start border-4 border-info">
-                <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Mahasiswa Praktikan</small>
-                <h3 class="fw-bold text-info mb-0 mt-1"><?= $totalMahasiswa ?></h3>
+
+        <div class="col-6 col-lg-3">
+            <div class="card stat-card-modern p-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-medium">Mahasiswa PPL/PK</span>
+                    <div class="stat-icon-circle" style="background-color: #ccfbf1; color: #0f766e;">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-dark mb-0"><?= $totalMahasiswa ?></h3>
+                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Praktikan aktif</small>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card stat-card bg-white p-3 border-start border-4 border-warning">
-                <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Guru Pamong / GTT</small>
-                <h3 class="fw-bold text-warning mb-0 mt-1"><?= $totalGuru ?></h3>
+
+        <div class="col-6 col-lg-3">
+            <div class="card stat-card-modern p-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-medium">Guru Pamong / GTT</span>
+                    <div class="stat-icon-circle" style="background-color: #fef3c7; color: #92400e;">
+                        <i class="bi bi-person-badge-fill"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-dark mb-0"><?= $totalGuru ?></h3>
+                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Pamong &amp; pengajar</small>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card stat-card bg-white p-3 border-start border-4 border-dark">
-                <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Administrator</small>
-                <h3 class="fw-bold text-dark mb-0 mt-1"><?= $totalAdmin ?></h3>
+
+        <div class="col-6 col-lg-3">
+            <div class="card stat-card-modern p-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-medium">Administrator</span>
+                    <div class="stat-icon-circle" style="background-color: #f1f5f9; color: #334155;">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-dark mb-0"><?= $totalAdmin ?></h3>
+                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Akses penuh sistem</small>
             </div>
         </div>
     </div>
@@ -100,94 +248,130 @@
     <div class="card admin-card">
         <div class="card-header-custom d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
             <div>
-                <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-person-lines-fill me-2 text-success"></i>Daftar Akun Pengguna</h6>
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="bi bi-person-lines-fill text-success"></i>
+                    <span>Daftar Akun Pengguna</span>
+                </h6>
                 <small class="text-muted">Total terfilter: <?= count($users) ?> orang</small>
             </div>
 
-            <!-- Auto-Filter Form (onchange submit ala Sibenka) -->
-            <form action="<?= base_url('admin') ?>" method="GET" class="filter-wrapper d-flex align-items-center flex-wrap gap-2 m-0">
+            <!-- Toolbar Filter Otomatis (Onchange Submit ala Sibenka) -->
+            <form action="<?= base_url('admin') ?>" method="GET" class="filter-wrapper d-flex align-items-center flex-wrap gap-2 m-0 shadow-xs">
                 <div class="input-group input-group-sm" style="width: auto;">
-                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                    <input type="text" name="keyword" class="form-control border-start-0" placeholder="Cari nama / username..." value="<?= esc($keyword) ?>">
+                    <span class="input-group-text bg-white border-0 text-muted ps-2 pe-1"><i class="bi bi-search text-success"></i></span>
+                    <input type="text" name="keyword" class="form-control border-0 bg-transparent fw-medium" placeholder="Cari nama / username..." value="<?= esc($keyword) ?>" style="min-width: 170px;">
                 </div>
 
+                <div class="vr my-1 text-muted d-none d-sm-block"></div>
+
                 <div class="input-group input-group-sm" style="width: auto;">
-                    <select name="role" class="form-select" onchange="this.form.submit()">
-                        <option value="">-- Semua Role --</option>
+                    <select name="role" class="form-select form-select-sm border-0 bg-transparent fw-medium" onchange="this.form.submit()" aria-label="Filter Role">
+                        <option value="">Semua Role</option>
                         <option value="mahasiswa" <?= ($role_terpilih === 'mahasiswa') ? 'selected' : '' ?>>Mahasiswa</option>
-                        <option value="guru" <?= ($role_terpilih === 'guru') ? 'selected' : '' ?>>Guru</option>
-                        <option value="admin" <?= ($role_terpilih === 'admin') ? 'selected' : '' ?>>Admin</option>
+                        <option value="guru" <?= ($role_terpilih === 'guru') ? 'selected' : '' ?>>Guru Pamong / GTT</option>
+                        <option value="admin" <?= ($role_terpilih === 'admin') ? 'selected' : '' ?>>Administrator</option>
                     </select>
                 </div>
+
+                <div class="vr my-1 text-muted d-none d-sm-block"></div>
 
                 <div class="input-group input-group-sm" style="width: auto;">
-                    <select name="jurusan" class="form-select" onchange="this.form.submit()">
-                        <option value="">-- Semua Jurusan --</option>
-                        <option value="Informatika" <?= ($jurusan_pilih === 'Informatika') ? 'selected' : '' ?>>Informatika</option>
-                        <option value="PJOK" <?= ($jurusan_pilih === 'PJOK') ? 'selected' : '' ?>>PJOK</option>
-                        <option value="BK" <?= ($jurusan_pilih === 'BK') ? 'selected' : '' ?>>BK</option>
-                        <option value="TL" <?= ($jurusan_pilih === 'TL') ? 'selected' : '' ?>>TL</option>
-                        <option value="TO" <?= ($jurusan_pilih === 'TO') ? 'selected' : '' ?>>TO</option>
+                    <select name="jurusan" class="form-select form-select-sm border-0 bg-transparent fw-medium" onchange="this.form.submit()" aria-label="Filter Jurusan">
+                        <option value="">Semua Jurusan</option>
+                        <?php if (!empty($daftar_jurusan)): ?>
+                            <?php foreach ($daftar_jurusan as $jrs): ?>
+                                <option value="<?= esc($jrs) ?>" <?= ($jurusan_pilih === $jrs) ? 'selected' : '' ?>><?= esc($jrs) ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
                 </div>
 
-                <a href="<?= base_url('admin') ?>" class="btn btn-sm btn-light border text-muted py-0 px-2" title="Reset filter">
+                <a href="<?= base_url('admin') ?>" class="btn btn-sm btn-light border rounded-pill text-muted px-2 py-0" title="Reset filter">
                     <i class="bi bi-arrow-clockwise"></i>
                 </a>
             </form>
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover table-bordered table-custom text-center mb-0">
+            <table class="table table-hover table-bordered table-custom text-center mb-0 align-middle">
                 <thead>
                     <tr>
                         <th width="5%">No</th>
-                        <th width="26%" class="text-start">Nama Lengkap</th>
-                        <th width="18%">Username</th>
-                        <th width="12%">Role</th>
+                        <th width="28%" class="text-start">Pengguna</th>
+                        <th width="16%">Username</th>
+                        <th width="15%">Role</th>
                         <th width="16%">Jurusan Mahasiswa</th>
-                        <th width="23%">Aksi</th>
+                        <th width="20%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($users)): ?>
                         <tr>
                             <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="bi bi-people fs-1 d-block mb-2 text-muted"></i>
-                                Tidak ada data pengguna yang sesuai dengan kriteria filter.
+                                <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 64px; height: 64px;">
+                                    <i class="bi bi-people fs-2 text-secondary"></i>
+                                </div>
+                                <h6 class="fw-semibold text-dark mb-1">Tidak Ada Data Pengguna</h6>
+                                <p class="small text-muted mb-0">Tidak ditemukan pengguna yang sesuai dengan kriteria pencarian / filter.</p>
                             </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($users as $key => $row): ?>
                             <tr>
                                 <td><span class="text-muted"><?= esc($key + 1) ?></span></td>
-                                <td class="text-start fw-bold text-dark"><?= esc($row['nama']) ?></td>
-                                <td><code><?= esc($row['username']) ?></code></td>
+                                <td class="text-start">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar-initial">
+                                            <?= esc(getInitials($row['nama'])) ?>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark lh-sm"><?= esc($row['nama']) ?></div>
+                                            <?php if ((int) $row['id'] === (int) session()->get('id_user')): ?>
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle mt-1" style="font-size: 0.65rem;">Akun Anda</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-secondary border px-2 py-1 font-monospace">
+                                        @<?= esc($row['username']) ?>
+                                    </span>
+                                </td>
                                 <td>
                                     <?php if ($row['role'] === 'admin'): ?>
-                                        <span class="badge bg-dark-subtle text-dark border border-dark px-2 py-1">Admin</span>
+                                        <span class="badge bg-dark-subtle text-dark border border-dark-subtle rounded-pill px-2 py-1">Administrator</span>
                                     <?php elseif ($row['role'] === 'guru'): ?>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Guru Pamong</span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">Guru Pamong / GTT</span>
                                     <?php else: ?>
-                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">Mahasiswa</span>
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1">Mahasiswa Praktikan</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?= !empty($row['jurusan']) ? '<span class="badge bg-light text-dark border">' . esc($row['jurusan']) . '</span>' : '<span class="text-muted">-</span>' ?></td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2 me-1"
-                                        onclick="bukaModalEdit(<?= (int) $row['id'] ?>, '<?= esc($row['username']) ?>', '<?= esc(addslashes($row['nama'])) ?>', '<?= esc($row['role']) ?>', '<?= esc($row['jurusan'] ?? '') ?>')">
-                                        <i class="bi bi-pencil-square"></i> Edit
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-2 me-1"
-                                        onclick="bukaModalReset(<?= (int) $row['id'] ?>, '<?= esc(addslashes($row['nama'])) ?>')">
-                                        <i class="bi bi-key"></i> Reset
-                                    </button>
-                                    <?php if ((int) $row['id'] !== (int) session()->get('id_user')): ?>
-                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2"
-                                            onclick="konfirmasiHapus(<?= (int) $row['id'] ?>, '<?= esc(addslashes($row['nama'])) ?>')">
-                                            <i class="bi bi-trash"></i> Hapus
+                                    <?= !empty($row['jurusan']) ? '<span class="badge bg-light text-dark border rounded-pill px-2 py-1">' . esc($row['jurusan']) . '</span>' : '<span class="text-muted">-</span>' ?>
+                                </td>
+                                <td>
+                                    <div class="d-inline-flex align-items-center gap-1">
+                                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1"
+                                            title="Edit Data Pengguna"
+                                            onclick="bukaModalEdit(<?= (int) $row['id'] ?>, '<?= esc($row['username']) ?>', '<?= esc(addslashes($row['nama'])) ?>', '<?= esc($row['role']) ?>', '<?= esc($row['jurusan'] ?? '') ?>')">
+                                            <i class="bi bi-pencil-square"></i>
+                                            <span class="d-none d-xl-inline">Edit</span>
                                         </button>
-                                    <?php endif; ?>
+                                        <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1"
+                                            title="Reset Password"
+                                            onclick="bukaModalReset(<?= (int) $row['id'] ?>, '<?= esc(addslashes($row['nama'])) ?>')">
+                                            <i class="bi bi-key"></i>
+                                            <span class="d-none d-xl-inline">Reset</span>
+                                        </button>
+                                        <?php if ((int) $row['id'] !== (int) session()->get('id_user')): ?>
+                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1"
+                                                title="Hapus Pengguna"
+                                                onclick="konfirmasiHapus(<?= (int) $row['id'] ?>, '<?= esc(addslashes($row['nama'])) ?>')">
+                                                <i class="bi bi-trash"></i>
+                                                <span class="d-none d-xl-inline">Hapus</span>
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -199,130 +383,159 @@
 
 </div>
 
-<!-- Modal Tambah Pengguna -->
+<!-- Modal Tambah Pengguna Modern -->
 <div class="modal fade" id="modalTambahUser" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow rounded-4">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-dark">Tambah Pengguna Baru</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-success text-white py-3">
+                <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Tambah Pengguna Baru</span>
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="<?= base_url('admin/tambah-user') ?>" method="POST">
                 <?= csrf_field() ?>
                 <div class="modal-body text-start p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small">Nama Lengkap</label>
+                        <label class="form-label fw-semibold small text-dark">Nama Lengkap</label>
                         <input type="text" name="nama" class="form-control" placeholder="Contoh: Ahmad Fauzi, S.Pd." required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small">Username</label>
+                        <label class="form-label fw-semibold small text-dark">Username</label>
                         <input type="text" name="username" class="form-control" placeholder="Contoh: ahmad123" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small">Role / Hak Akses</label>
+                        <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
                         <select name="role" class="form-select" id="tambahRoleSelect" onchange="toggleJurusanField('tambahRoleSelect', 'tambahJurusanWrapper')" required>
-                            <option value="mahasiswa" selected>Mahasiswa Praktikan</option>
+                            <option value="mahasiswa" selected>Mahasiswa Praktikan (PPL/PK)</option>
                             <option value="guru">Guru Pamong / GTT</option>
                             <option value="admin">Administrator</option>
                         </select>
                     </div>
                     <div class="mb-3" id="tambahJurusanWrapper">
-                        <label class="form-label fw-semibold small">Jurusan Mahasiswa</label>
+                        <label class="form-label fw-semibold small text-dark">Jurusan Mahasiswa</label>
                         <select name="jurusan" class="form-select">
                             <option value="">-- Pilih Jurusan Mahasiswa --</option>
-                            <option value="Informatika">Informatika</option>
-                            <option value="PJOK">PJOK</option>
-                            <option value="BK">BK</option>
-                            <option value="TL">TL</option>
-                            <option value="TO">TO</option>
+                            <?php if (!empty($daftar_jurusan)): ?>
+                                <?php foreach ($daftar_jurusan as $jrs): ?>
+                                    <option value="<?= esc($jrs) ?>"><?= esc($jrs) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small">Password Awal</label>
-                        <input type="password" name="password" class="form-control" placeholder="Minimal 6 karakter" required>
+                        <label class="form-label fw-semibold small text-dark">Password Awal</label>
+                        <div class="input-group">
+                            <input type="password" name="password" id="inputTambahPassword" class="form-control border-end-0" placeholder="Minimal 6 karakter" required>
+                            <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibility('inputTambahPassword', 'iconToggleTambah')">
+                                <i class="bi bi-eye" id="iconToggleTambah"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-skagata rounded-pill px-4">Simpan Pengguna</button>
+                <div class="modal-footer border-0 bg-light py-2 px-4">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4">
+                        <i class="bi bi-save me-1"></i> Simpan Pengguna
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Modal Edit Pengguna -->
+<!-- Modal Edit Pengguna Modern -->
 <div class="modal fade" id="modalEditUser" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow rounded-4">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-dark">Edit Data Pengguna</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-success text-white py-3">
+                <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-person-gear"></i>
+                    <span>Edit Data Pengguna</span>
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="<?= base_url('admin/edit-user') ?>" method="POST">
                 <?= csrf_field() ?>
                 <input type="hidden" name="id" id="editUserId">
                 <div class="modal-body text-start p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small">Nama Lengkap</label>
+                        <label class="form-label fw-semibold small text-dark">Nama Lengkap</label>
                         <input type="text" name="nama" id="editNama" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small">Username</label>
+                        <label class="form-label fw-semibold small text-dark">Username</label>
                         <input type="text" name="username" id="editUsername" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small">Role / Hak Akses</label>
+                        <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
                         <select name="role" id="editRole" class="form-select" onchange="toggleJurusanField('editRole', 'editJurusanWrapper')" required>
-                            <option value="mahasiswa">Mahasiswa Praktikan</option>
+                            <option value="mahasiswa">Mahasiswa Praktikan (PPL/PK)</option>
                             <option value="guru">Guru Pamong / GTT</option>
                             <option value="admin">Administrator</option>
                         </select>
                     </div>
                     <div class="mb-3" id="editJurusanWrapper">
-                        <label class="form-label fw-semibold small">Jurusan Mahasiswa</label>
+                        <label class="form-label fw-semibold small text-dark">Jurusan Mahasiswa</label>
                         <select name="jurusan" id="editJurusan" class="form-select">
                             <option value="">-- Pilih Jurusan Mahasiswa --</option>
-                            <option value="Informatika">Informatika</option>
-                            <option value="PJOK">PJOK</option>
-                            <option value="BK">BK</option>
-                            <option value="TL">TL</option>
-                            <option value="TO">TO</option>
+                            <?php if (!empty($daftar_jurusan)): ?>
+                                <?php foreach ($daftar_jurusan as $jrs): ?>
+                                    <option value="<?= esc($jrs) ?>"><?= esc($jrs) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-skagata rounded-pill px-4">Simpan Perubahan</button>
+                <div class="modal-footer border-0 bg-light py-2 px-4">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4">
+                        <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Modal Reset Password -->
+<!-- Modal Reset Password Modern -->
 <div class="modal fade" id="modalResetPassword" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow rounded-4">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-dark">Reset Password Pengguna</h5>
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-warning text-dark py-3">
+                <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-key"></i>
+                    <span>Reset Password Pengguna</span>
+                </h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="<?= base_url('admin/reset-password') ?>" method="POST">
                 <?= csrf_field() ?>
                 <input type="hidden" name="user_id" id="resetUserId">
                 <div class="modal-body text-start p-4">
-                    <p class="text-muted small mb-3">
-                        Reset password untuk akun: <strong id="resetUserNama" class="text-dark"></strong>
-                    </p>
+                    <div class="alert alert-light border d-flex align-items-center gap-2 py-2 px-3 rounded-3 mb-3">
+                        <i class="bi bi-person-check text-warning fs-5"></i>
+                        <div class="small">
+                            Reset password akun: <strong id="resetUserNama" class="text-dark"></strong>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small">Password Baru</label>
-                        <input type="password" name="new_password" class="form-control" placeholder="Minimal 6 karakter" required>
+                        <label class="form-label fw-semibold small text-dark">Password Baru</label>
+                        <div class="input-group">
+                            <input type="password" name="new_password" id="inputResetPassword" class="form-control border-end-0" placeholder="Minimal 6 karakter" required>
+                            <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibility('inputResetPassword', 'iconToggleReset')">
+                                <i class="bi bi-eye" id="iconToggleReset"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-warning rounded-pill px-4">Reset Password</button>
+                <div class="modal-footer border-0 bg-light py-2 px-4">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-sm btn-warning rounded-pill px-4">
+                        <i class="bi bi-arrow-repeat me-1"></i> Reset Password
+                    </button>
                 </div>
             </form>
         </div>
@@ -348,6 +561,20 @@
         }
     }
 
+    function togglePasswordVisibility(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+
     function bukaModalEdit(id, username, nama, role, jurusan) {
         document.getElementById('editUserId').value = id;
         document.getElementById('editUsername').value = username;
@@ -363,6 +590,8 @@
     function bukaModalReset(id, nama) {
         document.getElementById('resetUserId').value = id;
         document.getElementById('resetUserNama').innerText = nama;
+        const input = document.getElementById('inputResetPassword');
+        if (input) input.value = '';
 
         const modal = new bootstrap.Modal(document.getElementById('modalResetPassword'));
         modal.show();

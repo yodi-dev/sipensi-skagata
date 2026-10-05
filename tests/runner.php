@@ -584,5 +584,24 @@ $runner->it("Controller Mahasiswa::riwayat harus menghitung persentase kehadiran
     $runner->assertTrue(strpos($content, 'totalHadirFisik') !== false, "Controller harus menghitung totalHadirFisik");
 });
 
+$runner->describe("15. Pengujian Beranda Admin & Manajemen Pengguna");
+
+$runner->it("View admin/index harus memuat operational banner dan avatar inisial pengguna", function() use ($runner) {
+    $viewFile = APPPATH . 'Views/admin/index.php';
+    $runner->assertTrue(file_exists($viewFile));
+    $content = file_get_contents($viewFile);
+    $runner->assertTrue(strpos($content, 'operational-banner') !== false, "Harus memuat operational-banner status sistem");
+    $runner->assertTrue(strpos($content, 'avatar-initial') !== false, "Harus memuat avatar inisial pengguna");
+    $runner->assertTrue(strpos($content, 'stat-card-modern') !== false, "Harus memuat stat-card-modern tema Skagata");
+});
+
+$runner->it("Controller Admin::index harus memuat daftar jurusan dinamis dan identitas SIPENSI SKAGATA", function() use ($runner) {
+    $controllerFile = APPPATH . 'Controllers/Admin.php';
+    $runner->assertTrue(file_exists($controllerFile));
+    $content = file_get_contents($controllerFile);
+    $runner->assertTrue(strpos($content, 'daftar_jurusan') !== false, "Controller harus menyediakan daftar_jurusan dinamis");
+    $runner->assertTrue(strpos($content, 'SIPENSI SKAGATA') !== false, "Title harus mencerminkan SIPENSI SKAGATA");
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());

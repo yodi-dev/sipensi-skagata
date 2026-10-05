@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\SettingModel;
 use App\Models\UserModel;
 use Config\Database;
 
@@ -51,16 +52,44 @@ class Admin extends BaseController
             ->get()
             ->getResultArray();
 
+        // Ambil daftar jurusan dinamis dari database + daftar standar
+        $jurusanRaw = $db->table('users')
+            ->select('jurusan')
+            ->where('jurusan IS NOT NULL')
+            ->where('jurusan !=', '')
+            ->groupBy('jurusan')
+            ->get()
+            ->getResultArray();
+        $jurusanFromDb = array_filter(array_column($jurusanRaw, 'jurusan'));
+        $defaultJurusan = ['Informatika', 'PJOK', 'BK', 'TL', 'TO'];
+        $daftarJurusan = array_values(array_unique(array_merge($defaultJurusan, $jurusanFromDb)));
+        sort($daftarJurusan);
+
+        // Ambil ringkasan pengaturan sistem operasional
+        $settings = SettingModel::getAllSettings();
+        $config = config('Presensi') ?? new \Config\Presensi();
+        $schoolRadius = (int) ($settings['school_radius'] ?? $config->schoolRadius);
+        $geofenceActive = isset($settings['geofence_active']) ? ($settings['geofence_active'] === '1' || $settings['geofence_active'] === 'true') : $config->geofenceActive;
+        $jamMasukMax = $settings['jam_masuk_max'] ?? $config->jamMasukMax;
+        $jamPulangMin = $settings['jam_pulang_min'] ?? $config->jamPulangMin;
+        $schoolName = $settings['school_name'] ?? $config->schoolName;
+
         $data = [
-            'users'          => $users,
-            'totalUsers'     => $totalUsers,
-            'totalMahasiswa' => $totalMahasiswa,
-            'totalGuru'      => $totalGuru,
-            'totalAdmin'     => $totalAdmin,
-            'keyword'        => $keyword,
-            'role_terpilih'  => $roleFilter,
-            'jurusan_pilih'  => $jurusanFilter,
-            'title'          => 'Manajemen Pengguna - Admin Presensi PPL'
+            'users'           => $users,
+            'totalUsers'      => $totalUsers,
+            'totalMahasiswa'  => $totalMahasiswa,
+            'totalGuru'       => $totalGuru,
+            'totalAdmin'      => $totalAdmin,
+            'keyword'         => $keyword,
+            'role_terpilih'   => $roleFilter,
+            'jurusan_pilih'   => $jurusanFilter,
+            'daftar_jurusan'  => $daftarJurusan,
+            'school_name'     => $schoolName,
+            'school_radius'   => $schoolRadius,
+            'geofence_active' => $geofenceActive,
+            'jam_masuk_max'   => $jamMasukMax,
+            'jam_pulang_min'  => $jamPulangMin,
+            'title'           => 'Beranda Admin - SIPENSI SKAGATA'
         ];
 
         return view('admin/index', $data);
