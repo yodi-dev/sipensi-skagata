@@ -203,9 +203,12 @@ class Mahasiswa extends BaseController
 
         $presensiModel = new PresensiModel();
 
+        $startDate = sprintf('%04d-%02d-01', (int) $tahun, (int) $bulan);
+        $endDate   = date('Y-m-t', strtotime($startDate));
+
         $dataRiwayat = $presensiModel->where('user_id', $userId)
-            ->where('MONTH(tanggal)', (int) $bulan)
-            ->where('YEAR(tanggal)', (int) $tahun)
+            ->where('tanggal >=', $startDate)
+            ->where('tanggal <=', $endDate)
             ->orderBy('tanggal', 'DESC')
             ->findAll();
 

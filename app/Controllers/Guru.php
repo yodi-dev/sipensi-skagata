@@ -144,6 +144,8 @@ class Guru extends BaseController
 
         $bulanEscaped = (int) $bulan;
         $tahunEscaped = (int) $tahun;
+        $startDate    = sprintf('%04d-%02d-01', $tahunEscaped, $bulanEscaped);
+        $endDate      = date('Y-m-t', strtotime($startDate));
 
         if ($isTeacherSession && empty($assignedJurusans)) {
             $laporan = [];
@@ -158,7 +160,7 @@ class Guru extends BaseController
                     SUM(CASE WHEN presensi.status = 'sakit' THEN 1 ELSE 0 END) as total_sakit,
                     SUM(CASE WHEN presensi.status = 'alpa' THEN 1 ELSE 0 END) as total_alpa
                 ")
-                ->join('presensi', "presensi.user_id = users.id AND MONTH(presensi.tanggal) = {$bulanEscaped} AND YEAR(presensi.tanggal) = {$tahunEscaped}", 'left')
+                ->join('presensi', "presensi.user_id = users.id AND presensi.tanggal >= '{$startDate}' AND presensi.tanggal <= '{$endDate}'", 'left')
                 ->where('users.role', 'mahasiswa');
 
             if (!empty($assignedJurusans)) {
@@ -205,6 +207,8 @@ class Guru extends BaseController
 
         $bulanEscaped = (int) $bulan;
         $tahunEscaped = (int) $tahun;
+        $startDate    = sprintf('%04d-%02d-01', $tahunEscaped, $bulanEscaped);
+        $endDate      = date('Y-m-t', strtotime($startDate));
 
         if ($isTeacherSession && empty($assignedJurusans)) {
             $laporan = [];
@@ -219,7 +223,7 @@ class Guru extends BaseController
                     SUM(CASE WHEN presensi.status = 'sakit' THEN 1 ELSE 0 END) as total_sakit,
                     SUM(CASE WHEN presensi.status = 'alpa' THEN 1 ELSE 0 END) as total_alpa
                 ")
-                ->join('presensi', "presensi.user_id = users.id AND MONTH(presensi.tanggal) = {$bulanEscaped} AND YEAR(presensi.tanggal) = {$tahunEscaped}", 'left')
+                ->join('presensi', "presensi.user_id = users.id AND presensi.tanggal >= '{$startDate}' AND presensi.tanggal <= '{$endDate}'", 'left')
                 ->where('users.role', 'mahasiswa');
 
             if (!empty($assignedJurusans)) {

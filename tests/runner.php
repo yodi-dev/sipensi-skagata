@@ -448,6 +448,19 @@ $runner->it("Method exportExcel harus terdefinisi pada Controller Guru", functio
     $runner->assertTrue(method_exists($guruController, 'exportExcel'), "Method exportExcel harus ada di Guru controller");
 });
 
+$runner->it("Query filtering tanggal pada Guru (laporan & exportExcel) dan Mahasiswa (riwayat) harus sargable", function() use ($runner) {
+    $guruContent = file_get_contents(APPPATH . 'Controllers/Guru.php');
+    $mhsContent = file_get_contents(APPPATH . 'Controllers/Mahasiswa.php');
+
+    $runner->assertFalse(strpos($guruContent, 'MONTH(presensi.tanggal)') !== false, "Guru.php tidak boleh menggunakan fungsi MONTH() pada JOIN presensi");
+    $runner->assertFalse(strpos($guruContent, 'YEAR(presensi.tanggal)') !== false, "Guru.php tidak boleh menggunakan fungsi YEAR() pada JOIN presensi");
+    $runner->assertTrue(strpos($guruContent, "presensi.tanggal >=") !== false, "Guru.php harus menggunakan range tanggal sargable");
+
+    $runner->assertFalse(strpos($mhsContent, "'MONTH(tanggal)'") !== false, "Mahasiswa.php tidak boleh menggunakan 'MONTH(tanggal)' di where");
+    $runner->assertFalse(strpos($mhsContent, "'YEAR(tanggal)'") !== false, "Mahasiswa.php tidak boleh menggunakan 'YEAR(tanggal)' di where");
+    $runner->assertTrue(strpos($mhsContent, "'tanggal >='") !== false, "Mahasiswa.php harus menggunakan range tanggal sargable");
+});
+
 $runner->it("Controller Admin harus memiliki metode CRUD lengkap", function() use ($runner) {
     $adminController = new \App\Controllers\Admin();
     $runner->assertTrue(method_exists($adminController, 'index'));
