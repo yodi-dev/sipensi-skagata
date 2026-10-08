@@ -71,21 +71,21 @@ class UserSeeder extends Seeder
                 'nama'     => 'Nur Latifah',
                 'password' => $defaultPassword,
                 'role'     => 'mahasiswa',
-                'jurusan'  => 'BK'
+                'jurusan'  => 'Bimbingan Konseling'
             ],
             [
                 'username' => 'asih',
                 'nama'     => 'Nur Asih Wiji Astuti',
                 'password' => $defaultPassword,
                 'role'     => 'mahasiswa',
-                'jurusan'  => 'BK'
+                'jurusan'  => 'Bimbingan Konseling'
             ],
             [
                 'username' => 'dimas',
                 'nama'     => 'Dimas Surya Mahendra',
                 'password' => $defaultPassword,
                 'role'     => 'mahasiswa',
-                'jurusan'  => 'BK'
+                'jurusan'  => 'Bimbingan Konseling'
             ],
 
             // 5. Akun Mahasiswa PPL - Jurusan Teknik Listrik (TL)
@@ -94,14 +94,14 @@ class UserSeeder extends Seeder
                 'nama'     => 'Fikriy Abbad Fauzan',
                 'password' => $defaultPassword,
                 'role'     => 'mahasiswa',
-                'jurusan'  => 'TL'
+                'jurusan'  => 'Teknik Ketenagalistrikan'
             ],
             [
                 'username' => 'khoerul',
                 'nama'     => 'Muhammad Khoerul Umam',
                 'password' => $defaultPassword,
                 'role'     => 'mahasiswa',
-                'jurusan'  => 'TL'
+                'jurusan'  => 'Teknik Ketenagalistrikan'
             ],
 
             // 6. Akun Mahasiswa PPL - Jurusan Teknik Otomotif (TO)
@@ -110,14 +110,14 @@ class UserSeeder extends Seeder
                 'nama'     => 'Sendy Diaz Erlangga',
                 'password' => $defaultPassword,
                 'role'     => 'mahasiswa',
-                'jurusan'  => 'TO'
+                'jurusan'  => 'Teknik Otomotif'
             ],
             [
                 'username' => 'nuraini',
                 'nama'     => 'Nuraini Eka Putri',
                 'password' => $defaultPassword,
                 'role'     => 'mahasiswa',
-                'jurusan'  => 'TO'
+                'jurusan'  => 'Teknik Otomotif'
             ],
 
             // 7. Akun Mahasiswa PPL - Jurusan PJOK
@@ -126,21 +126,21 @@ class UserSeeder extends Seeder
                 'nama'     => 'Afeb Chesa Arianto',
                 'password' => $defaultPassword,
                 'role'     => 'mahasiswa',
-                'jurusan'  => 'PJOK'
+                'jurusan'  => 'Pendidikan Jasmani Olahraga & Kesehatan'
             ],
             [
                 'username' => 'panji',
                 'nama'     => 'Panji Agung Nugroho',
                 'password' => $defaultPassword,
                 'role'     => 'mahasiswa',
-                'jurusan'  => 'PJOK'
+                'jurusan'  => 'Pendidikan Jasmani Olahraga & Kesehatan'
             ],
             [
                 'username' => 'putri',
                 'nama'     => 'Putri Diang Pawestri',
                 'password' => $defaultPassword,
                 'role'     => 'mahasiswa',
-                'jurusan'  => 'PJOK'
+                'jurusan'  => 'Pendidikan Jasmani Olahraga & Kesehatan'
             ],
         ];
 

@@ -445,11 +445,17 @@ function getInitials($name)
                         <label class="form-label fw-semibold small text-dark">Jurusan Mahasiswa</label>
                         <select name="jurusan" class="form-select">
                             <option value="">-- Pilih Jurusan Mahasiswa --</option>
-                            <option value="Informatika">Informatika</option>
-                            <option value="PJOK">PJOK</option>
-                            <option value="BK">BK</option>
-                            <option value="TL">TL</option>
-                            <option value="TO">TO</option>
+                            <?php if (!empty($daftar_jurusan)): ?>
+                                <?php foreach ($daftar_jurusan as $jrs): ?>
+                                    <option value="<?= esc($jrs) ?>"><?= esc($jrs) ?></option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="Informatika">Informatika</option>
+                                <option value="PJOK">PJOK</option>
+                                <option value="BK">BK</option>
+                                <option value="TL">TL</option>
+                                <option value="TO">TO</option>
+                            <?php endif; ?>
                         </select>
                     </div>
                     <div class="mb-3">

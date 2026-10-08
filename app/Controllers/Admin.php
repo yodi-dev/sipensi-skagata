@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\JurusanModel;
 use App\Models\SettingModel;
 use App\Models\UserModel;
 use Config\Database;
@@ -9,10 +10,12 @@ use Config\Database;
 class Admin extends BaseController
 {
     protected UserModel $userModel;
+    protected JurusanModel $jurusanModel;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
+        $this->jurusanModel = new JurusanModel();
     }
 
     public function index()
@@ -76,6 +79,7 @@ class Admin extends BaseController
             'geofence_active'       => $geofenceActive,
             'jam_masuk_max'         => $jamMasukMax,
             'jam_pulang_min'        => $jamPulangMin,
+            'daftar_jurusan'        => $this->jurusanModel->getDaftarNama(),
             'title'                 => 'Dashboard Administrator - SIPENSI SKAGATA'
         ];
 
@@ -131,9 +135,9 @@ class Admin extends BaseController
             ->groupBy('jurusan')
             ->get()
             ->getResultArray();
-        $jurusanFromDb = array_filter(array_column($jurusanRaw, 'jurusan'));
+        $masterJurusan = $this->jurusanModel->getDaftarNama();
         $defaultJurusan = ['Informatika', 'PJOK', 'BK', 'TL', 'TO'];
-        $daftarJurusan = array_values(array_unique(array_merge($defaultJurusan, $jurusanFromDb)));
+        $daftarJurusan = array_values(array_unique(array_merge($defaultJurusan, $masterJurusan, $jurusanFromDb)));
         sort($daftarJurusan);
 
         $data = [
@@ -347,6 +351,119 @@ class Admin extends BaseController
         \App\Models\SettingModel::setSetting('geofence_active', $geofenceActive);
 
         return redirect()->to('/admin/pengaturan')->with('pesan', 'Pengaturan lokasi presensi dan jam kerja berhasil disimpan!');
+    }
+
+    public function jurusan()
+    {
+        $keyword = trim((string) $this->request->getGet('keyword'));
+        $jurusanList = $this->jurusanModel->getJurusanWithUserCount($keyword);
+
+        // Statistik
+        $totalJurusan = $this->jurusanModel->countAllResults();
+        $db = Database::connect();
+        $totalMahasiswa = $db->table('users')->where('role', 'mahasiswa')->where('jurusan IS NOT NULL')->where('jurusan !=', '')->countAllResults();
+
+        $currentAdmin = $this->userModel->find(session()->get('id_user'));
+
+        $data = [
+            'title'           => 'Master Data Jurusan - SIPENSI SKAGATA',
+            'current_admin'   => $currentAdmin,
+            'jurusan_list'    => $jurusanList,
+            'total_jurusan'   => $totalJurusan,
+            'total_mahasiswa' => $totalMahasiswa,
+            'keyword'         => $keyword,
+        ];
+
+        return view('admin/jurusan', $data);
+    }
+
+    public function tambahJurusan()
+    {
+        $rules = [
+            'kode_jurusan' => 'required|min_length[2]|max_length[20]|is_unique[jurusan.kode_jurusan]',
+            'nama_jurusan' => 'required|min_length[3]|max_length[100]',
+        ];
+
+        if (!$this->validate($rules)) {
+            $errors = implode(' ', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('error', $errors);
+        }
+
+        $kode = strtoupper(trim((string) $this->request->getPost('kode_jurusan')));
+        $nama = trim(strip_tags((string) $this->request->getPost('nama_jurusan')));
+        $deskripsi = trim(strip_tags((string) $this->request->getPost('deskripsi')));
+
+        $this->jurusanModel->insert([
+            'kode_jurusan' => $kode,
+            'nama_jurusan' => $nama,
+            'deskripsi'    => !empty($deskripsi) ? $deskripsi : null,
+        ]);
+
+        return redirect()->to('/admin/jurusan')->with('pesan', "Jurusan {$nama} ({$kode}) berhasil ditambahkan!");
+    }
+
+    public function editJurusan()
+    {
+        $id = $this->request->getPost('id');
+        if (empty($id) || !is_numeric($id)) {
+            return redirect()->back()->with('error', 'ID jurusan tidak valid!');
+        }
+
+        $existing = $this->jurusanModel->find($id);
+        if (!$existing) {
+            return redirect()->back()->with('error', 'Data jurusan tidak ditemukan!');
+        }
+
+        $rules = [
+            'kode_jurusan' => "required|min_length[2]|max_length[20]|is_unique[jurusan.kode_jurusan,id,{$id}]",
+            'nama_jurusan' => 'required|min_length[3]|max_length[100]',
+        ];
+
+        if (!$this->validate($rules)) {
+            $errors = implode(' ', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('error', $errors);
+        }
+
+        $kode = strtoupper(trim((string) $this->request->getPost('kode_jurusan')));
+        $nama = trim(strip_tags((string) $this->request->getPost('nama_jurusan')));
+        $deskripsi = trim(strip_tags((string) $this->request->getPost('deskripsi')));
+
+        $this->jurusanModel->update($id, [
+            'kode_jurusan' => $kode,
+            'nama_jurusan' => $nama,
+            'deskripsi'    => !empty($deskripsi) ? $deskripsi : null,
+        ]);
+
+        // Jika nama jurusan diubah, perbarui nilai pada pengguna terkait agar tetap konsisten
+        if ($existing['nama_jurusan'] !== $nama) {
+            $db = Database::connect();
+            $db->table('users')->where('jurusan', $existing['nama_jurusan'])->update(['jurusan' => $nama]);
+        }
+
+        return redirect()->to('/admin/jurusan')->with('pesan', "Perubahan jurusan {$nama} ({$kode}) berhasil disimpan!");
+    }
+
+    public function hapusJurusan()
+    {
+        $id = $this->request->getPost('id');
+        if (empty($id) || !is_numeric($id)) {
+            return redirect()->back()->with('error', 'ID jurusan tidak valid!');
+        }
+
+        $existing = $this->jurusanModel->find($id);
+        if (!$existing) {
+            return redirect()->back()->with('error', 'Data jurusan tidak ditemukan!');
+        }
+
+        // Cek apakah masih ada pengguna/mahasiswa yang menggunakan jurusan ini
+        $countPengguna = $this->jurusanModel->countPenggunaByJurusan((int) $id);
+        if ($countPengguna > 0) {
+            return redirect()->to('/admin/jurusan')->with('error', "Jurusan '{$existing['nama_jurusan']}' tidak dapat dihapus karena masih digunakan oleh {$countPengguna} mahasiswa/pengguna. Silakan alihkan atau ubah jurusan pengguna terkait terlebih dahulu!");
+        }
+
+        $this->jurusanModel->delete($id);
+
+        return redirect()->to('/admin/jurusan')->with('pesan', "Jurusan {$existing['nama_jurusan']} ({$existing['kode_jurusan']}) berhasil dihapus!");
     }
 
     public function updateProfil()

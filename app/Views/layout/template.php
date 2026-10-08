@@ -350,12 +350,9 @@
                         </a>
 
                         <div class="sidebar-section-label">Master Data</div>
-                        <a href="<?= base_url('admin') ?>" class="sidebar-nav-item d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-journal-bookmark-fill"></i>
-                                <span>Data Jurusan</span>
-                            </div>
-                            <span class="badge bg-white bg-opacity-25 rounded-pill" style="font-size: 0.65rem;">Segera</span>
+                        <a href="<?= base_url('admin/jurusan') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'admin/jurusan') !== false) ? 'active' : '' ?>">
+                            <i class="bi bi-journal-bookmark-fill"></i>
+                            <span>Data Jurusan</span>
                         </a>
                         <a href="<?= base_url('admin') ?>" class="sidebar-nav-item d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center gap-2">

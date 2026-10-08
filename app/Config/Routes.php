@@ -43,6 +43,10 @@ $routes->group('admin', ['filter' => ['auth', 'role:admin']], static function ($
     $routes->post('edit-user', 'Admin::editUser');
     $routes->post('hapus-user', 'Admin::hapusUser');
     $routes->post('reset-password', 'Admin::resetPassword');
+    $routes->get('jurusan', 'Admin::jurusan');
+    $routes->post('jurusan/tambah', 'Admin::tambahJurusan');
+    $routes->post('jurusan/edit', 'Admin::editJurusan');
+    $routes->post('jurusan/hapus', 'Admin::hapusJurusan');
     $routes->get('pengaturan', 'Admin::pengaturan');
     $routes->post('pengaturan/simpan', 'Admin::simpanPengaturan');
     $routes->post('update-profil', 'Admin::updateProfil');

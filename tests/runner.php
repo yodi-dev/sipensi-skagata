@@ -633,5 +633,64 @@ $runner->it("Controller Admin harus memiliki method pengguna, updateProfil, dan 
     $runner->assertTrue(strpos($content, 'SIPENSI SKAGATA') !== false, "Title harus mencerminkan SIPENSI SKAGATA");
 });
 
+$runner->describe("16. Pengujian Master Data Jurusan (Konsentrasi Keahlian)");
+
+$runner->it("JurusanModel harus memiliki validasi kode_jurusan, nama_jurusan, dan method getDaftarNama", function() use ($runner) {
+    $model = new \App\Models\JurusanModel();
+    $runner->assertEquals('jurusan', $model->getTable(), "Tabel JurusanModel harus 'jurusan'");
+    $rules = $model->getValidationRules();
+    $runner->assertTrue(isset($rules['kode_jurusan']), "Rule kode_jurusan harus ada");
+    $runner->assertTrue(isset($rules['nama_jurusan']), "Rule nama_jurusan harus ada");
+    $runner->assertTrue(method_exists($model, 'getDaftarNama'), "Method getDaftarNama harus ada");
+    $runner->assertTrue(method_exists($model, 'getJurusanWithUserCount'), "Method getJurusanWithUserCount harus ada");
+    $runner->assertTrue(method_exists($model, 'countPenggunaByJurusan'), "Method countPenggunaByJurusan harus ada");
+});
+
+$runner->it("Route master data jurusan harus terdaftar di Config/Routes.php", function() use ($runner) {
+    $routesFile = APPPATH . 'Config/Routes.php';
+    $runner->assertTrue(file_exists($routesFile));
+    $content = file_get_contents($routesFile);
+    $runner->assertTrue(strpos($content, "'Admin::jurusan'") !== false, "Route GET admin/jurusan harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::tambahJurusan'") !== false, "Route POST admin/jurusan/tambah harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::editJurusan'") !== false, "Route POST admin/jurusan/edit harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::hapusJurusan'") !== false, "Route POST admin/jurusan/hapus harus terdaftar");
+});
+
+$runner->it("Controller Admin harus mengimplementasikan CRUD jurusan dan proteksi integritas data", function() use ($runner) {
+    $controller = new \App\Controllers\Admin();
+    $runner->assertTrue(method_exists($controller, 'jurusan'), "Admin::jurusan harus terdefinisi");
+    $runner->assertTrue(method_exists($controller, 'tambahJurusan'), "Admin::tambahJurusan harus terdefinisi");
+    $runner->assertTrue(method_exists($controller, 'editJurusan'), "Admin::editJurusan harus terdefinisi");
+    $runner->assertTrue(method_exists($controller, 'hapusJurusan'), "Admin::hapusJurusan harus terdefinisi");
+
+    $controllerFile = APPPATH . 'Controllers/Admin.php';
+    $content = file_get_contents($controllerFile);
+    $runner->assertTrue(strpos($content, 'countPenggunaByJurusan') !== false, "Hapus jurusan harus memeriksa countPenggunaByJurusan untuk keamanan data");
+});
+
+$runner->it("View admin/jurusan harus memuat stat-card, tabel interaktif, dan modal CRUD SweetAlert", function() use ($runner) {
+    $viewFile = APPPATH . 'Views/admin/jurusan.php';
+    $runner->assertTrue(file_exists($viewFile), "File Views/admin/jurusan.php harus ada");
+    $content = file_get_contents($viewFile);
+    $runner->assertTrue(strpos($content, 'stat-card-modern') !== false, "Harus memuat stat-card-modern");
+    $runner->assertTrue(strpos($content, 'modalTambahJurusan') !== false, "Harus memuat modalTambahJurusan");
+    $runner->assertTrue(strpos($content, 'modalEditJurusan') !== false, "Harus memuat modalEditJurusan");
+    $runner->assertTrue(strpos($content, 'konfirmasiHapusJurusan') !== false, "Harus memuat konfirmasiHapusJurusan");
+    $runner->assertTrue(strpos($content, 'Swal.fire') !== false, "Harus memuat integrasi SweetAlert2");
+});
+
+$runner->it("Layout template dan form pengguna harus terintegrasi dengan Master Data Jurusan", function() use ($runner) {
+    $templateFile = APPPATH . 'Views/layout/template.php';
+    $runner->assertTrue(file_exists($templateFile));
+    $content = file_get_contents($templateFile);
+    $runner->assertTrue(strpos($content, 'admin/jurusan') !== false, "Sidebar harus mengarahkan ke admin/jurusan");
+
+    // Pastikan admin/index dan guru/index juga menggunakan daftar jurusan dinamis
+    $adminIndex = file_get_contents(APPPATH . 'Views/admin/index.php');
+    $runner->assertTrue(strpos($adminIndex, '$daftar_jurusan') !== false, "Admin index harus mendukung daftar_jurusan");
+    $guruIndex = file_get_contents(APPPATH . 'Views/guru/index.php');
+    $runner->assertTrue(strpos($guruIndex, '$daftar_jurusan') !== false, "Guru index harus mendukung daftar_jurusan");
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());

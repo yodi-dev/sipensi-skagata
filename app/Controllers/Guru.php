@@ -35,10 +35,14 @@ class Guru extends BaseController
             $builder->where('users.jurusan', $jurusan);
         }
 
+        $jurusanModel = new \App\Models\JurusanModel();
+        $daftarJurusan = $jurusanModel->getDaftarNama();
+
         $data = [
             'tanggal'          => $tanggalPilih,
             'presensi'         => $builder->get()->getResultArray(),
             'jurusan_terpilih' => $jurusan,
+            'daftar_jurusan'   => $daftarJurusan,
             'title'            => 'Dashboard Guru - Presensi PPL'
         ];
 

@@ -83,11 +83,17 @@
                     <label for="jurusan" class="fw-semibold text-muted small mb-0 text-nowrap"><i class="bi bi-funnel"></i> Jurusan:</label>
                     <select name="jurusan" id="jurusan" class="form-select form-select-sm border-0 bg-transparent shadow-none" onchange="this.form.submit()">
                         <option value="">-- Semua Jurusan --</option>
-                        <option value="Informatika" <?= ($jurusan_terpilih === 'Informatika') ? 'selected' : '' ?>>Informatika</option>
-                        <option value="PJOK" <?= ($jurusan_terpilih === 'PJOK') ? 'selected' : '' ?>>PJOK</option>
-                        <option value="BK" <?= ($jurusan_terpilih === 'BK') ? 'selected' : '' ?>>BK</option>
-                        <option value="TL" <?= ($jurusan_terpilih === 'TL') ? 'selected' : '' ?>>TL</option>
-                        <option value="TO" <?= ($jurusan_terpilih === 'TO') ? 'selected' : '' ?>>TO</option>
+                        <?php if (!empty($daftar_jurusan)): ?>
+                            <?php foreach ($daftar_jurusan as $jrs): ?>
+                                <option value="<?= esc($jrs) ?>" <?= ($jurusan_terpilih === $jrs) ? 'selected' : '' ?>><?= esc($jrs) ?></option>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <option value="Informatika" <?= ($jurusan_terpilih === 'Informatika') ? 'selected' : '' ?>>Informatika</option>
+                            <option value="PJOK" <?= ($jurusan_terpilih === 'PJOK') ? 'selected' : '' ?>>PJOK</option>
+                            <option value="BK" <?= ($jurusan_terpilih === 'BK') ? 'selected' : '' ?>>BK</option>
+                            <option value="TL" <?= ($jurusan_terpilih === 'TL') ? 'selected' : '' ?>>TL</option>
+                            <option value="TO" <?= ($jurusan_terpilih === 'TO') ? 'selected' : '' ?>>TO</option>
+                        <?php endif; ?>
                     </select>
                 </div>
 
