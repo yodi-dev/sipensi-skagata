@@ -987,6 +987,9 @@ $runner->it("Layout template dan manajemen pengguna harus terintegrasi dengan Pe
 
     $guruLaporanView = file_get_contents(APPPATH . 'Views/guru/laporan.php');
     $runner->assertTrue(strpos($guruLaporanView, 'assigned_jurusans') !== false, "Guru laporan view harus menampilkan identitas jurusan pamong");
+
+    $guruPiketView = file_get_contents(APPPATH . 'Views/guru/laporan_piket.php');
+    $runner->assertTrue(strpos($guruPiketView, 'assigned_jurusans') !== false, "Guru laporan piket view harus menampilkan identitas jurusan pamong");
 });
 
 

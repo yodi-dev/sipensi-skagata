@@ -29,16 +29,15 @@ class PiketModel extends Model
             ->findAll();
     }
 
-    public function getPiketWithFilter($tanggal, $jurusanFilter = null)
+    public function getPiketWithFilter($tanggal = null, $jurusanFilter = null)
     {
-        $tanggalPilih = (is_string($tanggal) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal))
-            ? $tanggal
-            : date('Y-m-d');
-
         $builder = $this->select('piket_kbm.id as id, piket_kbm.user_id, piket_kbm.tanggal, piket_kbm.waktu, piket_kbm.foto_bukti, users.nama, users.jurusan')
             ->join('users', 'users.id = piket_kbm.user_id')
-            ->where('users.role', 'mahasiswa')
-            ->where('piket_kbm.tanggal', $tanggalPilih);
+            ->where('users.role', 'mahasiswa');
+
+        if (!empty($tanggal) && is_string($tanggal) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
+            $builder->where('piket_kbm.tanggal', $tanggal);
+        }
 
         if (!empty($jurusanFilter)) {
             if (is_array($jurusanFilter)) {
@@ -48,6 +47,8 @@ class PiketModel extends Model
             }
         }
 
-        return $builder->orderBy('piket_kbm.waktu', 'DESC')->findAll();
+        return $builder->orderBy('piket_kbm.tanggal', 'DESC')
+            ->orderBy('piket_kbm.waktu', 'DESC')
+            ->findAll();
     }
 }

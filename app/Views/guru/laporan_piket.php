@@ -81,31 +81,17 @@ $namaBulanSingkat = [
     '10' => 'Okt', '11' => 'Nov', '12' => 'Des'
 ];
 
-$tsPiket = strtotime($tanggal);
-$hariPiket = $namaHariIndo[date('l', $tsPiket)] ?? date('l', $tsPiket);
-$bulanPiket = $namaBulanIndo[date('m', $tsPiket)] ?? date('F', $tsPiket);
-$tanggalPiketIndo = $hariPiket . ', ' . date('d', $tsPiket) . ' ' . $bulanPiket . ' ' . date('Y', $tsPiket);
+$tanggalPiketIndo = null;
+if (!empty($tanggal)) {
+    $tsPiket = strtotime($tanggal);
+    if ($tsPiket !== false) {
+        $hariPiket = $namaHariIndo[date('l', $tsPiket)] ?? date('l', $tsPiket);
+        $bulanPiket = $namaBulanIndo[date('m', $tsPiket)] ?? date('F', $tsPiket);
+        $tanggalPiketIndo = $hariPiket . ', ' . date('d', $tsPiket) . ' ' . $bulanPiket . ' ' . date('Y', $tsPiket);
+    }
+}
 ?>
 <div class="container py-4">
-    <!-- Header Halaman Laporan Piket -->
-    <div class="mb-4">
-        <div class="d-flex align-items-center gap-3">
-            <div class="rounded-3 bg-success-subtle text-success border border-success-subtle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 46px; height: 46px;">
-                <i class="bi bi-camera-fill fs-4"></i>
-            </div>
-            <div>
-                <div class="d-flex align-items-center flex-wrap gap-2">
-                    <h4 class="fw-bold text-dark mb-0" style="letter-spacing: -0.3px;">Laporan Piket KBM</h4>
-                    <?php if (!empty($assigned_jurusans)): ?>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-semibold small" style="font-size: 0.72rem;">
-                            <i class="bi bi-mortarboard-fill me-1"></i>Pamong: <?= esc(implode(', ', $assigned_jurusans)) ?>
-                        </span>
-                    <?php endif; ?>
-                </div>
-                <p class="text-muted small mb-0 mt-1">Dokumentasi kegiatan piket KBM mahasiswa praktikan di SMKN 3 Yogyakarta</p>
-            </div>
-        </div>
-    </div>
 
     <?php if (empty($assigned_jurusans) && session()->get('role') === 'guru'): ?>
         <div class="alert alert-warning rounded-4 border-0 shadow-sm d-flex align-items-center gap-3 mb-4 p-3" role="alert">
@@ -120,17 +106,47 @@ $tanggalPiketIndo = $hariPiket . ', ' . date('d', $tsPiket) . ' ' . $bulanPiket 
     <div class="card report-card">
         <div class="card-header-custom d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
             <div>
-                <h6 class="fw-bold text-dark mb-1">Daftar Foto Piket KBM</h6>
-                <p class="text-muted small mb-0">Menampilkan rekaman piket pada tanggal: <span class="fw-semibold text-success"><?= esc($tanggalPiketIndo) ?></span></p>
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="mb-0 fw-bold text-dark" style="letter-spacing: -0.2px;">Dokumentasi Piket KBM</h5>
+                    <?php if (!empty($assigned_jurusans)): ?>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-0.5 fw-semibold small" style="font-size: 0.72rem;">
+                            <?= esc(implode(', ', $assigned_jurusans)) ?>
+                        </span>
+                    <?php endif; ?>
+                </div>
+                <p class="text-muted small mb-0 mt-1">
+                    <?php if (!empty($tanggalPiketIndo)): ?>
+                        Menampilkan rekaman piket pada tanggal: <span class="fw-semibold text-success"><?= esc($tanggalPiketIndo) ?></span>
+                        <a href="<?= base_url('guru/laporan_piket') ?>" class="badge bg-secondary-subtle text-secondary text-decoration-none ms-1">Tampilkan Semua</a>
+                    <?php else: ?>
+                        Menampilkan semua riwayat dokumentasi piket mahasiswa bimbingan
+                    <?php endif; ?>
+                </p>
             </div>
 
-            <!-- Auto-Filter Form (onchange submit ala Sibenka) -->
-            <form action="<?= base_url('guru/laporan_piket') ?>" method="GET" class="filter-wrapper d-flex align-items-center flex-wrap gap-2 m-0">
-                <label for="tanggal" class="fw-semibold text-muted small mb-0"><i class="bi bi-calendar-event me-1"></i>Tanggal:</label>
-                <input type="date" id="tanggal" name="tanggal" class="form-control form-control-sm border-0 bg-transparent shadow-none" value="<?= esc($tanggal) ?>" onchange="this.form.submit()" required>
-                <a href="<?= base_url('guru/laporan_piket') ?>" class="btn btn-sm btn-light border text-muted py-0 px-2" title="Reset ke hari ini">
-                    <i class="bi bi-arrow-clockwise"></i>
-                </a>
+            <!-- Auto-Filter Form ala Sibenka (Tanpa Tombol Cari Manual) -->
+            <form action="<?= base_url('guru/laporan_piket') ?>" method="GET" class="d-flex flex-column flex-md-row gap-2 align-items-md-center m-0">
+
+                <?php if (!empty($daftar_jurusan) && count($daftar_jurusan) > 1): ?>
+                    <div class="filter-wrapper d-flex align-items-center gap-2">
+                        <label for="jurusan" class="fw-semibold text-muted small mb-0 text-nowrap"><i class="bi bi-funnel"></i> Jurusan:</label>
+                        <select name="jurusan" id="jurusan" class="form-select form-select-sm border-0 bg-transparent shadow-none" onchange="this.form.submit()">
+                            <option value="">-- Semua Jurusan Bimbingan --</option>
+                            <?php foreach ($daftar_jurusan as $jrs): ?>
+                                <option value="<?= esc($jrs) ?>" <?= (($jurusan_terpilih ?? '') === $jrs) ? 'selected' : '' ?>><?= esc($jrs) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                <?php endif; ?>
+
+                <div class="filter-wrapper d-flex align-items-center gap-2">
+                    <label for="tanggal" class="fw-semibold text-muted small mb-0 text-nowrap"><i class="bi bi-calendar-event"></i> Tanggal:</label>
+                    <input type="date" id="tanggal" name="tanggal" class="form-control form-control-sm border-0 bg-transparent shadow-none" value="<?= esc($tanggal ?? '') ?>" onchange="this.form.submit()">
+                    <a href="<?= base_url('guru/laporan_piket') ?>" class="btn btn-sm btn-light border text-muted py-0 px-2" title="Tampilkan Semua Riwayat">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </a>
+                </div>
+
             </form>
         </div>
         
@@ -141,7 +157,16 @@ $tanggalPiketIndo = $hariPiket . ', ' . date('d', $tsPiket) . ' ' . $bulanPiket 
                         <i class="bi bi-camera-video-off fs-2 text-secondary"></i>
                     </div>
                     <h6 class="fw-semibold text-dark mb-1">Belum Ada Dokumentasi Piket</h6>
-                    <p class="small text-muted mb-0">Belum ada dokumentasi piket KBM mahasiswa pada tanggal <strong><?= esc($tanggalPiketIndo) ?></strong>.</p>
+                    <?php if (!empty($tanggalPiketIndo)): ?>
+                        <p class="small text-muted mb-0">Belum ada dokumentasi piket KBM mahasiswa pada tanggal <strong><?= esc($tanggalPiketIndo) ?></strong>.</p>
+                        <div class="mt-3">
+                            <a href="<?= base_url('guru/laporan_piket') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                                <i class="bi bi-arrow-clockwise me-1"></i> Tampilkan Semua Riwayat Piket
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <p class="small text-muted mb-0">Belum ada dokumentasi piket KBM mahasiswa yang tercatat.</p>
+                    <?php endif; ?>
                 </div>
             <?php else: ?>
                 <!-- 1. MOBILE VIEW: Card Feed (< 768px) -->

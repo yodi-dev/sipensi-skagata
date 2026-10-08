@@ -322,19 +322,29 @@ class Guru extends BaseController
             $assignedJurusans = $jurusanModel->getDaftarNama();
         }
 
+        $jurusanInput = $this->request->getGet('jurusan');
+        $jurusanFilter = null;
+        if (!empty($jurusanInput) && in_array($jurusanInput, $assignedJurusans, true)) {
+            $jurusanFilter = [$jurusanInput];
+        } else {
+            $jurusanFilter = $assignedJurusans;
+        }
+
         $tanggalFilter = $this->request->getGet('tanggal');
         $tanggalPilih = (is_string($tanggalFilter) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggalFilter))
             ? $tanggalFilter
-            : date('Y-m-d');
+            : null;
 
         $dataPiket = (!empty($assignedJurusans) || !$isTeacherSession)
-            ? $piketModel->getPiketWithFilter($tanggalPilih, $assignedJurusans)
+            ? $piketModel->getPiketWithFilter($tanggalPilih, $jurusanFilter)
             : [];
 
         $data = [
             'tanggal'           => $tanggalPilih,
             'dataPiket'         => $dataPiket,
             'assigned_jurusans' => $assignedJurusans,
+            'daftar_jurusan'    => $assignedJurusans,
+            'jurusan_terpilih'  => $jurusanInput,
             'title'             => 'Laporan Piket KBM - Presensi PPL'
         ];
 
