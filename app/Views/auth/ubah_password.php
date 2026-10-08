@@ -64,6 +64,18 @@
         padding: 0.75rem;
         font-weight: 600;
     }
+
+    .form-label-custom {
+        color: #334155;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
+    .requirement-item {
+        font-size: 0.78rem;
+        transition: all 0.2s ease;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -81,47 +93,53 @@
 
                 <div class="password-body">
 
-                    <form action="<?= base_url('auth/proses_ubah_password') ?>" method="POST">
+                    <form action="<?= base_url('auth/proses_ubah_password') ?>" method="POST" id="formUbahPassword">
                         <?= csrf_field() ?>
 
                         <div class="mb-4">
-                            <label class="form-label text-muted fw-semibold small">Password Lama</label>
+                            <label for="passLama" class="form-label form-label-custom">Password Lama</label>
                             <div class="input-group">
                                 <span class="input-group-text border-end-0"><i class="bi bi-key"></i></span>
-                                <input type="password" name="password_lama" id="passLama" class="form-control border-start-0 border-end-0" placeholder="Masukkan password saat ini" required>
-                                <span class="input-group-text border-start-0 cursor-pointer toggle-password" data-target="passLama">
+                                <input type="password" name="password_lama" id="passLama" class="form-control border-start-0 border-end-0" placeholder="Masukkan password saat ini" autocomplete="current-password" required>
+                                <span class="input-group-text border-start-0 cursor-pointer toggle-password" data-target="passLama" title="Tampilkan / sembunyikan password">
                                     <i class="bi bi-eye-slash"></i>
                                 </span>
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label text-muted fw-semibold small">Password Baru</label>
+                            <label for="passBaru" class="form-label form-label-custom">Password Baru</label>
                             <div class="input-group mb-1">
                                 <span class="input-group-text border-end-0"><i class="bi bi-shield-plus"></i></span>
-                                <input type="password" name="password_baru" id="passBaru" class="form-control border-start-0 border-end-0" placeholder="Minimal 6 karakter" required minlength="6">
-                                <span class="input-group-text border-start-0 cursor-pointer toggle-password" data-target="passBaru">
+                                <input type="password" name="password_baru" id="passBaru" class="form-control border-start-0 border-end-0" placeholder="Minimal 6 karakter" autocomplete="new-password" required minlength="6">
+                                <span class="input-group-text border-start-0 cursor-pointer toggle-password" data-target="passBaru" title="Tampilkan / sembunyikan password">
                                     <i class="bi bi-eye-slash"></i>
                                 </span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 mt-1 requirement-item text-muted" id="ruleMinLength">
+                                <i class="bi bi-circle text-muted" id="iconRuleMinLength"></i>
+                                <span id="textRuleMinLength">Minimal 6 karakter</span>
                             </div>
                         </div>
 
                         <div class="mb-5">
-                            <label class="form-label text-muted fw-semibold small">Konfirmasi Password Baru</label>
+                            <label for="passKonfirm" class="form-label form-label-custom">Konfirmasi Password Baru</label>
                             <div class="input-group">
                                 <span class="input-group-text border-end-0"><i class="bi bi-shield-check"></i></span>
-                                <input type="password" name="konfirmasi_password" id="passKonfirm" class="form-control border-start-0 border-end-0" placeholder="Ulangi password baru" required minlength="6">
-                                <span class="input-group-text border-start-0 cursor-pointer toggle-password" data-target="passKonfirm">
+                                <input type="password" name="konfirmasi_password" id="passKonfirm" class="form-control border-start-0 border-end-0" placeholder="Ulangi password baru" autocomplete="new-password" required minlength="6">
+                                <span class="input-group-text border-start-0 cursor-pointer toggle-password" data-target="passKonfirm" title="Tampilkan / sembunyikan password">
                                     <i class="bi bi-eye-slash"></i>
                                 </span>
                             </div>
+                            <div id="matchFeedback" class="small mt-1 d-none" style="font-size: 0.8rem;"></div>
                         </div>
 
                         <div class="d-grid gap-3">
-                            <button type="submit" class="btn btn-primary-custom text-white">
-                                <i class="bi bi-save me-2"></i> Simpan Password
+                            <button type="submit" id="btnSubmitUbahPass" class="btn btn-primary-custom text-white d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-save"></i>
+                                <span>Simpan Password</span>
                             </button>
-                            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-outline-custom">
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-outline-custom text-center">
                                 <i class="bi bi-arrow-left me-2"></i> Batal / Kembali
                             </a>
                         </div>
@@ -150,15 +168,99 @@
                     inputElement.type = "text";
                     iconElement.classList.remove('bi-eye-slash');
                     iconElement.classList.add('bi-eye');
-                    iconElement.classList.add('text-primary');
+                    iconElement.classList.add('text-success');
                 } else {
                     inputElement.type = "password";
                     iconElement.classList.remove('bi-eye');
                     iconElement.classList.add('bi-eye-slash');
-                    iconElement.classList.remove('text-primary');
+                    iconElement.classList.remove('text-success');
                 }
             });
         });
+
+        // Real-time Validation & Feedback
+        const passBaru = document.getElementById('passBaru');
+        const passKonfirm = document.getElementById('passKonfirm');
+        const ruleMinLength = document.getElementById('ruleMinLength');
+        const iconRuleMinLength = document.getElementById('iconRuleMinLength');
+        const textRuleMinLength = document.getElementById('textRuleMinLength');
+        const matchFeedback = document.getElementById('matchFeedback');
+        const formUbahPass = document.getElementById('formUbahPassword');
+        const btnSubmitUbahPass = document.getElementById('btnSubmitUbahPass');
+
+        function validatePasswordRules() {
+            const valBaru = passBaru.value;
+            const valKonfirm = passKonfirm.value;
+
+            // Check length >= 6
+            if (valBaru.length >= 6) {
+                ruleMinLength.classList.remove('text-muted');
+                ruleMinLength.classList.add('text-success');
+                iconRuleMinLength.className = 'bi bi-check-circle-fill text-success';
+                textRuleMinLength.classList.add('fw-semibold');
+            } else {
+                ruleMinLength.classList.remove('text-success');
+                ruleMinLength.classList.add('text-muted');
+                iconRuleMinLength.className = 'bi bi-circle text-muted';
+                textRuleMinLength.classList.remove('fw-semibold');
+            }
+
+            // Check match
+            if (valKonfirm.length > 0) {
+                matchFeedback.classList.remove('d-none');
+                if (valBaru === valKonfirm) {
+                    matchFeedback.innerHTML = '<span class="text-success fw-medium"><i class="bi bi-check-circle-fill me-1"></i>Password konfirmasi cocok</span>';
+                } else {
+                    matchFeedback.innerHTML = '<span class="text-danger fw-medium"><i class="bi bi-x-circle-fill me-1"></i>Password konfirmasi belum cocok</span>';
+                }
+            } else {
+                matchFeedback.classList.add('d-none');
+            }
+        }
+
+        if (passBaru) passBaru.addEventListener('input', validatePasswordRules);
+        if (passKonfirm) passKonfirm.addEventListener('input', validatePasswordRules);
+
+        if (formUbahPass) {
+            formUbahPass.addEventListener('submit', function(e) {
+                if (passBaru.value.length < 6) {
+                    e.preventDefault();
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Password Terlalu Pendek',
+                            text: 'Password baru minimal harus terdiri dari 6 karakter.',
+                            confirmButtonColor: '#0f5132'
+                        });
+                    } else {
+                        alert('Password baru minimal harus terdiri dari 6 karakter.');
+                    }
+                    passBaru.focus();
+                    return false;
+                }
+
+                if (passBaru.value !== passKonfirm.value) {
+                    e.preventDefault();
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Password Tidak Cocok',
+                            text: 'Konfirmasi password baru tidak cocok dengan password baru.',
+                            confirmButtonColor: '#0f5132'
+                        });
+                    } else {
+                        alert('Konfirmasi password baru tidak cocok dengan password baru.');
+                    }
+                    passKonfirm.focus();
+                    return false;
+                }
+
+                if (btnSubmitUbahPass) {
+                    btnSubmitUbahPass.disabled = true;
+                    btnSubmitUbahPass.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span><span>Menyimpan Password...</span>';
+                }
+            });
+        }
     });
 </script>
 <?= $this->endSection() ?>

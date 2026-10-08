@@ -64,6 +64,40 @@
         border-left: none;
     }
 
+    .form-control.border-center {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+
+    .btn-toggle-pass {
+        border-radius: 0 0.5rem 0.5rem 0;
+        border: 1px solid #e2e8f0;
+        border-left: none;
+        background-color: #f8fafc;
+        color: #64748b;
+        padding: 0 0.85rem;
+        transition: color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn-toggle-pass:hover {
+        background-color: #f1f5f9;
+        color: #0f5132;
+    }
+
+    .input-group:focus-within .input-group-text,
+    .input-group:focus-within .btn-toggle-pass {
+        border-color: #10b981;
+        background-color: #ffffff;
+    }
+
+    .form-label-custom {
+        color: #334155;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
     .btn-login {
         background-color: #0f5132;
         border-color: #0f5132;
@@ -74,11 +108,16 @@
         transition: all 0.25s ease;
     }
 
-    .btn-login:hover {
+    .btn-login:hover:not(:disabled) {
         background-color: #0a3622;
         border-color: #0a3622;
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(15, 81, 50, 0.25);
+    }
+
+    .btn-login:disabled {
+        opacity: 0.75;
+        cursor: not-allowed;
     }
 </style>
 <?= $this->endSection() ?>
@@ -100,27 +139,31 @@
                     </div>
 
                     <div class="login-body">
-                        <form action="<?= base_url('auth/proses_login') ?>" method="POST">
+                        <form action="<?= base_url('auth/proses_login') ?>" method="POST" id="formLogin">
                             <?= csrf_field() ?>
 
                             <div class="mb-3">
-                                <label class="form-label text-muted fw-semibold small">Username</label>
+                                <label for="inputUsername" class="form-label form-label-custom">Username</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                    <input type="text" name="username" class="form-control border-start-0" placeholder="Masukkan username" required autofocus>
+                                    <input type="text" name="username" id="inputUsername" class="form-control border-start-0" placeholder="Masukkan username" autocomplete="username" required autofocus>
                                 </div>
                             </div>
 
                             <div class="mb-4">
-                                <label class="form-label text-muted fw-semibold small">Password</label>
+                                <label for="inputPassword" class="form-label form-label-custom">Password</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                    <input type="password" name="password" class="form-control border-start-0" placeholder="Masukkan password" required>
+                                    <input type="password" name="password" id="inputPassword" class="form-control border-center" placeholder="Masukkan password" autocomplete="current-password" required>
+                                    <button type="button" class="btn btn-toggle-pass" id="btnToggleLoginPass" onclick="togglePasswordVisibilityGlobal('inputPassword', 'iconToggleLoginPass')" title="Tampilkan / Sembunyikan Password" aria-label="Tampilkan atau sembunyikan password">
+                                        <i class="bi bi-eye" id="iconToggleLoginPass"></i>
+                                    </button>
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-login btn-success w-100 text-white mt-2">
-                                MASUK SISTEM <i class="bi bi-box-arrow-in-right ms-1"></i>
+                            <button type="submit" id="btnSubmitLogin" class="btn btn-login btn-success w-100 text-white mt-2 d-flex align-items-center justify-content-center gap-2">
+                                <span>MASUK SISTEM</span>
+                                <i class="bi bi-box-arrow-in-right"></i>
                             </button>
                         </form>
                     </div>
@@ -130,4 +173,20 @@
         </div>
     </div>
 </div>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formLogin = document.getElementById('formLogin');
+        const btnSubmit = document.getElementById('btnSubmitLogin');
+
+        if (formLogin && btnSubmit) {
+            formLogin.addEventListener('submit', function() {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span><span>Memproses Masuk...</span>';
+            });
+        }
+    });
+</script>
 <?= $this->endSection() ?>
