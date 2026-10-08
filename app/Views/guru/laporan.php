@@ -140,28 +140,37 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?php
+$namaBulan = [
+    '01' => 'Januari',   '02' => 'Februari', '03' => 'Maret',
+    '04' => 'April',     '05' => 'Mei',      '06' => 'Juni',
+    '07' => 'Juli',      '08' => 'Agustus',  '09' => 'September',
+    '10' => 'Oktober',   '11' => 'November', '12' => 'Desember'
+];
+$bulanPilihText = $namaBulan[$bulan_pilih] ?? $bulan_pilih;
+?>
 <div class="container py-4">
 
     <!-- Top Action Bar (Sembunyi saat Cetak) -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-        <div>
-            <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
-                <h4 class="fw-bold text-dark mb-0">
-                    <i class="bi bi-file-earmark-spreadsheet text-success me-2"></i>Laporan Bulanan Presensi
-                </h4>
-                <?php if (!empty($assigned_jurusans)): ?>
-                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-semibold small">
-                        <i class="bi bi-mortarboard-fill me-1"></i>Pamong: <?= esc(implode(', ', $assigned_jurusans)) ?>
-                    </span>
-                <?php endif; ?>
+        <div class="d-flex align-items-center gap-3">
+            <div class="rounded-3 bg-success-subtle text-success border border-success-subtle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 46px; height: 46px;">
+                <i class="bi bi-file-earmark-spreadsheet-fill fs-4"></i>
             </div>
-            <p class="text-muted small mb-0">Rekapitulasi resmi kehadiran mahasiswa praktikan &amp; GTT berbasis 5 hari kerja efektif</p>
+            <div>
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <h4 class="fw-bold text-dark mb-0" style="letter-spacing: -0.3px;">Laporan Bulanan Presensi</h4>
+                    <?php if (!empty($assigned_jurusans)): ?>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-semibold small" style="font-size: 0.72rem;">
+                            <i class="bi bi-mortarboard-fill me-1"></i>Pamong: <?= esc(implode(', ', $assigned_jurusans)) ?>
+                        </span>
+                    <?php endif; ?>
+                </div>
+                <p class="text-muted small mb-0 mt-1">Rekapitulasi resmi kehadiran mahasiswa praktikan &amp; GTT berbasis 5 hari kerja efektif</p>
+            </div>
         </div>
-        <div class="d-flex gap-2">
-            <a href="<?= base_url('guru') ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                <i class="bi bi-arrow-left me-1"></i> Kembali
-            </a>
-            <a href="<?= base_url('guru/laporan/export-excel?bulan=' . esc($bulan_pilih) . '&tahun=' . esc($tahun_pilih)) ?>" class="btn btn-outline-success btn-sm rounded-pill px-3">
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="<?= base_url('guru/laporan/export-excel?bulan=' . esc($bulan_pilih) . '&tahun=' . esc($tahun_pilih)) ?>" class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-xs">
                 <i class="bi bi-file-earmark-excel me-1"></i> Unduh Excel
             </a>
             <button onclick="window.print()" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm">
@@ -191,7 +200,7 @@
         <div class="kop-surat-border mt-2"></div>
         <h5 class="fw-bold text-uppercase mt-2 mb-1" style="font-size: 12pt;">REKAPITULASI PRESENSI MAHASISWA PRAKTIKAN</h5>
         <p class="small text-muted mb-0" style="font-size: 10pt;">
-            Jurusan Bimbingan: <strong><?= !empty($assigned_jurusans) ? esc(implode(', ', $assigned_jurusans)) : 'Semua Jurusan' ?></strong> &bull; Periode: <strong><?= date('F', mktime(0, 0, 0, (int)$bulan_pilih, 10)) ?> <?= esc($tahun_pilih) ?></strong> &bull; Basis 5 Hari Kerja Efektif
+            Jurusan Bimbingan: <strong><?= !empty($assigned_jurusans) ? esc(implode(', ', $assigned_jurusans)) : 'Semua Jurusan' ?></strong> &bull; Periode: <strong><?= esc($bulanPilihText) ?> <?= esc($tahun_pilih) ?></strong> &bull; Basis 5 Hari Kerja Efektif
         </p>
     </div>
 
@@ -206,10 +215,7 @@
                 <div class="input-group input-group-sm" style="width: auto;">
                     <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-calendar-month"></i></span>
                     <select name="bulan" class="form-select border-start-0" onchange="this.form.submit()" required>
-                        <?php
-                        $namaBulan = ['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'];
-                        foreach ($namaBulan as $angka => $nama):
-                        ?>
+                        <?php foreach ($namaBulan as $angka => $nama): ?>
                             <option value="<?= $angka ?>" <?= ($bulan_pilih == $angka) ? 'selected' : '' ?>>
                                 <?= $nama ?>
                             </option>
@@ -302,7 +308,7 @@
                     NIP / NIDN.
                 </td>
                 <td style="width: 50%; text-align: center; vertical-align: top; border: none;">
-                    Yogyakarta, <?= date('d F Y') ?><br>
+                    Yogyakarta, <?= date('d') . ' ' . ($namaBulan[date('m')] ?? date('F')) . ' ' . date('Y') ?><br>
                     <strong>Guru Pamong Pembimbing SMKN 3 Yogyakarta</strong>
                     <br><br><br><br><br>
                     <strong><?= esc(session()->get('nama')) ?></strong><br>

@@ -59,25 +59,52 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?php
+// Helper translasi hari & bulan Bahasa Indonesia
+$namaHariIndo = [
+    'Sunday'    => 'Minggu',
+    'Monday'    => 'Senin',
+    'Tuesday'   => 'Selasa',
+    'Wednesday' => 'Rabu',
+    'Thursday'  => 'Kamis',
+    'Friday'    => 'Jumat',
+    'Saturday'  => 'Sabtu'
+];
+
+$namaBulanIndo = [
+    '01' => 'Januari',   '02' => 'Februari', '03' => 'Maret',
+    '04' => 'April',     '05' => 'Mei',      '06' => 'Juni',
+    '07' => 'Juli',      '08' => 'Agustus',  '09' => 'September',
+    '10' => 'Oktober',   '11' => 'November', '12' => 'Desember'
+];
+
+$tsTanggal = strtotime($tanggal);
+$hariTerpilih = $namaHariIndo[date('l', $tsTanggal)] ?? date('l', $tsTanggal);
+$bulanTerpilih = $namaBulanIndo[date('m', $tsTanggal)] ?? date('F', $tsTanggal);
+$tanggalFormatIndo = $hariTerpilih . ', ' . date('d', $tsTanggal) . ' ' . $bulanTerpilih . ' ' . date('Y', $tsTanggal);
+?>
 <div class="container py-4">
 
     <!-- Top Header -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-        <div>
-            <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
-                <h4 class="fw-bold text-dark mb-0">
-                    <i class="bi bi-calendar2-check text-success me-2"></i>Monitoring Presensi Harian
-                </h4>
-                <?php if (!empty($assigned_jurusans)): ?>
-                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-semibold small">
-                        <i class="bi bi-mortarboard-fill me-1"></i>Pamong: <?= esc(implode(', ', $assigned_jurusans)) ?>
-                    </span>
-                <?php endif; ?>
+        <div class="d-flex align-items-center gap-3">
+            <div class="rounded-3 bg-success-subtle text-success border border-success-subtle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 46px; height: 46px;">
+                <i class="bi bi-calendar2-check-fill fs-4"></i>
             </div>
-            <p class="text-muted small mb-0">Verifikasi kehadiran dan perizinan mahasiswa praktikan di SMKN 3 Yogyakarta</p>
+            <div>
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <h4 class="fw-bold text-dark mb-0" style="letter-spacing: -0.3px;">Monitoring Presensi Harian</h4>
+                    <?php if (!empty($assigned_jurusans)): ?>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-semibold small" style="font-size: 0.72rem;">
+                            <i class="bi bi-mortarboard-fill me-1"></i>Pamong: <?= esc(implode(', ', $assigned_jurusans)) ?>
+                        </span>
+                    <?php endif; ?>
+                </div>
+                <p class="text-muted small mb-0 mt-1">Verifikasi kehadiran dan perizinan mahasiswa praktikan di SMKN 3 Yogyakarta</p>
+            </div>
         </div>
-        <div class="d-flex gap-2">
-            <a href="<?= base_url('guru/laporan_piket') ?>" class="btn btn-outline-success btn-sm rounded-pill px-3">
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="<?= base_url('guru/laporan_piket') ?>" class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-xs">
                 <i class="bi bi-camera me-1"></i> Laporan Piket
             </a>
             <a href="<?= base_url('guru/laporan') ?>" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm">
@@ -102,7 +129,7 @@
             <div>
                 <h6 class="mb-1 fw-bold text-dark">Data Presensi Tanggal Terpilih</h6>
                 <p class="text-muted small mb-0">
-                    Menampilkan data untuk: <span class="fw-semibold text-success"><?= esc(date('d F Y', strtotime($tanggal))) ?></span>
+                    Menampilkan data untuk: <span class="fw-semibold text-success"><?= esc($tanggalFormatIndo) ?></span>
                 </p>
             </div>
 
@@ -139,7 +166,7 @@
                     <i class="bi bi-inbox fs-2 text-secondary"></i>
                 </div>
                 <h6 class="fw-semibold text-dark mb-1">Belum Ada Presensi Masuk</h6>
-                <p class="small text-muted mb-0">Belum ada data presensi mahasiswa pada tanggal <strong><?= esc(date('d F Y', strtotime($tanggal))) ?></strong>.</p>
+                <p class="small text-muted mb-0">Belum ada data presensi mahasiswa pada tanggal <strong><?= esc($tanggalFormatIndo) ?></strong>.</p>
             </div>
         <?php else: ?>
 
