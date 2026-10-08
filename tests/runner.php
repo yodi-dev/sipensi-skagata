@@ -976,5 +976,44 @@ $runner->it("Layout template dan manajemen pengguna harus terintegrasi dengan Pe
     $runner->assertTrue(strpos($guruLaporanView, 'assigned_jurusans') !== false, "Guru laporan view harus menampilkan identitas jurusan pamong");
 });
 
+
+// ==========================================
+// 20. PENGUJIAN INDEKS PERFORMA & INTEGRITAS BASIS DATA
+// ==========================================
+$runner->describe("20. Pengujian Indeks Performa & Integritas Basis Data");
+
+$runner->it("Migrasi AddDatabasePerformanceIndexes harus mendefinisikan index performa dan unique constraints", function() use ($runner) {
+    $migrationPath = APPPATH . 'Database/Migrations/2026-10-08-053000_AddDatabasePerformanceIndexes.php';
+    $runner->assertTrue(file_exists($migrationPath), "File migrasi harus tersedia");
+
+    $content = file_get_contents($migrationPath);
+    $runner->assertTrue(strpos($content, 'unique_user_tanggal') !== false, "Harus memuat unique_user_tanggal");
+    $runner->assertTrue(strpos($content, 'idx_presensi_tanggal') !== false, "Harus memuat idx_presensi_tanggal");
+    $runner->assertTrue(strpos($content, 'unique_username') !== false, "Harus memuat unique_username");
+    $runner->assertTrue(strpos($content, 'idx_users_role') !== false, "Harus memuat idx_users_role");
+    $runner->assertTrue(strpos($content, 'idx_users_jurusan') !== false, "Harus memuat idx_users_jurusan");
+    $runner->assertTrue(strpos($content, 'idx_piket_tanggal') !== false, "Harus memuat idx_piket_tanggal");
+});
+
+$runner->it("Database MySQL harus memiliki unique constraint (user_id, tanggal) dan index tanggal pada tabel presensi", function() use ($runner) {
+    $db = \Config\Database::connect('default');
+    $indexes = $db->query("SHOW INDEX FROM presensi")->getResultArray();
+    $indexNames = array_column($indexes, 'Key_name');
+
+    $runner->assertTrue(in_array('unique_user_tanggal', $indexNames), "Tabel presensi harus memiliki unique index unique_user_tanggal");
+    $runner->assertTrue(in_array('idx_presensi_tanggal', $indexNames), "Tabel presensi harus memiliki index idx_presensi_tanggal");
+});
+
+$runner->it("Database MySQL harus memiliki unique username dan index role/jurusan pada tabel users serta piket_kbm", function() use ($runner) {
+    $db = \Config\Database::connect('default');
+    $userIndexes = array_column($db->query("SHOW INDEX FROM users")->getResultArray(), 'Key_name');
+    $piketIndexes = array_column($db->query("SHOW INDEX FROM piket_kbm")->getResultArray(), 'Key_name');
+
+    $runner->assertTrue(in_array('unique_username', $userIndexes), "Tabel users harus memiliki unique index unique_username");
+    $runner->assertTrue(in_array('idx_users_role', $userIndexes), "Tabel users harus memiliki index idx_users_role");
+    $runner->assertTrue(in_array('idx_users_jurusan', $userIndexes), "Tabel users harus memiliki index idx_users_jurusan");
+    $runner->assertTrue(in_array('idx_piket_tanggal', $piketIndexes), "Tabel piket_kbm harus memiliki index idx_piket_tanggal");
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());
