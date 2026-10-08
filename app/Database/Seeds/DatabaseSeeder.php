@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
         $this->call('UniversitasSeeder');
         $this->call('PeriodeSeeder');
         $this->call('UserSeeder');
+        $this->call('GuruPamongSeeder');
         $this->call('SettingSeeder');
         $this->call('PresensiSeeder');
     }

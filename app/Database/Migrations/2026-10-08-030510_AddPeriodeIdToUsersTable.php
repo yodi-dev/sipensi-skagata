@@ -26,3 +26,4 @@ class AddPeriodeIdToUsersTable extends Migration
         $this->forge->dropColumn('users', 'periode_id');
     }
 }
+

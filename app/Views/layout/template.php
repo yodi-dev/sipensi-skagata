@@ -348,6 +348,10 @@
                             <i class="bi bi-people-fill"></i>
                             <span>Data Pengguna</span>
                         </a>
+                        <a href="<?= base_url('admin/guru-pamong') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'admin/guru-pamong') !== false) ? 'active' : '' ?>">
+                            <i class="bi bi-person-lines-fill"></i>
+                            <span>Pemetaan Pamong</span>
+                        </a>
 
                         <div class="sidebar-section-label">Master Data</div>
                         <a href="<?= base_url('admin/jurusan') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'admin/jurusan') !== false) ? 'active' : '' ?>">

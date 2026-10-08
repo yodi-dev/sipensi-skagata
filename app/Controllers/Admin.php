@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\GuruPamongModel;
 use App\Models\JurusanModel;
 use App\Models\PeriodeModel;
 use App\Models\SettingModel;
@@ -15,6 +16,7 @@ class Admin extends BaseController
     protected JurusanModel $jurusanModel;
     protected UniversitasModel $universitasModel;
     protected PeriodeModel $periodeModel;
+    protected GuruPamongModel $guruPamongModel;
 
     public function __construct()
     {
@@ -22,6 +24,7 @@ class Admin extends BaseController
         $this->jurusanModel = new JurusanModel();
         $this->universitasModel = new UniversitasModel();
         $this->periodeModel = new PeriodeModel();
+        $this->guruPamongModel = new GuruPamongModel();
     }
 
     public function index()
@@ -232,7 +235,7 @@ class Admin extends BaseController
             $periodeId = null;
         }
 
-        $this->userModel->insert([
+        $newId = $this->userModel->insert([
             'username'    => $username,
             'nama'        => $nama,
             'role'        => $role,
@@ -241,6 +244,10 @@ class Admin extends BaseController
             'periode_id'  => $periodeId,
             'password'    => password_hash($password, PASSWORD_BCRYPT)
         ]);
+
+        if ($role === 'guru' && !empty($jurusan) && $newId) {
+            $this->guruPamongModel->assignJurusanToGuru((int) $newId, [$jurusan]);
+        }
 
         return redirect()->to('/admin/pengguna')->with('pesan', "Pengguna {$nama} ({$username}) berhasil ditambahkan!");
     }
@@ -285,7 +292,88 @@ class Admin extends BaseController
             'periode_id'  => $periodeVal,
         ]);
 
+        if ($role === 'guru') {
+            $this->guruPamongModel->assignJurusanToGuru((int) $userId, !empty($jurusan) ? [$jurusan] : []);
+        }
+
         return redirect()->to('/admin/pengguna')->with('pesan', "Data pengguna {$nama} berhasil diperbarui!");
+    }
+
+    public function guruPamong()
+    {
+        $guruList = $this->guruPamongModel->getGuruWithJurusan();
+        $masterJurusan = $this->jurusanModel->getDaftarNama();
+        $db = Database::connect();
+        $userJurusanRaw = $db->table('users')->select('jurusan')->where('jurusan IS NOT NULL')->where('jurusan !=', '')->groupBy('jurusan')->get()->getResultArray();
+        $userJurusan = array_filter(array_column($userJurusanRaw, 'jurusan'));
+        $daftarJurusan = array_values(array_unique(array_merge($masterJurusan, $userJurusan)));
+        sort($daftarJurusan);
+        $currentAdmin = $this->userModel->find(session()->get('id_user'));
+
+        $totalGuru = count($guruList);
+        $guruTerpetakan = 0;
+        $guruBelum = 0;
+        $totalMahasiswaTerbimbing = 0;
+
+        foreach ($guruList as $g) {
+            if (!empty($g['jurusan_list'])) {
+                $guruTerpetakan++;
+                $totalMahasiswaTerbimbing += (int) $g['total_mahasiswa'];
+            } else {
+                $guruBelum++;
+            }
+        }
+
+        $data = [
+            'title'                      => 'Pemetaan Guru Pamong - SIPENSI SKAGATA',
+            'current_admin'              => $currentAdmin,
+            'guru_list'                  => $guruList,
+            'daftar_jurusan'             => $daftarJurusan,
+            'total_guru'                 => $totalGuru,
+            'guru_terpetakan'            => $guruTerpetakan,
+            'guru_belum'                 => $guruBelum,
+            'total_mahasiswa_terbimbing' => $totalMahasiswaTerbimbing,
+        ];
+
+        return view('admin/guru_pamong', $data);
+    }
+
+    public function simpanPemetaanGuru()
+    {
+        $guruId = $this->request->getPost('guru_id');
+        if (empty($guruId) || !is_numeric($guruId)) {
+            return redirect()->back()->with('error', 'ID Guru Pamong tidak valid!');
+        }
+
+        $guru = $this->userModel->find($guruId);
+        if (!$guru || $guru['role'] !== 'guru') {
+            return redirect()->back()->with('error', 'Data Guru Pamong tidak ditemukan!');
+        }
+
+        $jurusan = $this->request->getPost('jurusan');
+        $jurusanList = is_array($jurusan) ? $jurusan : (!empty($jurusan) ? [$jurusan] : []);
+        $keterangan = trim(strip_tags((string) $this->request->getPost('keterangan')));
+
+        $this->guruPamongModel->assignJurusanToGuru((int) $guruId, $jurusanList, $keterangan);
+
+        return redirect()->to('/admin/guru-pamong')->with('pesan', "Pemetaan jurusan untuk {$guru['nama']} berhasil disimpan!");
+    }
+
+    public function hapusPemetaanGuru()
+    {
+        $guruId = $this->request->getPost('guru_id');
+        if (empty($guruId) || !is_numeric($guruId)) {
+            return redirect()->back()->with('error', 'ID Guru Pamong tidak valid!');
+        }
+
+        $guru = $this->userModel->find($guruId);
+        if (!$guru) {
+            return redirect()->back()->with('error', 'Data Guru Pamong tidak ditemukan!');
+        }
+
+        $this->guruPamongModel->assignJurusanToGuru((int) $guruId, []);
+
+        return redirect()->to('/admin/guru-pamong')->with('pesan', "Pemetaan jurusan untuk {$guru['nama']} berhasil direset!");
     }
 
     public function hapusUser()
@@ -310,6 +398,7 @@ class Admin extends BaseController
         $db = Database::connect();
         $db->table('presensi')->where('user_id', $userId)->delete();
         $db->table('piket_kbm')->where('user_id', $userId)->delete();
+        $db->table('guru_pamong')->where('guru_id', $userId)->delete();
 
         // Hapus pengguna
         $this->userModel->delete($userId);

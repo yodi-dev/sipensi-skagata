@@ -51,10 +51,17 @@
     <!-- Top Header -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
         <div>
-            <h4 class="fw-bold text-dark mb-0">
-                <i class="bi bi-calendar2-check text-success me-2"></i>Monitoring Presensi Harian
-            </h4>
-            <p class="text-muted small mt-1 mb-0">Verifikasi kehadiran dan perizinan mahasiswa praktikan di SMKN 3 Yogyakarta</p>
+            <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                <h4 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-calendar2-check text-success me-2"></i>Monitoring Presensi Harian
+                </h4>
+                <?php if (!empty($assigned_jurusans)): ?>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-semibold small">
+                        <i class="bi bi-mortarboard-fill me-1"></i>Pamong: <?= esc(implode(', ', $assigned_jurusans)) ?>
+                    </span>
+                <?php endif; ?>
+            </div>
+            <p class="text-muted small mb-0">Verifikasi kehadiran dan perizinan mahasiswa praktikan di SMKN 3 Yogyakarta</p>
         </div>
         <div class="d-flex gap-2">
             <a href="<?= base_url('guru/laporan_piket') ?>" class="btn btn-outline-success btn-sm rounded-pill px-3">
@@ -65,6 +72,16 @@
             </a>
         </div>
     </div>
+
+    <?php if (empty($assigned_jurusans) && session()->get('role') === 'guru'): ?>
+        <div class="alert alert-warning rounded-4 border-0 shadow-sm d-flex align-items-center gap-3 mb-4 p-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill text-warning fs-3"></i>
+            <div>
+                <strong class="d-block text-dark">Akun Guru Pamong Belum Dipetakan</strong>
+                <span class="text-muted small">Akun Anda saat ini belum dipetakan ke jurusan mahasiswa manapun. Silakan hubungi Administrator Sistem untuk mengatur pemetaan jurusan bimbingan Anda agar data mahasiswa dapat ditampilkan.</span>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <div class="card dashboard-card">
 
@@ -79,23 +96,17 @@
             <!-- Auto-Filter Form ala Sibenka (Tanpa Tombol Cari Manual) -->
             <form action="<?= base_url('guru') ?>" method="GET" class="d-flex flex-column flex-md-row gap-2 align-items-md-center m-0">
 
-                <div class="filter-wrapper d-flex align-items-center gap-2">
-                    <label for="jurusan" class="fw-semibold text-muted small mb-0 text-nowrap"><i class="bi bi-funnel"></i> Jurusan:</label>
-                    <select name="jurusan" id="jurusan" class="form-select form-select-sm border-0 bg-transparent shadow-none" onchange="this.form.submit()">
-                        <option value="">-- Semua Jurusan --</option>
-                        <?php if (!empty($daftar_jurusan)): ?>
+                <?php if (!empty($daftar_jurusan) && count($daftar_jurusan) > 1): ?>
+                    <div class="filter-wrapper d-flex align-items-center gap-2">
+                        <label for="jurusan" class="fw-semibold text-muted small mb-0 text-nowrap"><i class="bi bi-funnel"></i> Jurusan:</label>
+                        <select name="jurusan" id="jurusan" class="form-select form-select-sm border-0 bg-transparent shadow-none" onchange="this.form.submit()">
+                            <option value="">-- Semua Jurusan Bimbingan --</option>
                             <?php foreach ($daftar_jurusan as $jrs): ?>
                                 <option value="<?= esc($jrs) ?>" <?= ($jurusan_terpilih === $jrs) ? 'selected' : '' ?>><?= esc($jrs) ?></option>
                             <?php endforeach; ?>
-                        <?php else: ?>
-                            <option value="Informatika" <?= ($jurusan_terpilih === 'Informatika') ? 'selected' : '' ?>>Informatika</option>
-                            <option value="PJOK" <?= ($jurusan_terpilih === 'PJOK') ? 'selected' : '' ?>>PJOK</option>
-                            <option value="BK" <?= ($jurusan_terpilih === 'BK') ? 'selected' : '' ?>>BK</option>
-                            <option value="TL" <?= ($jurusan_terpilih === 'TL') ? 'selected' : '' ?>>TL</option>
-                            <option value="TO" <?= ($jurusan_terpilih === 'TO') ? 'selected' : '' ?>>TO</option>
-                        <?php endif; ?>
-                    </select>
-                </div>
+                        </select>
+                    </div>
+                <?php endif; ?>
 
                 <div class="filter-wrapper d-flex align-items-center gap-2">
                     <label for="tanggal" class="fw-semibold text-muted small mb-0 text-nowrap"><i class="bi bi-calendar-event"></i> Tanggal:</label>

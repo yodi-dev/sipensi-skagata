@@ -145,10 +145,17 @@
     <!-- Top Action Bar (Sembunyi saat Cetak) -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
         <div>
-            <h4 class="fw-bold text-dark mb-0">
-                <i class="bi bi-file-earmark-spreadsheet text-success me-2"></i>Laporan Bulanan Presensi
-            </h4>
-            <p class="text-muted small mt-1 mb-0">Rekapitulasi resmi kehadiran mahasiswa praktikan &amp; GTT berbasis 5 hari kerja efektif</p>
+            <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                <h4 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-file-earmark-spreadsheet text-success me-2"></i>Laporan Bulanan Presensi
+                </h4>
+                <?php if (!empty($assigned_jurusans)): ?>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-semibold small">
+                        <i class="bi bi-mortarboard-fill me-1"></i>Pamong: <?= esc(implode(', ', $assigned_jurusans)) ?>
+                    </span>
+                <?php endif; ?>
+            </div>
+            <p class="text-muted small mb-0">Rekapitulasi resmi kehadiran mahasiswa praktikan &amp; GTT berbasis 5 hari kerja efektif</p>
         </div>
         <div class="d-flex gap-2">
             <a href="<?= base_url('guru') ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
@@ -163,6 +170,16 @@
         </div>
     </div>
 
+    <?php if (empty($assigned_jurusans) && session()->get('role') === 'guru'): ?>
+        <div class="alert alert-warning rounded-4 border-0 shadow-sm d-flex align-items-center gap-3 mb-4 p-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill text-warning fs-3"></i>
+            <div>
+                <strong class="d-block text-dark">Akun Guru Pamong Belum Dipetakan</strong>
+                <span class="text-muted small">Akun Anda saat ini belum dipetakan ke jurusan mahasiswa manapun. Silakan hubungi Administrator Sistem untuk mengatur pemetaan jurusan bimbingan Anda.</span>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- Kop Resmi SMK Negeri 3 Yogyakarta (Hanya Muncul Saat Print / Cetak PDF) -->
     <div class="print-only-header text-center">
         <div class="lh-sm">
@@ -174,7 +191,7 @@
         <div class="kop-surat-border mt-2"></div>
         <h5 class="fw-bold text-uppercase mt-2 mb-1" style="font-size: 12pt;">REKAPITULASI PRESENSI MAHASISWA PRAKTIKAN</h5>
         <p class="small text-muted mb-0" style="font-size: 10pt;">
-            Periode: <strong><?= date('F', mktime(0, 0, 0, (int)$bulan_pilih, 10)) ?> <?= esc($tahun_pilih) ?></strong> &bull; Basis 5 Hari Kerja Efektif (Senin - Jumat)
+            Jurusan Bimbingan: <strong><?= !empty($assigned_jurusans) ? esc(implode(', ', $assigned_jurusans)) : 'Semua Jurusan' ?></strong> &bull; Periode: <strong><?= date('F', mktime(0, 0, 0, (int)$bulan_pilih, 10)) ?> <?= esc($tahun_pilih) ?></strong> &bull; Basis 5 Hari Kerja Efektif
         </p>
     </div>
 

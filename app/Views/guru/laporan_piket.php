@@ -45,9 +45,16 @@
 <div class="container py-4">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
         <div>
-            <h4 class="fw-bold text-dark mb-0">
-                <i class="bi bi-camera text-success me-2"></i>Laporan Piket KBM
-            </h4>
+            <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                <h4 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-camera text-success me-2"></i>Laporan Piket KBM
+                </h4>
+                <?php if (!empty($assigned_jurusans)): ?>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-semibold small">
+                        <i class="bi bi-mortarboard-fill me-1"></i>Pamong: <?= esc(implode(', ', $assigned_jurusans)) ?>
+                    </span>
+                <?php endif; ?>
+            </div>
             <p class="text-muted small mt-1 mb-0">Dokumentasi kegiatan piket KBM mahasiswa praktikan di SMKN 3 Yogyakarta</p>
         </div>
         <div class="d-flex gap-2">
@@ -56,6 +63,16 @@
             </a>
         </div>
     </div>
+
+    <?php if (empty($assigned_jurusans) && session()->get('role') === 'guru'): ?>
+        <div class="alert alert-warning rounded-4 border-0 shadow-sm d-flex align-items-center gap-3 mb-4 p-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill text-warning fs-3"></i>
+            <div>
+                <strong class="d-block text-dark">Akun Guru Pamong Belum Dipetakan</strong>
+                <span class="text-muted small">Akun Anda saat ini belum dipetakan ke jurusan mahasiswa manapun. Silakan hubungi Administrator Sistem untuk mengatur pemetaan jurusan bimbingan Anda.</span>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <div class="card report-card">
         <div class="card-header-custom d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">

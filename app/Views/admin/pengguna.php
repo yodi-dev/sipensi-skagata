@@ -248,26 +248,43 @@ function getInitials($name)
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if (!empty($u['jurusan'])): ?>
-                                        <span class="badge bg-light text-dark border rounded-pill px-2 py-1">
-                                            <?= esc($u['jurusan']) ?>
-                                        </span>
+                                    <?php if ($u['role'] === 'guru'): ?>
+                                        <?php if (!empty($u['jurusan'])): ?>
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
+                                                <i class="bi bi-shield-check me-1"></i><?= esc($u['jurusan']) ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1">
+                                                <i class="bi bi-exclamation-circle me-1"></i>Belum Dipetakan
+                                            </span>
+                                        <?php endif; ?>
+                                        <div class="mt-1">
+                                            <a href="<?= base_url('admin/guru-pamong') ?>" class="small text-decoration-none text-muted" style="font-size: 0.75rem;">
+                                                <i class="bi bi-gear-wide-connected me-1"></i>Atur Pemetaan
+                                            </a>
+                                        </div>
                                     <?php else: ?>
-                                        <span class="text-muted small">-</span>
-                                    <?php endif; ?>
+                                        <?php if (!empty($u['jurusan'])): ?>
+                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1">
+                                                <?= esc($u['jurusan']) ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="text-muted small">-</span>
+                                        <?php endif; ?>
 
-                                    <?php if (!empty($u['universitas'])): ?>
-                                        <div class="small text-muted mt-1 d-flex align-items-center gap-1" title="Asal Universitas: <?= esc($u['universitas']) ?>">
-                                            <i class="bi bi-buildings text-success" style="font-size: 0.75rem;"></i>
-                                            <span class="text-truncate" style="max-width: 170px;"><?= esc($u['universitas']) ?></span>
-                                        </div>
-                                    <?php endif; ?>
+                                        <?php if (!empty($u['universitas'])): ?>
+                                            <div class="small text-muted mt-1 d-flex align-items-center gap-1" title="Asal Universitas: <?= esc($u['universitas']) ?>">
+                                                <i class="bi bi-buildings text-success" style="font-size: 0.75rem;"></i>
+                                                <span class="text-truncate" style="max-width: 170px;"><?= esc($u['universitas']) ?></span>
+                                            </div>
+                                        <?php endif; ?>
 
-                                    <?php if (!empty($u['nama_periode_relasi'])): ?>
-                                        <div class="small text-muted mt-1 d-flex align-items-center gap-1" title="Periode: <?= esc($u['nama_periode_relasi']) ?>">
-                                            <i class="bi bi-calendar-range text-primary" style="font-size: 0.75rem;"></i>
-                                            <span class="text-truncate" style="max-width: 170px;"><?= esc($u['nama_periode_relasi']) ?></span>
-                                        </div>
+                                        <?php if (!empty($u['nama_periode_relasi'])): ?>
+                                            <div class="small text-muted mt-1 d-flex align-items-center gap-1" title="Periode: <?= esc($u['nama_periode_relasi']) ?>">
+                                                <i class="bi bi-calendar-range text-primary" style="font-size: 0.75rem;"></i>
+                                                <span class="text-truncate" style="max-width: 170px;"><?= esc($u['nama_periode_relasi']) ?></span>
+                                            </div>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
@@ -517,10 +534,18 @@ function getInitials($name)
         const jWrapper = document.getElementById(jurusanWrapperId);
         const uWrapper = universitasWrapperId ? document.getElementById(universitasWrapperId) : null;
         const pWrapper = periodeWrapperId ? document.getElementById(periodeWrapperId) : null;
+        const jLabel = jWrapper ? jWrapper.querySelector('label') : null;
+
         if (role === 'mahasiswa') {
             if (jWrapper) jWrapper.style.display = 'block';
+            if (jLabel) jLabel.textContent = 'Jurusan Mahasiswa';
             if (uWrapper) uWrapper.style.display = 'block';
             if (pWrapper) pWrapper.style.display = 'block';
+        } else if (role === 'guru') {
+            if (jWrapper) jWrapper.style.display = 'block';
+            if (jLabel) jLabel.textContent = 'Jurusan Bimbingan / Pamong';
+            if (uWrapper) uWrapper.style.display = 'none';
+            if (pWrapper) pWrapper.style.display = 'none';
         } else {
             if (jWrapper) jWrapper.style.display = 'none';
             if (uWrapper) uWrapper.style.display = 'none';

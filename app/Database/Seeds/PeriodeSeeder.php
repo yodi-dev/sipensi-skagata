@@ -42,3 +42,4 @@ class PeriodeSeeder extends Seeder
         $this->db->table('periode')->insertBatch($data);
     }
 }
+

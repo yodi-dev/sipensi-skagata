@@ -39,6 +39,9 @@ $routes->group('mahasiswa', ['filter' => ['auth', 'role:mahasiswa']], static fun
 $routes->group('admin', ['filter' => ['auth', 'role:admin']], static function ($routes) {
     $routes->get('/', 'Admin::index');
     $routes->get('pengguna', 'Admin::pengguna');
+    $routes->get('guru-pamong', 'Admin::guruPamong');
+    $routes->post('guru-pamong/simpan', 'Admin::simpanPemetaanGuru');
+    $routes->post('guru-pamong/hapus', 'Admin::hapusPemetaanGuru');
     $routes->post('tambah-user', 'Admin::tambahUser');
     $routes->post('edit-user', 'Admin::editUser');
     $routes->post('hapus-user', 'Admin::hapusUser');

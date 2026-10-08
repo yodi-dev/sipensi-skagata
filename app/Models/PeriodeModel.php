@@ -86,7 +86,7 @@ class PeriodeModel extends Model
 
         foreach ($list as &$item) {
             $item['total_mahasiswa'] = (int) ($item['total_mahasiswa'] ?? 0);
-            
+
             if ($today < $item['tanggal_mulai']) {
                 $item['timeline_status'] = 'Akan Datang';
                 $item['timeline_badge']  = 'info';

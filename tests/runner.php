@@ -827,5 +827,125 @@ $runner->it("Layout template dan manajemen pengguna harus terintegrasi dengan Ma
     $runner->assertTrue(strpos($adminIndex, 'admin/periode') !== false, "Admin index harus menyediakan pintasan admin/periode");
 });
 
+$runner->describe("19. Pengujian Pemetaan Guru Pamong & Isolasi Jurusan");
+
+$runner->it("GuruPamongModel harus memiliki skema tabel, CRUD penugasan, dan isolasi relasi jurusan", function() use ($runner) {
+    $model = new \App\Models\GuruPamongModel();
+    $runner->assertEquals('guru_pamong', $model->getTable(), "Tabel GuruPamongModel harus 'guru_pamong'");
+
+    $runner->assertTrue(method_exists($model, 'getJurusanByGuru'), "Method getJurusanByGuru harus ada");
+    $runner->assertTrue(method_exists($model, 'getGuruWithJurusan'), "Method getGuruWithJurusan harus ada");
+    $runner->assertTrue(method_exists($model, 'assignJurusanToGuru'), "Method assignJurusanToGuru harus ada");
+    $runner->assertTrue(method_exists($model, 'isMahasiswaSupervisedByGuru'), "Method isMahasiswaSupervisedByGuru harus ada");
+    $runner->assertTrue(method_exists($model, 'countMahasiswaByGuru'), "Method countMahasiswaByGuru harus ada");
+
+    // Ambil guru test menggunakan koneksi default (MySQL db_presensi)
+    $db = \Config\Database::connect('default');
+    $guru = $db->table('users')->where('role', 'guru')->get()->getRowArray();
+    $runner->assertTrue(!empty($guru), "Harus ada minimal satu akun guru di database");
+
+    $guruId = (int) $guru['id'];
+    $assigned = $model->getJurusanByGuru($guruId);
+    $runner->assertTrue(is_array($assigned), "Hasil getJurusanByGuru harus berupa array");
+
+    // Test getGuruWithJurusan
+    $list = $model->getGuruWithJurusan();
+    $runner->assertTrue(is_array($list) && count($list) > 0, "getGuruWithJurusan harus mengembalikan daftar guru pamong");
+    $firstGuru = $list[0];
+    $runner->assertTrue(isset($firstGuru['jurusan_list']), "Item guru harus memuat jurusan_list");
+    $runner->assertTrue(isset($firstGuru['total_mahasiswa']), "Item guru harus memuat total_mahasiswa");
+});
+
+$runner->it("Verifikasi isolasi pengawasan mahasiswa berdasarkan pemetaan jurusan", function() use ($runner) {
+    $model = new \App\Models\GuruPamongModel();
+    $db = \Config\Database::connect('default');
+
+    // Ambil guru febriyana atau guru pertama
+    $guru = $db->table('users')->where('role', 'guru')->get()->getRowArray();
+    $runner->assertTrue(!empty($guru));
+    $guruId = (int) $guru['id'];
+
+    // Pastikan guru ini dipetakan ke jurusan 'Informatika'
+    $model->assignJurusanToGuru($guruId, ['Informatika'], 'SK Testing 2026');
+    $assigned = $model->getJurusanByGuru($guruId);
+    $runner->assertTrue(in_array('Informatika', $assigned, true), "Guru harus terpetakan ke Informatika");
+
+    // Cari mahasiswa dengan jurusan Informatika
+    $mhsIF = $db->table('users')->where('role', 'mahasiswa')->where('jurusan', 'Informatika')->get()->getRowArray();
+    if ($mhsIF) {
+        $isSupervised = $model->isMahasiswaSupervisedByGuru($guruId, (int) $mhsIF['id']);
+        $runner->assertTrue($isSupervised, "Mahasiswa Informatika harus diawasi oleh guru pamong Informatika");
+    }
+
+    // Cari mahasiswa selain Informatika
+    $mhsNonIF = $db->table('users')->where('role', 'mahasiswa')->where('jurusan !=', 'Informatika')->get()->getRowArray();
+    if ($mhsNonIF) {
+        $isSupervisedNon = $model->isMahasiswaSupervisedByGuru($guruId, (int) $mhsNonIF['id']);
+        $runner->assertFalse($isSupervisedNon, "Mahasiswa di luar Informatika TIDAK boleh diawasi oleh guru Informatika");
+    }
+
+    // Reset/kosongkan jurusan guru
+    $model->assignJurusanToGuru($guruId, []);
+    $emptyAssigned = $model->getJurusanByGuru($guruId);
+    $runner->assertEquals([], $emptyAssigned, "Setelah direset, guru tidak boleh memiliki jurusan bimbingan");
+    if ($mhsIF) {
+        $isSupervisedAfterReset = $model->isMahasiswaSupervisedByGuru($guruId, (int) $mhsIF['id']);
+        $runner->assertFalse($isSupervisedAfterReset, "Guru tanpa jurusan tidak boleh dapat mengawasi mahasiswa manapun");
+    }
+
+    // Kembalikan pemetaan guru semula
+    $model->assignJurusanToGuru($guruId, ['Informatika'], 'SK Pengawasan 2026');
+});
+
+$runner->it("Route pemetaan guru pamong harus terdaftar di Config/Routes.php", function() use ($runner) {
+    $routesFile = APPPATH . 'Config/Routes.php';
+    $runner->assertTrue(file_exists($routesFile));
+    $content = file_get_contents($routesFile);
+    $runner->assertTrue(strpos($content, "'Admin::guruPamong'") !== false, "Route GET admin/guru-pamong harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::simpanPemetaanGuru'") !== false, "Route POST admin/guru-pamong/simpan harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::hapusPemetaanGuru'") !== false, "Route POST admin/guru-pamong/hapus harus terdaftar");
+});
+
+$runner->it("Controller Guru harus menerapkan isolasi data di index, update_status, laporan, exportExcel, dan piket", function() use ($runner) {
+    $guruControllerFile = APPPATH . 'Controllers/Guru.php';
+    $runner->assertTrue(file_exists($guruControllerFile));
+    $content = file_get_contents($guruControllerFile);
+
+    $runner->assertTrue(strpos($content, 'isMahasiswaSupervisedByGuru') !== false, "Guru::update_status harus memvalidasi isMahasiswaSupervisedByGuru");
+    $runner->assertTrue(strpos($content, 'assignedJurusans') !== false, "Guru controller harus memfilter query berdasarkan assignedJurusans");
+    $runner->assertTrue(strpos($content, 'guruPamongModel') !== false, "Guru controller harus menginjeksi guruPamongModel");
+});
+
+$runner->it("View admin/guru_pamong harus memuat stat-card, modal pemetaan, dan isolasi feedback", function() use ($runner) {
+    $viewFile = APPPATH . 'Views/admin/guru_pamong.php';
+    $runner->assertTrue(file_exists($viewFile), "File Views/admin/guru_pamong.php harus ada");
+    $content = file_get_contents($viewFile);
+
+    $runner->assertTrue(strpos($content, 'stat-card-modern') !== false, "Harus memuat stat-card-modern");
+    $runner->assertTrue(strpos($content, 'modalPemetaan') !== false, "Harus memuat modalPemetaan");
+    $runner->assertTrue(strpos($content, 'formResetPemetaan') !== false, "Harus memuat formResetPemetaan");
+    $runner->assertTrue(strpos($content, 'tabelGuruPamong') !== false, "Harus memuat tabelGuruPamong");
+    $runner->assertTrue(strpos($content, 'bukaModalPemetaan') !== false, "Harus memuat handler JS bukaModalPemetaan");
+    $runner->assertTrue(strpos($content, 'Swal.fire') !== false, "Harus memuat integrasi SweetAlert2");
+});
+
+$runner->it("Layout template dan manajemen pengguna harus terintegrasi dengan Pemetaan Guru Pamong", function() use ($runner) {
+    $templateFile = APPPATH . 'Views/layout/template.php';
+    $runner->assertTrue(file_exists($templateFile));
+    $content = file_get_contents($templateFile);
+    $runner->assertTrue(strpos($content, 'admin/guru-pamong') !== false, "Sidebar harus mengarahkan ke admin/guru-pamong");
+
+    $penggunaView = file_get_contents(APPPATH . 'Views/admin/pengguna.php');
+    $runner->assertTrue(strpos($penggunaView, 'admin/guru-pamong') !== false, "Pengguna view harus memiliki tautan cepat ke pemetaan pamong");
+    $runner->assertTrue(strpos($penggunaView, "Jurusan Bimbingan / Pamong") !== false, "Pengguna view harus mendukung label jurusan pamong");
+
+    // Guru views harus memuat indikator jurusan pamong
+    $guruIndexView = file_get_contents(APPPATH . 'Views/guru/index.php');
+    $runner->assertTrue(strpos($guruIndexView, 'assigned_jurusans') !== false, "Guru index view harus menampilkan identitas jurusan pamong");
+
+    $guruLaporanView = file_get_contents(APPPATH . 'Views/guru/laporan.php');
+    $runner->assertTrue(strpos($guruLaporanView, 'assigned_jurusans') !== false, "Guru laporan view harus menampilkan identitas jurusan pamong");
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());
