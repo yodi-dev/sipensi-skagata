@@ -42,6 +42,19 @@
         border-radius: 0.75rem;
         padding: 0.4rem 0.75rem;
     }
+
+    /* Mobile Presence Card Styling */
+    .student-presence-card {
+        border-radius: 1rem;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        transition: transform 0.15s ease;
+    }
+
+    .student-presence-card:active {
+        transform: scale(0.99);
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -119,28 +132,123 @@
             </form>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered table-custom text-center">
-                <thead>
-                    <tr>
-                        <th width="5%">No</th>
-                        <th width="22%" class="text-start">Nama Mahasiswa</th>
-                        <th width="10%">Status</th>
-                        <th width="12%">Jam Masuk</th>
-                        <th width="12%">Jam Pulang</th>
-                        <th width="25%" class="text-start">Keterangan</th>
-                        <th width="14%">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($presensi)): ?>
+        <?php if (empty($presensi)): ?>
+            <!-- Empty State -->
+            <div class="text-center py-5 p-4 text-muted">
+                <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 64px; height: 64px;">
+                    <i class="bi bi-inbox fs-2 text-secondary"></i>
+                </div>
+                <h6 class="fw-semibold text-dark mb-1">Belum Ada Presensi Masuk</h6>
+                <p class="small text-muted mb-0">Belum ada data presensi mahasiswa pada tanggal <strong><?= esc(date('d F Y', strtotime($tanggal))) ?></strong>.</p>
+            </div>
+        <?php else: ?>
+
+            <!-- ============================================== -->
+            <!-- 1. MOBILE VIEW: Responsive Cards (< 768px)     -->
+            <!-- ============================================== -->
+            <div class="d-block d-md-none p-3 bg-light bg-opacity-50">
+                <div class="d-flex flex-column gap-3">
+                    <?php foreach ($presensi as $key => $row): ?>
+                        <div class="card student-presence-card p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2 pb-2 border-bottom">
+                                <div class="overflow-hidden pe-2">
+                                    <span class="fw-bold text-dark d-block text-truncate" style="max-width: 190px;"><?= esc($row['nama']) ?></span>
+                                    <small class="text-muted" style="font-size: 0.72rem;">#<?= esc($key + 1) ?></small>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <?php if ($row['status'] === 'hadir'): ?>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">Hadir</span>
+                                    <?php elseif ($row['status'] === 'terlambat'): ?>
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1">Terlambat</span>
+                                    <?php elseif ($row['status'] === 'izin'): ?>
+                                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-2 py-1">Izin</span>
+                                    <?php elseif ($row['status'] === 'sakit'): ?>
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2 py-1">Sakit</span>
+                                    <?php elseif ($row['status'] === 'alpa'): ?>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1">Alpa</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-light text-muted border rounded-pill px-2 py-1">Belum Absen</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <!-- Jam Masuk & Pulang Chips -->
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <div class="text-center p-2 rounded bg-light border">
+                                        <div class="text-muted small" style="font-size: 0.7rem;"><i class="bi bi-box-arrow-in-right text-success me-1"></i>Datang</div>
+                                        <div class="fw-bold mt-1 <?= !empty($row['jam_masuk']) ? ($row['status'] === 'terlambat' ? 'text-warning-emphasis' : 'text-success') : 'text-muted' ?>" style="font-size: 0.9rem;">
+                                            <?= esc($row['jam_masuk'] ?: '--:--') ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center p-2 rounded bg-light border">
+                                        <div class="text-muted small" style="font-size: 0.7rem;"><i class="bi bi-box-arrow-right text-warning me-1"></i>Pulang</div>
+                                        <div class="fw-bold mt-1 <?= !empty($row['jam_keluar']) ? 'text-dark' : 'text-muted' ?>" style="font-size: 0.9rem;">
+                                            <?= esc($row['jam_keluar'] ?: '--:--') ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Keterangan jika ada -->
+                            <?php if (!empty($row['keterangan'])): ?>
+                                <div class="bg-light rounded-3 p-2 small text-muted mb-2" style="font-size: 0.8rem;">
+                                    <i class="bi bi-chat-quote me-1 text-secondary"></i><?= esc($row['keterangan']) ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Tombol Aksi di Mobile -->
+                            <div class="d-flex align-items-center gap-2 pt-2 border-top flex-wrap">
+                                <?php if (in_array($row['status'], ['hadir', 'terlambat']) && !empty($row['latitude']) && !empty($row['longitude'])): ?>
+                                    <a href="https://www.google.com/maps?q=<?= esc((float) $row['latitude']) ?>,<?= esc((float) $row['longitude']) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" style="font-size: 0.75rem;">
+                                        <i class="bi bi-geo-alt me-1"></i>Peta GPS
+                                    </a>
+                                <?php endif; ?>
+
+                                <?php if (!empty($row['bukti_surat'])): ?>
+                                    <a href="<?= base_url('uploads/surat/' . esc($row['bukti_surat'])) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1" style="font-size: 0.75rem;">
+                                        <i class="bi bi-file-earmark-text me-1"></i>Bukti Surat
+                                    </a>
+                                <?php endif; ?>
+
+                                <div class="dropdown ms-auto">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle rounded-pill px-3 py-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.75rem;">
+                                        <i class="bi bi-pencil-square me-1"></i>Ubah Status
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="konfirmasiUbahStatus(<?= (int) $row['id'] ?>, <?= htmlspecialchars(json_encode($row['nama']), ENT_QUOTES, 'UTF-8') ?>, 'hadir')"><i class="bi bi-check-circle text-success me-2"></i> Set Hadir</a></li>
+                                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="konfirmasiUbahStatus(<?= (int) $row['id'] ?>, <?= htmlspecialchars(json_encode($row['nama']), ENT_QUOTES, 'UTF-8') ?>, 'terlambat')"><i class="bi bi-clock-history text-warning me-2"></i> Set Terlambat</a></li>
+                                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="konfirmasiUbahStatus(<?= (int) $row['id'] ?>, <?= htmlspecialchars(json_encode($row['nama']), ENT_QUOTES, 'UTF-8') ?>, 'izin')"><i class="bi bi-info-circle text-info me-2"></i> Set Izin</a></li>
+                                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="konfirmasiUbahStatus(<?= (int) $row['id'] ?>, <?= htmlspecialchars(json_encode($row['nama']), ENT_QUOTES, 'UTF-8') ?>, 'sakit')"><i class="bi bi-bandaid text-secondary me-2"></i> Set Sakit</a></li>
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        <li><a class="dropdown-item py-2 text-danger" href="javascript:void(0)" onclick="konfirmasiUbahStatus(<?= (int) $row['id'] ?>, <?= htmlspecialchars(json_encode($row['nama']), ENT_QUOTES, 'UTF-8') ?>, 'alpa')"><i class="bi bi-x-circle me-2"></i> Set Alpa</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 2. DESKTOP VIEW: Full Data Table (>= 768px)    -->
+            <!-- ============================================== -->
+            <div class="table-responsive d-none d-md-block">
+                <table class="table table-hover table-bordered table-custom text-center">
+                    <thead>
                         <tr>
-                            <td colspan="7" class="text-center py-5 text-muted">
-                                <i class="bi bi-inbox fs-1 d-block mb-2 text-muted"></i>
-                                Belum ada data presensi mahasiswa pada tanggal ini.
-                            </td>
+                            <th width="5%">No</th>
+                            <th width="22%" class="text-start">Nama Mahasiswa</th>
+                            <th width="10%">Status</th>
+                            <th width="12%">Jam Masuk</th>
+                            <th width="12%">Jam Pulang</th>
+                            <th width="25%" class="text-start">Keterangan</th>
+                            <th width="14%">Aksi</th>
                         </tr>
-                    <?php else: ?>
+                    </thead>
+                    <tbody>
                         <?php foreach ($presensi as $key => $row): ?>
                             <tr>
                                 <td><span class="text-muted fw-semibold"><?= esc($key + 1) ?></span></td>
@@ -198,10 +306,11 @@
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+                </table>
+            </div>
+
+        <?php endif; ?>
     </div>
 
 </div>
