@@ -134,14 +134,11 @@
                             <div id="matchFeedback" class="small mt-1 d-none" style="font-size: 0.8rem;"></div>
                         </div>
 
-                        <div class="d-grid gap-3">
+                        <div class="d-grid">
                             <button type="submit" id="btnSubmitUbahPass" class="btn btn-primary-custom text-white d-flex align-items-center justify-content-center gap-2">
                                 <i class="bi bi-save"></i>
                                 <span>Simpan Password</span>
                             </button>
-                            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-outline-custom text-center">
-                                <i class="bi bi-arrow-left me-2"></i> Batal / Kembali
-                            </a>
                         </div>
                     </form>
 
