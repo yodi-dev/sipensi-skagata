@@ -154,7 +154,20 @@ function getInitials($name)
                     </select>
                 </div>
 
-                <?php if (!empty($keyword) || !empty($role_terpilih) || !empty($jurusan_pilih)): ?>
+                <div class="vr my-1 text-muted d-none d-sm-block"></div>
+
+                <div class="input-group input-group-sm" style="width: auto;">
+                    <select name="universitas" class="form-select form-select-sm border-0 bg-transparent fw-medium" onchange="this.form.submit()" aria-label="Filter Universitas">
+                        <option value="">Semua Universitas</option>
+                        <?php if (!empty($daftar_universitas)): ?>
+                            <?php foreach ($daftar_universitas as $univ): ?>
+                                <option value="<?= esc($univ) ?>" <?= (($universitas_pilih ?? '') === $univ) ? 'selected' : '' ?>><?= esc($univ) ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+
+                <?php if (!empty($keyword) || !empty($role_terpilih) || !empty($jurusan_pilih) || !empty($universitas_pilih)): ?>
                     <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-sm btn-link text-muted p-1" title="Reset Filter">
                         <i class="bi bi-x-circle-fill"></i>
                     </a>
@@ -173,7 +186,7 @@ function getInitials($name)
                         <th class="text-center" style="width: 50px;">No</th>
                         <th>Pengguna</th>
                         <th>Role Akun</th>
-                        <th>Jurusan</th>
+                        <th>Jurusan &amp; Kampus</th>
                         <th class="text-center" style="width: 150px;">Aksi</th>
                     </tr>
                 </thead>
@@ -227,11 +240,18 @@ function getInitials($name)
                                     <?php else: ?>
                                         <span class="text-muted small">-</span>
                                     <?php endif; ?>
+
+                                    <?php if (!empty($u['universitas'])): ?>
+                                        <div class="small text-muted mt-1 d-flex align-items-center gap-1" title="Asal Universitas: <?= esc($u['universitas']) ?>">
+                                            <i class="bi bi-buildings text-success" style="font-size: 0.75rem;"></i>
+                                            <span class="text-truncate" style="max-width: 170px;"><?= esc($u['universitas']) ?></span>
+                                        </div>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="text-center">
                                     <div class="d-inline-flex align-items-center gap-1">
                                         <!-- Tombol Edit -->
-                                        <button type="button" class="btn btn-sm btn-light border text-primary rounded-circle p-1" style="width: 32px; height: 32px;" title="Edit Pengguna" onclick="bukaModalEdit(<?= (int) $u['id'] ?>, '<?= esc($u['username'], 'js') ?>', '<?= esc($u['nama'], 'js') ?>', '<?= esc($u['role'], 'js') ?>', '<?= esc($u['jurusan'] ?? '', 'js') ?>')">
+                                        <button type="button" class="btn btn-sm btn-light border text-primary rounded-circle p-1" style="width: 32px; height: 32px;" title="Edit Pengguna" onclick="bukaModalEdit(<?= (int) $u['id'] ?>, '<?= esc($u['username'], 'js') ?>', '<?= esc($u['nama'], 'js') ?>', '<?= esc($u['role'], 'js') ?>', '<?= esc($u['jurusan'] ?? '', 'js') ?>', '<?= esc($u['universitas'] ?? '', 'js') ?>')">
                                             <i class="bi bi-pencil"></i>
                                         </button>
 
@@ -280,7 +300,7 @@ function getInitials($name)
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
-                        <select name="role" class="form-select" id="tambahRoleSelect" onchange="toggleJurusanField('tambahRoleSelect', 'tambahJurusanWrapper')" required>
+                        <select name="role" class="form-select" id="tambahRoleSelect" onchange="toggleJurusanField('tambahRoleSelect', 'tambahJurusanWrapper', 'tambahUniversitasWrapper')" required>
                             <option value="mahasiswa" selected>Mahasiswa Praktikan (PPL/PK)</option>
                             <option value="guru">Guru Pamong / GTT</option>
                         </select>
@@ -292,6 +312,17 @@ function getInitials($name)
                             <?php if (!empty($daftar_jurusan)): ?>
                                 <?php foreach ($daftar_jurusan as $jrs): ?>
                                     <option value="<?= esc($jrs) ?>"><?= esc($jrs) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="tambahUniversitasWrapper">
+                        <label class="form-label fw-semibold small text-dark">Asal Universitas / Kampus</label>
+                        <select name="universitas" class="form-select">
+                            <option value="">-- Pilih Asal Universitas --</option>
+                            <?php if (!empty($daftar_universitas)): ?>
+                                <?php foreach ($daftar_universitas as $univ): ?>
+                                    <option value="<?= esc($univ) ?>"><?= esc($univ) ?></option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
@@ -342,7 +373,7 @@ function getInitials($name)
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
-                        <select name="role" id="editRole" class="form-select" onchange="toggleJurusanField('editRole', 'editJurusanWrapper')" required>
+                        <select name="role" id="editRole" class="form-select" onchange="toggleJurusanField('editRole', 'editJurusanWrapper', 'editUniversitasWrapper')" required>
                             <option value="mahasiswa">Mahasiswa Praktikan (PPL/PK)</option>
                             <option value="guru">Guru Pamong / GTT</option>
                         </select>
@@ -354,6 +385,17 @@ function getInitials($name)
                             <?php if (!empty($daftar_jurusan)): ?>
                                 <?php foreach ($daftar_jurusan as $jrs): ?>
                                     <option value="<?= esc($jrs) ?>"><?= esc($jrs) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="editUniversitasWrapper">
+                        <label class="form-label fw-semibold small text-dark">Asal Universitas / Kampus</label>
+                        <select name="universitas" id="editUniversitas" class="form-select">
+                            <option value="">-- Pilih Asal Universitas --</option>
+                            <?php if (!empty($daftar_universitas)): ?>
+                                <?php foreach ($daftar_universitas as $univ): ?>
+                                    <option value="<?= esc($univ) ?>"><?= esc($univ) ?></option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
@@ -422,13 +464,16 @@ function getInitials($name)
 
 <?= $this->section('scripts') ?>
 <script>
-    function toggleJurusanField(roleSelectId, wrapperId) {
+    function toggleJurusanField(roleSelectId, jurusanWrapperId, universitasWrapperId) {
         const role = document.getElementById(roleSelectId).value;
-        const wrapper = document.getElementById(wrapperId);
+        const jWrapper = document.getElementById(jurusanWrapperId);
+        const uWrapper = universitasWrapperId ? document.getElementById(universitasWrapperId) : null;
         if (role === 'mahasiswa') {
-            wrapper.style.display = 'block';
+            if (jWrapper) jWrapper.style.display = 'block';
+            if (uWrapper) uWrapper.style.display = 'block';
         } else {
-            wrapper.style.display = 'none';
+            if (jWrapper) jWrapper.style.display = 'none';
+            if (uWrapper) uWrapper.style.display = 'none';
         }
     }
 
@@ -446,13 +491,16 @@ function getInitials($name)
         }
     }
 
-    function bukaModalEdit(id, username, nama, role, jurusan) {
+    function bukaModalEdit(id, username, nama, role, jurusan, universitas) {
         document.getElementById('editUserId').value = id;
         document.getElementById('editUsername').value = username;
         document.getElementById('editNama').value = nama;
         document.getElementById('editRole').value = role;
-        document.getElementById('editJurusan').value = jurusan;
-        toggleJurusanField('editRole', 'editJurusanWrapper');
+        document.getElementById('editJurusan').value = jurusan || '';
+        if (document.getElementById('editUniversitas')) {
+            document.getElementById('editUniversitas').value = universitas || '';
+        }
+        toggleJurusanField('editRole', 'editJurusanWrapper', 'editUniversitasWrapper');
 
         const modal = new bootstrap.Modal(document.getElementById('modalEditUser'));
         modal.show();

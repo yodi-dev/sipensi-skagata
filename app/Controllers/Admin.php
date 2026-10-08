@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\JurusanModel;
 use App\Models\SettingModel;
+use App\Models\UniversitasModel;
 use App\Models\UserModel;
 use Config\Database;
 
@@ -11,11 +12,13 @@ class Admin extends BaseController
 {
     protected UserModel $userModel;
     protected JurusanModel $jurusanModel;
+    protected UniversitasModel $universitasModel;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
         $this->jurusanModel = new JurusanModel();
+        $this->universitasModel = new UniversitasModel();
     }
 
     public function index()
@@ -80,6 +83,7 @@ class Admin extends BaseController
             'jam_masuk_max'         => $jamMasukMax,
             'jam_pulang_min'        => $jamPulangMin,
             'daftar_jurusan'        => $this->jurusanModel->getDaftarNama(),
+            'daftar_universitas'    => $this->universitasModel->getDaftarNama(),
             'title'                 => 'Dashboard Administrator - SIPENSI SKAGATA'
         ];
 
@@ -95,6 +99,7 @@ class Admin extends BaseController
         $keyword = trim((string) $this->request->getGet('keyword'));
         $roleFilter = $this->request->getGet('role');
         $jurusanFilter = $this->request->getGet('jurusan');
+        $universitasFilter = $this->request->getGet('universitas');
 
         // Hitung statistik
         $totalMahasiswa = (clone $builder)->where('role', 'mahasiswa')->countAllResults();
@@ -119,6 +124,10 @@ class Admin extends BaseController
             $builder->where('jurusan', $jurusanFilter);
         }
 
+        if (!empty($universitasFilter)) {
+            $builder->where('universitas', $universitasFilter);
+        }
+
         $users = $builder->orderBy('role', 'ASC')
             ->orderBy('nama', 'ASC')
             ->get()
@@ -140,16 +149,31 @@ class Admin extends BaseController
         $daftarJurusan = array_values(array_unique(array_merge($defaultJurusan, $masterJurusan, $jurusanFromDb)));
         sort($daftarJurusan);
 
+        // Ambil daftar universitas dinamis dari database
+        $univRaw = $db->table('users')
+            ->select('universitas')
+            ->where('universitas IS NOT NULL')
+            ->where('universitas !=', '')
+            ->groupBy('universitas')
+            ->get()
+            ->getResultArray();
+        $univFromDb = array_filter(array_column($univRaw, 'universitas'));
+        $masterUniversitas = $this->universitasModel->getDaftarNama();
+        $daftarUniversitas = array_values(array_unique(array_merge($masterUniversitas, $univFromDb)));
+        sort($daftarUniversitas);
+
         $data = [
-            'users'          => $users,
-            'current_admin'  => $currentAdmin,
-            'totalMahasiswa' => $totalMahasiswa,
-            'totalGuru'      => $totalGuru,
-            'keyword'        => $keyword,
-            'role_terpilih'  => $roleFilter,
-            'jurusan_pilih'  => $jurusanFilter,
-            'daftar_jurusan' => $daftarJurusan,
-            'title'          => 'Manajemen Pengguna - SIPENSI SKAGATA'
+            'users'              => $users,
+            'current_admin'      => $currentAdmin,
+            'totalMahasiswa'     => $totalMahasiswa,
+            'totalGuru'          => $totalGuru,
+            'keyword'            => $keyword,
+            'role_terpilih'      => $roleFilter,
+            'jurusan_pilih'      => $jurusanFilter,
+            'universitas_pilih'  => $universitasFilter,
+            'daftar_jurusan'     => $daftarJurusan,
+            'daftar_universitas' => $daftarUniversitas,
+            'title'              => 'Manajemen Pengguna - SIPENSI SKAGATA'
         ];
 
         return view('admin/pengguna', $data);
@@ -169,18 +193,20 @@ class Admin extends BaseController
             return redirect()->back()->withInput()->with('error', $errors);
         }
 
-        $username = trim((string) $this->request->getPost('username'));
-        $nama     = trim(strip_tags((string) $this->request->getPost('nama')));
-        $role     = (string) $this->request->getPost('role');
-        $jurusan  = trim((string) $this->request->getPost('jurusan'));
-        $password = (string) $this->request->getPost('password');
+        $username    = trim((string) $this->request->getPost('username'));
+        $nama        = trim(strip_tags((string) $this->request->getPost('nama')));
+        $role        = (string) $this->request->getPost('role');
+        $jurusan     = trim((string) $this->request->getPost('jurusan'));
+        $universitas = trim((string) $this->request->getPost('universitas'));
+        $password    = (string) $this->request->getPost('password');
 
         $this->userModel->insert([
-            'username' => $username,
-            'nama'     => $nama,
-            'role'     => $role,
-            'jurusan'  => !empty($jurusan) ? $jurusan : null,
-            'password' => password_hash($password, PASSWORD_BCRYPT)
+            'username'    => $username,
+            'nama'        => $nama,
+            'role'        => $role,
+            'jurusan'     => !empty($jurusan) ? $jurusan : null,
+            'universitas' => ($role === 'mahasiswa' && !empty($universitas)) ? $universitas : null,
+            'password'    => password_hash($password, PASSWORD_BCRYPT)
         ]);
 
         return redirect()->to('/admin/pengguna')->with('pesan', "Pengguna {$nama} ({$username}) berhasil ditambahkan!");
@@ -209,16 +235,18 @@ class Admin extends BaseController
             return redirect()->back()->withInput()->with('error', $errors);
         }
 
-        $username = trim((string) $this->request->getPost('username'));
-        $nama     = trim(strip_tags((string) $this->request->getPost('nama')));
-        $role     = (string) $this->request->getPost('role');
-        $jurusan  = trim((string) $this->request->getPost('jurusan'));
+        $username    = trim((string) $this->request->getPost('username'));
+        $nama        = trim(strip_tags((string) $this->request->getPost('nama')));
+        $role        = (string) $this->request->getPost('role');
+        $jurusan     = trim((string) $this->request->getPost('jurusan'));
+        $universitas = trim((string) $this->request->getPost('universitas'));
 
         $this->userModel->update($userId, [
-            'username' => $username,
-            'nama'     => $nama,
-            'role'     => $role,
-            'jurusan'  => !empty($jurusan) ? $jurusan : null
+            'username'    => $username,
+            'nama'        => $nama,
+            'role'        => $role,
+            'jurusan'     => !empty($jurusan) ? $jurusan : null,
+            'universitas' => ($role === 'mahasiswa' && !empty($universitas)) ? $universitas : null
         ]);
 
         return redirect()->to('/admin/pengguna')->with('pesan', "Data pengguna {$nama} berhasil diperbarui!");
@@ -464,6 +492,123 @@ class Admin extends BaseController
         $this->jurusanModel->delete($id);
 
         return redirect()->to('/admin/jurusan')->with('pesan', "Jurusan {$existing['nama_jurusan']} ({$existing['kode_jurusan']}) berhasil dihapus!");
+    }
+
+    public function universitas()
+    {
+        $keyword = trim((string) $this->request->getGet('keyword'));
+        $universitasList = $this->universitasModel->getUniversitasWithUserCount($keyword);
+
+        // Statistik
+        $totalUniversitas = $this->universitasModel->countAllResults();
+        $db = Database::connect();
+        $totalMahasiswa = $db->table('users')->where('role', 'mahasiswa')->where('universitas IS NOT NULL')->where('universitas !=', '')->countAllResults();
+
+        $currentAdmin = $this->userModel->find(session()->get('id_user'));
+
+        $data = [
+            'title'             => 'Master Data Asal Universitas - SIPENSI SKAGATA',
+            'current_admin'     => $currentAdmin,
+            'universitas_list'  => $universitasList,
+            'total_universitas' => $totalUniversitas,
+            'total_mahasiswa'   => $totalMahasiswa,
+            'keyword'           => $keyword,
+        ];
+
+        return view('admin/universitas', $data);
+    }
+
+    public function tambahUniversitas()
+    {
+        $rules = [
+            'kode_universitas' => 'required|min_length[2]|max_length[20]|is_unique[universitas.kode_universitas]',
+            'nama_universitas' => 'required|min_length[3]|max_length[150]',
+        ];
+
+        if (!$this->validate($rules)) {
+            $errors = implode(' ', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('error', $errors);
+        }
+
+        $kode    = strtoupper(trim((string) $this->request->getPost('kode_universitas')));
+        $nama    = trim(strip_tags((string) $this->request->getPost('nama_universitas')));
+        $alamat  = trim(strip_tags((string) $this->request->getPost('alamat')));
+        $telepon = trim(strip_tags((string) $this->request->getPost('telepon')));
+
+        $this->universitasModel->insert([
+            'kode_universitas' => $kode,
+            'nama_universitas' => $nama,
+            'alamat'           => !empty($alamat) ? $alamat : null,
+            'telepon'          => !empty($telepon) ? $telepon : null,
+        ]);
+
+        return redirect()->to('/admin/universitas')->with('pesan', "Universitas {$nama} ({$kode}) berhasil ditambahkan!");
+    }
+
+    public function editUniversitas()
+    {
+        $id = $this->request->getPost('id');
+        if (empty($id) || !is_numeric($id)) {
+            return redirect()->back()->with('error', 'ID universitas tidak valid!');
+        }
+
+        $existing = $this->universitasModel->find($id);
+        if (!$existing) {
+            return redirect()->back()->with('error', 'Data universitas tidak ditemukan!');
+        }
+
+        $rules = [
+            'kode_universitas' => "required|min_length[2]|max_length[20]|is_unique[universitas.kode_universitas,id,{$id}]",
+            'nama_universitas' => 'required|min_length[3]|max_length[150]',
+        ];
+
+        if (!$this->validate($rules)) {
+            $errors = implode(' ', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('error', $errors);
+        }
+
+        $kode    = strtoupper(trim((string) $this->request->getPost('kode_universitas')));
+        $nama    = trim(strip_tags((string) $this->request->getPost('nama_universitas')));
+        $alamat  = trim(strip_tags((string) $this->request->getPost('alamat')));
+        $telepon = trim(strip_tags((string) $this->request->getPost('telepon')));
+
+        $this->universitasModel->update($id, [
+            'kode_universitas' => $kode,
+            'nama_universitas' => $nama,
+            'alamat'           => !empty($alamat) ? $alamat : null,
+            'telepon'          => !empty($telepon) ? $telepon : null,
+        ]);
+
+        // Jika nama universitas berubah, sinkronkan data pengguna terkait
+        if ($existing['nama_universitas'] !== $nama) {
+            $db = Database::connect();
+            $db->table('users')->where('universitas', $existing['nama_universitas'])->update(['universitas' => $nama]);
+        }
+
+        return redirect()->to('/admin/universitas')->with('pesan', "Perubahan universitas {$nama} ({$kode}) berhasil disimpan!");
+    }
+
+    public function hapusUniversitas()
+    {
+        $id = $this->request->getPost('id');
+        if (empty($id) || !is_numeric($id)) {
+            return redirect()->back()->with('error', 'ID universitas tidak valid!');
+        }
+
+        $existing = $this->universitasModel->find($id);
+        if (!$existing) {
+            return redirect()->back()->with('error', 'Data universitas tidak ditemukan!');
+        }
+
+        // Cek apakah masih ada mahasiswa yang menggunakan universitas ini
+        $countPengguna = $this->universitasModel->countPenggunaByUniversitas((int) $id);
+        if ($countPengguna > 0) {
+            return redirect()->to('/admin/universitas')->with('error', "Universitas '{$existing['nama_universitas']}' tidak dapat dihapus karena masih digunakan oleh {$countPengguna} mahasiswa. Silakan alihkan data mahasiswa terlebih dahulu!");
+        }
+
+        $this->universitasModel->delete($id);
+
+        return redirect()->to('/admin/universitas')->with('pesan', "Universitas {$existing['nama_universitas']} ({$existing['kode_universitas']}) berhasil dihapus!");
     }
 
     public function updateProfil()

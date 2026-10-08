@@ -436,7 +436,7 @@ function getInitials($name)
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
-                        <select name="role" class="form-select" id="tambahRoleSelectDash" onchange="toggleJurusanField('tambahRoleSelectDash', 'tambahJurusanWrapperDash')" required>
+                        <select name="role" class="form-select" id="tambahRoleSelectDash" onchange="toggleJurusanField('tambahRoleSelectDash', 'tambahJurusanWrapperDash', 'tambahUniversitasWrapperDash')" required>
                             <option value="mahasiswa" selected>Mahasiswa Praktikan (PPL/PK)</option>
                             <option value="guru">Guru Pamong / GTT</option>
                         </select>
@@ -455,6 +455,17 @@ function getInitials($name)
                                 <option value="BK">BK</option>
                                 <option value="TL">TL</option>
                                 <option value="TO">TO</option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="tambahUniversitasWrapperDash">
+                        <label class="form-label fw-semibold small text-dark">Asal Universitas / Kampus</label>
+                        <select name="universitas" class="form-select">
+                            <option value="">-- Pilih Asal Universitas --</option>
+                            <?php if (!empty($daftar_universitas)): ?>
+                                <?php foreach ($daftar_universitas as $univ): ?>
+                                    <option value="<?= esc($univ) ?>"><?= esc($univ) ?></option>
+                                <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
                     </div>
@@ -483,11 +494,15 @@ function getInitials($name)
 
 <?= $this->section('scripts') ?>
 <script>
-    function toggleJurusanField(roleSelectId, wrapperId) {
+    function toggleJurusanField(roleSelectId, jurusanWrapperId, universitasWrapperId) {
         const role = document.getElementById(roleSelectId).value;
-        const wrapper = document.getElementById(wrapperId);
-        if (wrapper) {
-            wrapper.style.display = (role === 'mahasiswa') ? 'block' : 'none';
+        const jWrapper = document.getElementById(jurusanWrapperId);
+        const uWrapper = universitasWrapperId ? document.getElementById(universitasWrapperId) : null;
+        if (jWrapper) {
+            jWrapper.style.display = (role === 'mahasiswa') ? 'block' : 'none';
+        }
+        if (uWrapper) {
+            uWrapper.style.display = (role === 'mahasiswa') ? 'block' : 'none';
         }
     }
 

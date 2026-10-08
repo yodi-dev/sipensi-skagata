@@ -78,3 +78,4 @@ class JurusanSeeder extends Seeder
         }
     }
 }
+

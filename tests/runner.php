@@ -692,5 +692,65 @@ $runner->it("Layout template dan form pengguna harus terintegrasi dengan Master 
     $runner->assertTrue(strpos($guruIndex, '$daftar_jurusan') !== false, "Guru index harus mendukung daftar_jurusan");
 });
 
+$runner->describe("17. Pengujian Master Data Universitas (Mitra Kampus PPL/PK)");
+
+$runner->it("UniversitasModel harus memiliki validasi kode_universitas, nama_universitas, dan helper method", function() use ($runner) {
+    $model = new \App\Models\UniversitasModel();
+    $runner->assertEquals('universitas', $model->getTable(), "Tabel UniversitasModel harus 'universitas'");
+    $rules = $model->getValidationRules();
+    $runner->assertTrue(isset($rules['kode_universitas']), "Rule kode_universitas harus ada");
+    $runner->assertTrue(isset($rules['nama_universitas']), "Rule nama_universitas harus ada");
+    $runner->assertTrue(method_exists($model, 'getDaftarNama'), "Method getDaftarNama harus ada");
+    $runner->assertTrue(method_exists($model, 'getUniversitasWithUserCount'), "Method getUniversitasWithUserCount harus ada");
+    $runner->assertTrue(method_exists($model, 'countPenggunaByUniversitas'), "Method countPenggunaByUniversitas harus ada");
+});
+
+$runner->it("Route master data universitas harus terdaftar di Config/Routes.php", function() use ($runner) {
+    $routesFile = APPPATH . 'Config/Routes.php';
+    $runner->assertTrue(file_exists($routesFile));
+    $content = file_get_contents($routesFile);
+    $runner->assertTrue(strpos($content, "'Admin::universitas'") !== false, "Route GET admin/universitas harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::tambahUniversitas'") !== false, "Route POST admin/universitas/tambah harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::editUniversitas'") !== false, "Route POST admin/universitas/edit harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::hapusUniversitas'") !== false, "Route POST admin/universitas/hapus harus terdaftar");
+});
+
+$runner->it("Controller Admin harus mengimplementasikan CRUD universitas dan proteksi integritas data", function() use ($runner) {
+    $controller = new \App\Controllers\Admin();
+    $runner->assertTrue(method_exists($controller, 'universitas'), "Admin::universitas harus terdefinisi");
+    $runner->assertTrue(method_exists($controller, 'tambahUniversitas'), "Admin::tambahUniversitas harus terdefinisi");
+    $runner->assertTrue(method_exists($controller, 'editUniversitas'), "Admin::editUniversitas harus terdefinisi");
+    $runner->assertTrue(method_exists($controller, 'hapusUniversitas'), "Admin::hapusUniversitas harus terdefinisi");
+
+    $controllerFile = APPPATH . 'Controllers/Admin.php';
+    $content = file_get_contents($controllerFile);
+    $runner->assertTrue(strpos($content, 'countPenggunaByUniversitas') !== false, "Hapus universitas harus memeriksa countPenggunaByUniversitas untuk keamanan data");
+});
+
+$runner->it("View admin/universitas harus memuat stat-card, tabel interaktif, dan modal CRUD SweetAlert", function() use ($runner) {
+    $viewFile = APPPATH . 'Views/admin/universitas.php';
+    $runner->assertTrue(file_exists($viewFile), "File Views/admin/universitas.php harus ada");
+    $content = file_get_contents($viewFile);
+    $runner->assertTrue(strpos($content, 'stat-card-modern') !== false, "Harus memuat stat-card-modern");
+    $runner->assertTrue(strpos($content, 'modalTambahUniversitas') !== false, "Harus memuat modalTambahUniversitas");
+    $runner->assertTrue(strpos($content, 'modalEditUniversitas') !== false, "Harus memuat modalEditUniversitas");
+    $runner->assertTrue(strpos($content, 'konfirmasiHapusUniversitas') !== false, "Harus memuat konfirmasiHapusUniversitas");
+    $runner->assertTrue(strpos($content, 'Swal.fire') !== false, "Harus memuat integrasi SweetAlert2");
+});
+
+$runner->it("Layout template dan manajemen pengguna harus terintegrasi dengan Master Data Universitas", function() use ($runner) {
+    $templateFile = APPPATH . 'Views/layout/template.php';
+    $runner->assertTrue(file_exists($templateFile));
+    $content = file_get_contents($templateFile);
+    $runner->assertTrue(strpos($content, 'admin/universitas') !== false, "Sidebar harus mengarahkan ke admin/universitas");
+
+    $penggunaView = file_get_contents(APPPATH . 'Views/admin/pengguna.php');
+    $runner->assertTrue(strpos($penggunaView, '$daftar_universitas') !== false, "Pengguna view harus mendukung daftar_universitas");
+    $runner->assertTrue(strpos($penggunaView, 'editUniversitasWrapper') !== false, "Pengguna view harus memiliki editUniversitasWrapper");
+
+    $adminIndex = file_get_contents(APPPATH . 'Views/admin/index.php');
+    $runner->assertTrue(strpos($adminIndex, '$daftar_universitas') !== false, "Admin index harus mendukung daftar_universitas");
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());
