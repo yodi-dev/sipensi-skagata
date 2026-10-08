@@ -421,6 +421,15 @@ $runner->it("Admin dilarang menghapus akun dirinya sendiri", function() use ($ru
     $runner->assertTrue($isSelfDelete, "Penghapusan akun sendiri harus terdeteksi");
 });
 
+$runner->it("Admin::hapusUser harus menggunakan database transaction (transStart dan transComplete) untuk integritas data", function() use ($runner) {
+    $adminFile = file_get_contents(__DIR__ . '/../app/Controllers/Admin.php');
+    $runner->assertTrue(strpos($adminFile, 'public function hapusUser()') !== false);
+    $hapusUserBlock = substr($adminFile, strpos($adminFile, 'public function hapusUser()'), 2000);
+    $runner->assertTrue(strpos($hapusUserBlock, 'transStart()') !== false, "hapusUser harus memanggil transStart()");
+    $runner->assertTrue(strpos($hapusUserBlock, 'transComplete()') !== false, "hapusUser harus memanggil transComplete()");
+    $runner->assertTrue(strpos($hapusUserBlock, 'transStatus()') !== false, "hapusUser harus mengecek transStatus()");
+});
+
 
 // ==========================================
 // 10. PENGUJIAN EXPORT EXCEL & INTEGRITAS FITUR

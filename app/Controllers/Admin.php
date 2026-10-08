@@ -394,14 +394,18 @@ class Admin extends BaseController
             return redirect()->back()->with('error', 'Pengguna tidak ditemukan!');
         }
 
-        // Hapus data presensi dan piket terkait terlebih dahulu
+        // Hapus data presensi, piket, pemetaan pamong, dan pengguna secara transaksional
         $db = Database::connect();
+        $db->transStart();
         $db->table('presensi')->where('user_id', $userId)->delete();
         $db->table('piket_kbm')->where('user_id', $userId)->delete();
         $db->table('guru_pamong')->where('guru_id', $userId)->delete();
-
-        // Hapus pengguna
         $this->userModel->delete($userId);
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Gagal menghapus pengguna karena terjadi kendala pada transaksi database.');
+        }
 
         return redirect()->to('/admin/pengguna')->with('pesan', "Pengguna {$user['nama']} ({$user['username']}) berhasil dihapus!");
     }
@@ -587,10 +591,13 @@ class Admin extends BaseController
             'deskripsi'    => !empty($deskripsi) ? $deskripsi : null,
         ]);
 
-        // Jika nama jurusan diubah, perbarui nilai pada pengguna terkait agar tetap konsisten
+        // Jika nama jurusan diubah, perbarui nilai pada pengguna dan pemetaan guru pamong terkait secara transaksional
         if ($existing['nama_jurusan'] !== $nama) {
             $db = Database::connect();
+            $db->transStart();
             $db->table('users')->where('jurusan', $existing['nama_jurusan'])->update(['jurusan' => $nama]);
+            $db->table('guru_pamong')->where('jurusan', $existing['nama_jurusan'])->update(['jurusan' => $nama]);
+            $db->transComplete();
         }
 
         return redirect()->to('/admin/jurusan')->with('pesan', "Perubahan jurusan {$nama} ({$kode}) berhasil disimpan!");
