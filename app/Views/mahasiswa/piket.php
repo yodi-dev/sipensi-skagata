@@ -143,7 +143,7 @@
                             <h5 class="fw-bold text-dark">Presensi Piket KBM Tercatat</h5>
                             <p class="text-muted small">Anda telah mendokumentasikan kegiatan piket KBM hari ini di lingkungan SMKN 3 Yogyakarta.</p>
 
-                            <div class="text-start small bg-light p-3 rounded-3 mb-4 border">
+                            <div class="text-start small bg-light p-3 rounded-3 mb-0 border">
                                 <div class="d-flex justify-content-between py-1 border-bottom">
                                     <span class="text-muted">Tanggal:</span>
                                     <span class="fw-semibold text-dark"><?= esc($dataPiket['tanggal']) ?></span>
@@ -153,10 +153,6 @@
                                     <span class="fw-semibold text-dark"><?= esc($dataPiket['waktu']) ?> WIB</span>
                                 </div>
                             </div>
-
-                            <a href="<?= base_url('mahasiswa') ?>" class="btn btn-skagata w-100 rounded-pill py-2 shadow-sm">
-                                <i class="bi bi-house me-1"></i> Kembali ke Dashboard
-                            </a>
                         </div>
 
                     <?php else : ?>
