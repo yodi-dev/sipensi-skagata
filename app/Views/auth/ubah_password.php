@@ -80,7 +80,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="container mt-5 mb-5">
+<div class="container my-4 my-md-5 pb-5 mb-4">
     <div class="row justify-content-center">
         <div class="col-11 col-sm-10 col-md-8 col-lg-6 col-xl-5">
 
@@ -88,10 +88,41 @@
                 <div class="password-header">
                     <i class="bi bi-shield-lock-fill fs-1 d-block mb-2"></i>
                     <h4 class="fw-bold mb-0">Ubah Password</h4>
-                    <p class="text-white-50 small mb-0 mt-1">Pastikan akun kamu selalu aman</p>
+                    <p class="text-white-50 small mb-0 mt-1">Pastikan akun Anda selalu aman dan terlindungi</p>
                 </div>
 
                 <div class="password-body">
+                    <?php
+                    $currentUserName = session()->get('nama') ?? 'Pengguna';
+                    $currentUserRole = session()->get('role') ?? 'Pengguna';
+                    $roleLabels = [
+                        'admin'       => 'Administrator',
+                        'guru'        => 'Guru Pamong',
+                        'guru_pamong' => 'Guru Pamong',
+                        'gtt'         => 'Guru Pamong (GTT)',
+                        'mahasiswa'   => 'Mahasiswa Praktikan'
+                    ];
+                    $currentUserRoleLabel = $roleLabels[$currentUserRole] ?? ucfirst($currentUserRole);
+                    ?>
+                    <!-- Identitas Akun Aktif -->
+                    <div class="d-flex align-items-center justify-content-between p-2.5 px-3 mb-4 rounded-3 bg-light border">
+                        <div class="d-flex align-items-center gap-2 overflow-hidden">
+                            <div class="avatar-initial-sm" style="width: 32px; height: 32px; font-size: 0.8rem; background-color: #0f5132; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">
+                                <?= esc(mb_strtoupper(mb_substr($currentUserName, 0, 1))) ?>
+                            </div>
+                            <div class="overflow-hidden pe-1">
+                                <div class="fw-semibold text-dark text-truncate" style="font-size: 0.875rem; max-width: 170px;">
+                                    <?= esc($currentUserName) ?>
+                                </div>
+                                <div class="text-muted small" style="font-size: 0.72rem;">
+                                    Sesi akun aktif saat ini
+                                </div>
+                            </div>
+                        </div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 small fw-semibold flex-shrink-0" style="font-size: 0.72rem;">
+                            <?= esc($currentUserRoleLabel) ?>
+                        </span>
+                    </div>
 
                     <form action="<?= base_url('auth/proses_ubah_password') ?>" method="POST" id="formUbahPassword">
                         <?= csrf_field() ?>

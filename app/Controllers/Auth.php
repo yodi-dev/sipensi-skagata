@@ -76,7 +76,7 @@ class Auth extends BaseController
                     return redirect()->to('/mahasiswa');
                 }
             } else {
-                $session->setFlashdata('error', 'Password salah, sob!');
+                $session->setFlashdata('error', 'Password yang Anda masukkan salah!');
                 return redirect()->to('/auth');
             }
         } else {
@@ -127,7 +127,7 @@ class Auth extends BaseController
 
         // 5. Cek apakah password lama sesuai
         if (!password_verify($passwordLama, $user['password'])) {
-            return redirect()->back()->with('error', 'Password lama yang kamu masukkan salah!');
+            return redirect()->back()->with('error', 'Password saat ini yang Anda masukkan tidak sesuai!');
         }
 
         // 6. Enkripsi password baru dan Update ke database
@@ -143,7 +143,7 @@ class Auth extends BaseController
         } else {
             $redirectUrl = '/mahasiswa';
         }
-        return redirect()->to($redirectUrl)->with('pesan', 'Mantap! Password berhasil diubah.');
+        return redirect()->to($redirectUrl)->with('pesan', 'Password berhasil diperbarui!');
     }
 
     public function logout()
