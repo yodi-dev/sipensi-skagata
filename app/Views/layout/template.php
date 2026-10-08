@@ -403,13 +403,27 @@
         $hourTemplate = (int) date('H');
         $greetingTemplate = ($hourTemplate >= 5 && $hourTemplate < 11) ? 'Selamat Pagi' : (($hourTemplate >= 11 && $hourTemplate < 15) ? 'Selamat Siang' : (($hourTemplate >= 15 && $hourTemplate < 18) ? 'Selamat Sore' : 'Selamat Malam'));
 
-        $pageTitleMahasiswa = 'Presensi Harian';
-        if (strpos($currentUri, 'mahasiswa/piket') !== false) {
-            $pageTitleMahasiswa = 'Presensi Piket KBM';
-        } elseif (strpos($currentUri, 'mahasiswa/riwayat') !== false) {
-            $pageTitleMahasiswa = 'Riwayat Presensi';
-        } elseif (strpos($currentUri, 'ubah_password') !== false) {
-            $pageTitleMahasiswa = 'Ubah Kata Sandi';
+        $pageTitleDesktop = 'Presensi Harian';
+        if ($role === 'guru' || $role === 'guru_pamong' || $role === 'gtt') {
+            if (strpos($currentUri, 'guru/laporan_piket') !== false) {
+                $pageTitleDesktop = 'Laporan Piket KBM';
+            } elseif (strpos($currentUri, 'guru/laporan') !== false) {
+                $pageTitleDesktop = 'Rekapitulasi Bulanan';
+            } elseif (strpos($currentUri, 'ubah_password') !== false) {
+                $pageTitleDesktop = 'Ubah Kata Sandi';
+            } else {
+                $pageTitleDesktop = 'Monitoring Presensi';
+            }
+        } elseif ($role === 'mahasiswa') {
+            if (strpos($currentUri, 'mahasiswa/piket') !== false) {
+                $pageTitleDesktop = 'Presensi Piket KBM';
+            } elseif (strpos($currentUri, 'mahasiswa/riwayat') !== false) {
+                $pageTitleDesktop = 'Riwayat Presensi';
+            } elseif (strpos($currentUri, 'ubah_password') !== false) {
+                $pageTitleDesktop = 'Ubah Kata Sandi';
+            } else {
+                $pageTitleDesktop = 'Presensi Harian';
+            }
         }
         ?>
 
@@ -420,8 +434,8 @@
             <!-- Backdrop Sidebar (Mobile & Tablet) -->
             <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleAdminSidebar()"></div>
 
-            <!-- Responsive Sidebar (Mahasiswa di mobile murni menggunakan Sticky Bottom Nav) -->
-            <aside class="admin-sidebar <?= ($role === 'mahasiswa') ? 'd-none d-md-flex' : '' ?>" id="adminSidebar">
+            <!-- Responsive Sidebar (Mahasiswa & Guru di mobile murni menggunakan Sticky Bottom Nav) -->
+            <aside class="admin-sidebar <?= in_array($role, ['mahasiswa', 'guru', 'guru_pamong', 'gtt'], true) ? 'd-none d-md-flex' : '' ?>" id="adminSidebar">
                 <div class="sidebar-brand-wrapper">
                     <a href="<?= base_url($role === 'admin' ? 'admin' : (($role === 'guru' || $role === 'guru_pamong') ? 'guru' : 'mahasiswa')) ?>" class="sidebar-brand">
                         <img src="<?= base_url('logo-skagata.png') ?>" alt="Logo Skagata" style="width: 34px; height: 34px; object-fit: contain;">
@@ -555,12 +569,12 @@
             <div class="admin-main-panel">
                 <!-- Topbar -->
                 <header class="admin-topbar">
-                    <?php if ($role === 'mahasiswa'): ?>
+                    <?php if ($role !== 'admin'): ?>
                         <!-- ============================================== -->
-                        <!-- TOPBAR MAHASISWA: STREAMLINED & CONTEXTUAL     -->
+                        <!-- TOPBAR MAHASISWA & GURU: STREAMLINED          -->
                         <!-- ============================================== -->
                         <!-- Sisi Kiri Mobile: Hanya Logo & Nama Aplikasi -->
-                        <a href="<?= base_url('mahasiswa') ?>" class="d-flex align-items-center gap-2 text-decoration-none text-dark d-md-none">
+                        <a href="<?= base_url($role === 'mahasiswa' ? 'mahasiswa' : 'guru') ?>" class="d-flex align-items-center gap-2 text-decoration-none text-dark d-md-none">
                             <img src="<?= base_url('logo-skagata.png') ?>" alt="Logo Skagata" style="width: 32px; height: 32px; object-fit: contain;">
                             <div class="lh-1">
                                 <span class="fw-bold text-success tracking-wide" style="font-size: 1.05rem;">SIPENSI SKAGATA</span>
@@ -573,14 +587,14 @@
                                 <i class="bi bi-list fs-4"></i>
                             </button>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="fw-bold text-dark fs-6 mb-0" style="letter-spacing: -0.2px;"><?= esc($pageTitleMahasiswa) ?></span>
+                                <span class="fw-bold text-dark fs-6 mb-0" style="letter-spacing: -0.2px;"><?= esc($pageTitleDesktop) ?></span>
                                 <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small px-2 py-0.5" style="font-size: 0.7rem;">
-                                    PPL 2026
+                                    <?= ($role === 'mahasiswa') ? 'PPL 2026' : 'Pamong' ?>
                                 </span>
                             </div>
                         </div>
 
-                        <!-- Sisi Kanan Desktop: Sapaan Personal Mahasiswa (Bebas Tanggal Ganda & Tanpa Emoji) -->
+                        <!-- Sisi Kanan Desktop: Sapaan Personal Pengguna (Bebas Tanggal Ganda & Tanpa Emoji) -->
                         <div class="d-none d-md-flex align-items-center gap-2">
                             <div class="d-flex align-items-center gap-2 bg-light px-3 py-1.5 rounded-pill border shadow-xs" style="font-size: 0.85rem;">
                                 <span class="avatar-initial-sm" style="width: 26px; height: 26px; font-size: 0.7rem; background-color: var(--skagata-primary);">
@@ -594,18 +608,14 @@
 
                     <?php else: ?>
                         <!-- ============================================== -->
-                        <!-- TOPBAR ADMIN & GURU PAMONG                     -->
+                        <!-- TOPBAR ADMIN                                   -->
                         <!-- ============================================== -->
                         <div class="d-flex align-items-center gap-2">
                             <button type="button" class="btn btn-sm btn-light border text-success rounded-circle p-0 d-flex align-items-center justify-content-center shadow-xs" onclick="toggleAdminSidebar()" title="Buka Menu" style="width: 42px; height: 42px; flex-shrink: 0;" aria-label="Buka Menu Navigasi">
                                 <i class="bi bi-list fs-4"></i>
                             </button>
-                            <a href="<?= base_url($role === 'admin' ? 'admin' : 'guru') ?>" class="d-flex align-items-center gap-2 text-decoration-none text-dark d-lg-none ms-1">
-                                <img src="<?= base_url('logo-skagata.png') ?>" alt="Logo Skagata" style="width: 28px; height: 28px; object-fit: contain;">
-                                <span class="fw-bold text-success tracking-wide" style="font-size: 0.95rem;">SIPENSI</span>
-                            </a>
                             <span class="fw-semibold text-dark ms-2 d-none d-lg-inline" style="font-size: 0.95rem;">
-                                <?= ($role === 'admin') ? 'Panel Administrator SIPENSI' : 'Panel Guru Pamong SIPENSI' ?>
+                                Panel Administrator SIPENSI
                             </span>
                         </div>
 
@@ -614,7 +624,7 @@
                                 <?= esc($roleLabel) ?>
                             </span>
 
-                            <!-- Dropdown Akun Pengguna -->
+                            <!-- Dropdown Akun Pengguna Admin -->
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 px-sm-3 py-1 dropdown-toggle d-flex align-items-center gap-2" type="button" id="adminUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                     <div class="avatar-initial-sm">
@@ -627,13 +637,11 @@
                                         Login sebagai: <strong class="text-dark d-block text-truncate"><?= esc($namaUser) ?></strong>
                                         <span class="badge bg-success-subtle text-success border border-success-subtle mt-1"><?= esc($roleLabel) ?></span>
                                     </li>
-                                    <?php if ($role === 'admin'): ?>
-                                        <li>
-                                            <button type="button" class="dropdown-item py-2 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalProfilAdmin">
-                                                <i class="bi bi-person-gear text-success"></i> Profil Saya
-                                            </button>
-                                        </li>
-                                    <?php endif; ?>
+                                    <li>
+                                        <button type="button" class="dropdown-item py-2 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalProfilAdmin">
+                                            <i class="bi bi-person-gear text-success"></i> Profil Saya
+                                        </button>
+                                    </li>
                                     <li>
                                         <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="<?= base_url('ubah_password') ?>">
                                             <i class="bi bi-key text-muted"></i> Ubah Password
@@ -728,7 +736,7 @@
                 <?php endif; ?>
 
                 <!-- Footer Skagata: Tampilan Mobile Cukup Satu Baris (Desktop Kredit di Sidebar Footer) -->
-                <footer class="footer-skagata py-3 text-center <?= ($role === 'mahasiswa') ? 'd-md-none' : '' ?>">
+                <footer class="footer-skagata py-3 text-center <?= in_array($role, ['mahasiswa', 'guru', 'guru_pamong', 'gtt'], true) ? 'd-md-none' : '' ?>">
                     <div class="container-fluid px-3">
                         <div class="small text-muted" style="font-size: 0.75rem;">
                             Persembahan PPL - PPG UNY Angkatan 1 Tahun 2026 &bull; Supported by <a href="https://awanbeo.my.id" target="_blank" class="fw-semibold text-success text-decoration-none">awanbeo.my.id</a>
