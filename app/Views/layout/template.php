@@ -538,11 +538,13 @@
 
                 <div class="sidebar-footer">
                     <div class="text-white-50" style="font-size: 0.72rem; line-height: 1.45;">
-                        <div class="fw-semibold text-white d-flex align-items-center gap-1 mb-1">
-                            <i class="bi bi-gift-fill text-warning"></i>
-                            <span>Persembahan PPL - PPG Angkatan 1 Tahun 2026</span>
+                        <div class="fw-semibold text-white">
+                            Persembahan PPL - PPG UNY
                         </div>
-                        <div>
+                        <div class="text-white-50">
+                            Angkatan 1 Tahun 2026
+                        </div>
+                        <div class="mt-1 text-white-50">
                             Supported by <a href="https://awanbeo.my.id" target="_blank" class="text-white fw-semibold text-decoration-underline text-opacity-75">awanbeo.my.id</a>
                         </div>
                     </div>
@@ -578,14 +580,14 @@
                             </div>
                         </div>
 
-                        <!-- Sisi Kanan Desktop: Sapaan Personal Mahasiswa (Bebas Tanggal Ganda) -->
+                        <!-- Sisi Kanan Desktop: Sapaan Personal Mahasiswa (Bebas Tanggal Ganda & Tanpa Emoji) -->
                         <div class="d-none d-md-flex align-items-center gap-2">
                             <div class="d-flex align-items-center gap-2 bg-light px-3 py-1.5 rounded-pill border shadow-xs" style="font-size: 0.85rem;">
                                 <span class="avatar-initial-sm" style="width: 26px; height: 26px; font-size: 0.7rem; background-color: var(--skagata-primary);">
                                     <?= esc(mb_strtoupper(mb_substr($namaUser, 0, 1))) ?>
                                 </span>
                                 <span class="text-secondary">
-                                    <?= $greetingTemplate ?>, <strong class="text-dark"><?= esc(explode(' ', trim($namaUser))[0]) ?></strong> 👋
+                                    <?= $greetingTemplate ?>, <strong class="text-dark"><?= esc(explode(' ', trim($namaUser))[0]) ?></strong>
                                 </span>
                             </div>
                         </div>
@@ -725,15 +727,11 @@
                     </div>
                 <?php endif; ?>
 
-                <!-- Footer Skagata: Hanya di Mobile untuk Mahasiswa (Desktop Kredit di Sidebar Footer) -->
+                <!-- Footer Skagata: Tampilan Mobile Cukup Satu Baris (Desktop Kredit di Sidebar Footer) -->
                 <footer class="footer-skagata py-3 text-center <?= ($role === 'mahasiswa') ? 'd-md-none' : '' ?>">
-                    <div class="container-fluid px-4">
-                        <div class="small text-muted fw-semibold d-flex align-items-center justify-content-center gap-1">
-                            <i class="bi bi-gift-fill text-warning"></i>
-                            <span>Persembahan PPL - PPG Angkatan 1 Tahun 2026</span>
-                        </div>
-                        <div class="small text-muted mt-1" style="font-size: 0.8rem;">
-                            Supported by <a href="https://awanbeo.my.id" target="_blank" class="fw-semibold text-success text-decoration-none">awanbeo.my.id</a>
+                    <div class="container-fluid px-3">
+                        <div class="small text-muted" style="font-size: 0.75rem;">
+                            Persembahan PPL - PPG UNY Angkatan 1 Tahun 2026 &bull; Supported by <a href="https://awanbeo.my.id" target="_blank" class="fw-semibold text-success text-decoration-none">awanbeo.my.id</a>
                         </div>
                     </div>
                 </footer>
@@ -821,13 +819,9 @@
         </main>
 
         <footer class="footer-skagata py-3 text-center">
-            <div class="container">
-                <div class="small text-muted fw-semibold d-flex align-items-center justify-content-center gap-1">
-                    <i class="bi bi-gift-fill text-warning"></i>
-                    <span>Persembahan PPL - PPG Angkatan 1 Tahun 2026</span>
-                </div>
-                <div class="small text-muted mt-1" style="font-size: 0.8rem;">
-                    Supported by <a href="https://awanbeo.my.id" target="_blank" class="fw-semibold text-success text-decoration-none">awanbeo.my.id</a>
+            <div class="container px-3">
+                <div class="small text-muted" style="font-size: 0.75rem;">
+                    Persembahan PPL - PPG UNY Angkatan 1 Tahun 2026 &bull; Supported by <a href="https://awanbeo.my.id" target="_blank" class="fw-semibold text-success text-decoration-none">awanbeo.my.id</a>
                 </div>
             </div>
         </footer>
