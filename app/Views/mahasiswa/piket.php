@@ -203,12 +203,6 @@
                                 <i class="bi bi-send-check me-2"></i> Kirim Presensi Piket
                             </button>
                         </form>
-
-                        <div class="mt-3">
-                            <a href="<?= base_url('mahasiswa') ?>" class="btn btn-link text-muted text-decoration-none small">
-                                <i class="bi bi-arrow-left me-1"></i> Batal dan Kembali
-                            </a>
-                        </div>
                     <?php endif; ?>
 
                     <canvas id="canvas-foto" style="display: none;"></canvas>
