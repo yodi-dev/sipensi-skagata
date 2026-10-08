@@ -281,6 +281,7 @@
     </style>
 
     <?= $this->renderSection('styles'); ?>
+    <?= $this->renderSection('custom_css'); ?>
 
 </head>
 

@@ -1,6 +1,6 @@
 <?= $this->extend('layout/template') ?>
 
-<?= $this->section('custom_css') ?>
+<?= $this->section('styles') ?>
 <style>
     /* Styling Pemetaan Guru Pamong Skagata */
     .admin-card {

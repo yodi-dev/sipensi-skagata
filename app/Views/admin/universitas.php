@@ -1,6 +1,6 @@
 <?= $this->extend('layout/template') ?>
 
-<?= $this->section('custom_css') ?>
+<?= $this->section('styles') ?>
 <style>
     /* Custom Styling Master Data Universitas Skagata */
     .admin-card {
