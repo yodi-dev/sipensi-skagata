@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="icon" type="image/png" href="<?= base_url('favicon.png'); ?>">
+    <link rel="icon" type="image/png" href="<?= base_url('logo-skagata.png'); ?>">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -385,11 +385,13 @@
         <!-- 1. UNIFIED SKAGATA WORKSPACE (SIDEBAR LAYOUT)  -->
         <!-- ============================================== -->
         <div class="admin-wrapper" id="adminWrapper">
-            <!-- Mobile Backdrop -->
-            <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleAdminSidebar()"></div>
+            <!-- Mobile Backdrop (Hanya untuk Admin & Guru) -->
+            <?php if ($role !== 'mahasiswa'): ?>
+                <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleAdminSidebar()"></div>
+            <?php endif; ?>
 
-            <!-- Responsive Sidebar -->
-            <aside class="admin-sidebar" id="adminSidebar">
+            <!-- Responsive Sidebar (Mahasiswa di mobile murni menggunakan Sticky Bottom Nav) -->
+            <aside class="admin-sidebar <?= ($role === 'mahasiswa') ? 'd-none d-md-flex' : '' ?>" id="adminSidebar">
                 <div class="sidebar-brand-wrapper">
                     <a href="<?= base_url($role === 'admin' ? 'admin' : (($role === 'guru' || $role === 'guru_pamong') ? 'guru' : 'mahasiswa')) ?>" class="sidebar-brand">
                         <img src="<?= base_url('logo-skagata.png') ?>" alt="Logo Skagata" style="width: 34px; height: 34px; object-fit: contain;">
@@ -516,63 +518,122 @@
             <div class="admin-main-panel">
                 <!-- Topbar -->
                 <header class="admin-topbar">
-                    <div class="d-flex align-items-center gap-2">
-                        <button type="button" class="btn btn-sm btn-light border text-success rounded-circle p-0 d-flex align-items-center justify-content-center shadow-xs" onclick="toggleAdminSidebar()" title="Buka Menu" style="width: 42px; height: 42px; flex-shrink: 0;" aria-label="Buka Menu Navigasi">
-                            <i class="bi bi-list fs-4"></i>
-                        </button>
-                        <a href="<?= base_url($role === 'admin' ? 'admin' : (($role === 'guru' || $role === 'guru_pamong') ? 'guru' : 'mahasiswa')) ?>" class="d-flex align-items-center gap-2 text-decoration-none text-dark d-lg-none ms-1">
-                            <img src="<?= base_url('logo-skagata.png') ?>" alt="Logo Skagata" style="width: 26px; height: 26px; object-fit: contain;">
-                            <span class="fw-bold text-success tracking-wide" style="font-size: 0.9rem;">SIPENSI</span>
-                        </a>
-                        <span class="fw-semibold text-dark ms-2 d-none d-lg-inline" style="font-size: 0.95rem;">
-                            <?= ($role === 'admin') ? 'Panel Administrator SIPENSI' : (($role === 'guru' || $role === 'guru_pamong') ? 'Panel Guru Pamong SIPENSI' : 'Presensi Mahasiswa Praktikan PPL/PK') ?>
-                        </span>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2 gap-sm-3">
-                        <span class="badge badge-role d-none d-md-inline-block bg-success text-white border-0">
-                            <?= esc($roleLabel) ?>
-                        </span>
-
-                        <!-- Dropdown Akun Pengguna -->
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 px-sm-3 py-1 dropdown-toggle d-flex align-items-center gap-2" type="button" id="adminUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <div class="avatar-initial-sm">
-                                    <?= esc(mb_strtoupper(mb_substr($namaUser, 0, 1))) ?>
-                                </div>
-                                <span class="fw-semibold text-dark text-truncate d-none d-sm-inline" style="max-width: 130px;"><?= esc($namaUser) ?></span>
+                    <?php if ($role === 'mahasiswa'): ?>
+                        <!-- ============================================== -->
+                        <!-- TOPBAR MAHASISWA: MOBILE CLEAN (LOGO & NAMA)   -->
+                        <!-- ============================================== -->
+                        <div class="d-flex align-items-center gap-2">
+                            <!-- Toggle Sidebar hanya muncul di layar desktop / tablet -->
+                            <button type="button" class="btn btn-sm btn-light border text-success rounded-circle p-0 d-none d-md-flex align-items-center justify-content-center shadow-xs" onclick="toggleAdminSidebar()" title="Buka Menu" style="width: 42px; height: 42px; flex-shrink: 0;" aria-label="Buka Menu Navigasi">
+                                <i class="bi bi-list fs-4"></i>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="adminUserDropdown" style="min-width: 210px;">
-                                <li class="px-3 py-2 text-muted small border-bottom">
-                                    Login sebagai: <strong class="text-dark d-block text-truncate"><?= esc($namaUser) ?></strong>
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle mt-1"><?= esc($roleLabel) ?></span>
-                                </li>
-                                <?php if ($role === 'admin'): ?>
-                                    <li>
-                                        <button type="button" class="dropdown-item py-2 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalProfilAdmin">
-                                            <i class="bi bi-person-gear text-success"></i> Profil Saya
-                                        </button>
-                                    </li>
-                                <?php endif; ?>
-                                <li>
-                                    <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="<?= base_url('ubah_password') ?>">
-                                        <i class="bi bi-key text-muted"></i> Ubah Password
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider my-1"></li>
-                                <li>
-                                    <button type="button" class="dropdown-item py-2 text-danger d-flex align-items-center gap-2 border-0 bg-transparent w-100 text-start" onclick="konfirmasiLogout()">
-                                        <i class="bi bi-box-arrow-right"></i> Logout
-                                    </button>
-                                </li>
-                            </ul>
+                            <a href="<?= base_url('mahasiswa') ?>" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
+                                <img src="<?= base_url('logo-skagata.png') ?>" alt="Logo Skagata" style="width: 32px; height: 32px; object-fit: contain;">
+                                <div class="lh-1">
+                                    <span class="fw-bold text-success tracking-wide" style="font-size: 1.05rem;">SIPENSI SKAGATA</span>
+                                </div>
+                            </a>
+                            <span class="fw-semibold text-dark ms-2 d-none d-lg-inline" style="font-size: 0.95rem;">
+                                Presensi Mahasiswa Praktikan PPL/PK
+                            </span>
                         </div>
 
-                        <!-- Form Logout Global Terproteksi CSRF -->
-                        <form id="formLogoutGlobal" action="<?= base_url('auth/logout') ?>" method="POST" style="display: none;">
-                            <?= csrf_field() ?>
-                        </form>
-                    </div>
+                        <!-- Sisi Kanan: Di Mobile disembunyikan total karena navigasi dan menu akun terpusat di Sticky Bottom Nav -->
+                        <div class="d-none d-md-flex align-items-center gap-2 gap-sm-3">
+                            <span class="badge badge-role bg-success text-white border-0">
+                                <?= esc($roleLabel) ?>
+                            </span>
+
+                            <!-- Dropdown Akun Pengguna Desktop -->
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 px-sm-3 py-1 dropdown-toggle d-flex align-items-center gap-2" type="button" id="adminUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="avatar-initial-sm">
+                                        <?= esc(mb_strtoupper(mb_substr($namaUser, 0, 1))) ?>
+                                    </div>
+                                    <span class="fw-semibold text-dark text-truncate d-none d-sm-inline" style="max-width: 130px;"><?= esc($namaUser) ?></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="adminUserDropdown" style="min-width: 210px;">
+                                    <li class="px-3 py-2 text-muted small border-bottom">
+                                        Login sebagai: <strong class="text-dark d-block text-truncate"><?= esc($namaUser) ?></strong>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle mt-1"><?= esc($roleLabel) ?></span>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="<?= base_url('ubah_password') ?>">
+                                            <i class="bi bi-key text-muted"></i> Ubah Password
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <button type="button" class="dropdown-item py-2 text-danger d-flex align-items-center gap-2 border-0 bg-transparent w-100 text-start" onclick="konfirmasiLogout()">
+                                            <i class="bi bi-box-arrow-right"></i> Logout
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    <?php else: ?>
+                        <!-- ============================================== -->
+                        <!-- TOPBAR ADMIN & GURU PAMONG                     -->
+                        <!-- ============================================== -->
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-light border text-success rounded-circle p-0 d-flex align-items-center justify-content-center shadow-xs" onclick="toggleAdminSidebar()" title="Buka Menu" style="width: 42px; height: 42px; flex-shrink: 0;" aria-label="Buka Menu Navigasi">
+                                <i class="bi bi-list fs-4"></i>
+                            </button>
+                            <a href="<?= base_url($role === 'admin' ? 'admin' : 'guru') ?>" class="d-flex align-items-center gap-2 text-decoration-none text-dark d-lg-none ms-1">
+                                <img src="<?= base_url('logo-skagata.png') ?>" alt="Logo Skagata" style="width: 28px; height: 28px; object-fit: contain;">
+                                <span class="fw-bold text-success tracking-wide" style="font-size: 0.95rem;">SIPENSI</span>
+                            </a>
+                            <span class="fw-semibold text-dark ms-2 d-none d-lg-inline" style="font-size: 0.95rem;">
+                                <?= ($role === 'admin') ? 'Panel Administrator SIPENSI' : 'Panel Guru Pamong SIPENSI' ?>
+                            </span>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2 gap-sm-3">
+                            <span class="badge badge-role d-none d-md-inline-block bg-success text-white border-0">
+                                <?= esc($roleLabel) ?>
+                            </span>
+
+                            <!-- Dropdown Akun Pengguna -->
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 px-sm-3 py-1 dropdown-toggle d-flex align-items-center gap-2" type="button" id="adminUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="avatar-initial-sm">
+                                        <?= esc(mb_strtoupper(mb_substr($namaUser, 0, 1))) ?>
+                                    </div>
+                                    <span class="fw-semibold text-dark text-truncate d-none d-sm-inline" style="max-width: 130px;"><?= esc($namaUser) ?></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="adminUserDropdown" style="min-width: 210px;">
+                                    <li class="px-3 py-2 text-muted small border-bottom">
+                                        Login sebagai: <strong class="text-dark d-block text-truncate"><?= esc($namaUser) ?></strong>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle mt-1"><?= esc($roleLabel) ?></span>
+                                    </li>
+                                    <?php if ($role === 'admin'): ?>
+                                        <li>
+                                            <button type="button" class="dropdown-item py-2 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalProfilAdmin">
+                                                <i class="bi bi-person-gear text-success"></i> Profil Saya
+                                            </button>
+                                        </li>
+                                    <?php endif; ?>
+                                    <li>
+                                        <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="<?= base_url('ubah_password') ?>">
+                                            <i class="bi bi-key text-muted"></i> Ubah Password
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <button type="button" class="dropdown-item py-2 text-danger d-flex align-items-center gap-2 border-0 bg-transparent w-100 text-start" onclick="konfirmasiLogout()">
+                                            <i class="bi bi-box-arrow-right"></i> Logout
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Form Logout Global Terproteksi CSRF -->
+                    <form id="formLogoutGlobal" action="<?= base_url('auth/logout') ?>" method="POST" style="display: none;">
+                        <?= csrf_field() ?>
+                    </form>
                 </header>
 
                 <!-- Main Content -->
@@ -653,7 +714,7 @@
                             Crafted with <span class="text-danger">❤️</span> by <a href="https://awanbeo.my.id" target="_blank" class="fw-semibold text-success text-decoration-none">awanbeo.my.id</a>
                         </div>
                         <div class="small text-muted mt-1 fw-medium" style="font-size: 0.8rem;">
-                            SMK Negeri 3 Yogyakarta
+                            PPL - PPG Angkatan 1 Tahun 2026
                         </div>
                     </div>
                 </footer>
@@ -746,7 +807,7 @@
                     Crafted with <span class="text-danger">❤️</span> by <a href="https://awanbeo.my.id" target="_blank" class="fw-semibold text-success text-decoration-none">awanbeo.my.id</a>
                 </div>
                 <div class="small text-muted mt-1 fw-medium" style="font-size: 0.8rem;">
-                    SMK Negeri 3 Yogyakarta
+                    PPL - PPG Angkatan 1 Tahun 2026
                 </div>
             </div>
         </footer>

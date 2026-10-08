@@ -568,13 +568,14 @@ $runner->it("Logika siklus kerja 5 hari harus mengidentifikasi Sabtu dan Minggu 
     $runner->assertFalse($isHariKerjaMinggu, "Minggu bukan hari kerja");
 });
 
-$runner->it("Layout template harus memuat brand SIPENSI SKAGATA dan kredit awanbeo.my.id", function() use ($runner) {
+$runner->it("Layout template harus memuat brand SIPENSI SKAGATA, kredit awanbeo.my.id, dan footer PPL - PPG Angkatan 1 Tahun 2026", function() use ($runner) {
     $templateFile = APPPATH . 'Views/layout/template.php';
     $runner->assertTrue(file_exists($templateFile));
     $content = file_get_contents($templateFile);
     $runner->assertTrue(strpos($content, 'SIPENSI SKAGATA') !== false, "Template harus memuat 'SIPENSI SKAGATA'");
     $runner->assertTrue(strpos($content, 'awanbeo.my.id') !== false, "Template harus memuat kredit 'awanbeo.my.id'");
     $runner->assertTrue(strpos($content, 'SMK Negeri 3 Yogyakarta') !== false, "Template harus memuat 'SMK Negeri 3 Yogyakarta'");
+    $runner->assertTrue(strpos($content, 'PPL - PPG Angkatan 1 Tahun 2026') !== false, "Template harus memuat 'PPL - PPG Angkatan 1 Tahun 2026'");
 });
 
 $runner->describe("13. Pengujian Mekanisme Tombol Datang & Status Izin/Sakit");
