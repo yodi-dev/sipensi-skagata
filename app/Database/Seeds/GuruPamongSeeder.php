@@ -49,3 +49,4 @@ class GuruPamongSeeder extends Seeder
         }
     }
 }
+

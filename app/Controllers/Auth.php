@@ -21,7 +21,6 @@ class Auth extends BaseController
 
     public function proses_login()
     {
-        // dd($_POST);
         $session = session();
         $userModel = new UserModel();
 
