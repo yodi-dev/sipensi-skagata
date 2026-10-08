@@ -86,6 +86,11 @@
         padding: 0.5rem 0.85rem;
     }
 
+    .operational-pill .sub-info {
+        color: #15803d;
+        font-weight: 500;
+    }
+
     .status-badge-soft {
         font-size: 0.85rem;
         font-weight: 600;
@@ -105,7 +110,7 @@
                     <i class="bi bi-clock-history fs-5 text-success"></i>
                     <div>
                         <div class="fw-bold lh-1" style="font-size: 0.78rem;">Jam Masuk Maksimal: <?= esc(substr($config->jamMasukMax ?? '07:15:00', 0, 5)) ?> WIB</div>
-                        <div class="text-muted lh-1 mt-1" style="font-size: 0.72rem;">Jam Pulang Minimal: <?= esc(substr($config->jamPulangMin ?? '15:00:00', 0, 5)) ?> WIB</div>
+                        <div class="sub-info lh-1 mt-1" style="font-size: 0.72rem;">Jam Pulang Minimal: <?= esc(substr($config->jamPulangMin ?? '15:00:00', 0, 5)) ?> WIB</div>
                     </div>
                 </div>
                 <span class="badge bg-white text-success border border-success-subtle fw-semibold">
@@ -215,13 +220,13 @@
 
 <!-- Modal Pengajuan Izin/Sakit -->
 <div class="modal fade" id="modalIzin" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow rounded-4">
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title fw-bold text-dark">Pengajuan Izin / Sakit</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('mahasiswa/izin_sakit') ?>" method="POST" enctype="multipart/form-data">
+            <form action="<?= base_url('mahasiswa/izin_sakit') ?>" method="POST" enctype="multipart/form-data" id="formIzin">
                 <?= csrf_field() ?>
                 <div class="modal-body text-start p-4">
                     <div class="mb-3">
@@ -244,7 +249,7 @@
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-skagata rounded-pill px-4">Kirim Permohonan</button>
+                    <button type="submit" class="btn btn-skagata rounded-pill px-4" id="btnKirimIzin">Kirim Permohonan</button>
                 </div>
             </form>
         </div>
@@ -309,6 +314,18 @@
             btn.innerHTML = textAwal;
             btn.disabled = false;
         }
+    }
+
+    // Submit loading state untuk pengajuan izin / sakit
+    const formIzin = document.getElementById('formIzin');
+    if (formIzin) {
+        formIzin.addEventListener('submit', function() {
+            const btn = document.getElementById('btnKirimIzin');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Mengirim...';
+            }
+        });
     }
 </script>
 <?= $this->endSection() ?>

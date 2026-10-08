@@ -390,7 +390,7 @@
 
 <!-- Modal Pemetaan Guru Pamong Modern -->
 <div class="modal fade" id="modalPemetaan" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-success text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">

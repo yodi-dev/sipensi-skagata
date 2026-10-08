@@ -275,7 +275,7 @@
 
 <!-- Modal Tambah Jurusan Modern -->
 <div class="modal fade" id="modalTambahJurusan" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-success text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
@@ -314,7 +314,7 @@
 
 <!-- Modal Edit Jurusan Modern -->
 <div class="modal fade" id="modalEditJurusan" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-primary text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">

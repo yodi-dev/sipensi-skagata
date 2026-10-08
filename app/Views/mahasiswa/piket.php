@@ -52,6 +52,69 @@
         background: rgba(0, 0, 0, 0.8);
         transform: rotate(180deg);
     }
+
+    /* Camera Viewfinder Overlay HUD */
+    .camera-viewfinder {
+        position: absolute;
+        inset: 16px;
+        pointer-events: none;
+        z-index: 5;
+        border-radius: 12px;
+        transition: opacity 0.3s ease;
+    }
+
+    .viewfinder-corner {
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        border-color: #10b981;
+        border-style: solid;
+    }
+
+    .viewfinder-corner.tl {
+        top: 0;
+        left: 0;
+        border-width: 3px 0 0 3px;
+        border-top-left-radius: 8px;
+    }
+
+    .viewfinder-corner.tr {
+        top: 0;
+        right: 0;
+        border-width: 3px 3px 0 0;
+        border-top-right-radius: 8px;
+    }
+
+    .viewfinder-corner.bl {
+        bottom: 0;
+        left: 0;
+        border-width: 0 0 3px 3px;
+        border-bottom-left-radius: 8px;
+    }
+
+    .viewfinder-corner.br {
+        bottom: 0;
+        right: 0;
+        border-width: 0 3px 3px 0;
+        border-bottom-right-radius: 8px;
+    }
+
+    .viewfinder-guide-text {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(15, 23, 42, 0.7);
+        color: #ffffff;
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 4px 12px;
+        border-radius: 20px;
+        backdrop-filter: blur(4px);
+        white-space: nowrap;
+        letter-spacing: 0.2px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -105,11 +168,23 @@
                             <p class="text-muted small mb-0">Arahkan kamera ke aktivitas piket KBM yang sedang Anda jalankan.</p>
                         </div>
 
-                        <!-- Viewport Kamera dengan Flip Switcher -->
+                        <!-- Viewport Kamera dengan Flip Switcher dan HUD Viewfinder -->
                         <div class="camera-viewport mb-3">
-                            <button type="button" id="btn-flip" class="camera-switch-btn" title="Ganti Kamera Depan/Belakang">
+                            <button type="button" id="btn-flip" class="camera-switch-btn" title="Ganti Kamera Depan/Belakang" aria-label="Ganti Kamera">
                                 <i class="bi bi-arrow-repeat fs-5"></i>
                             </button>
+
+                            <!-- Viewfinder Overlay Guides -->
+                            <div id="camera-viewfinder" class="camera-viewfinder">
+                                <span class="viewfinder-corner tl"></span>
+                                <span class="viewfinder-corner tr"></span>
+                                <span class="viewfinder-corner bl"></span>
+                                <span class="viewfinder-corner br"></span>
+                                <div class="viewfinder-guide-text">
+                                    <i class="bi bi-aspect-ratio me-1 text-success"></i> Bidik aktivitas piket KBM
+                                </div>
+                            </div>
+
                             <video id="kamera" autoplay playsinline></video>
                             <img id="hasil-foto" style="display: none;" alt="Hasil Dokumentasi Piket" />
                         </div>
@@ -162,6 +237,8 @@
         const btnUlang = document.getElementById('btn-ulang');
         const btnKirim = document.getElementById('btn-kirim');
         const btnFlip = document.getElementById('btn-flip');
+        const viewfinder = document.getElementById('camera-viewfinder');
+        const formPiket = document.getElementById('form-piket');
 
         const namaUser = <?= json_encode((string) (session()->get('nama') ?? 'Mahasiswa')) ?>;
         
@@ -265,6 +342,9 @@
             kamera.style.display = "none";
             if (btnFlip) btnFlip.style.display = "none";
 
+            // Sembunyikan panduan bidik (viewfinder) saat preview foto
+            if (viewfinder) viewfinder.style.display = "none";
+
             // Simpan ke input form
             inputBase64.value = dataURL;
 
@@ -272,6 +352,8 @@
             btnJepret.style.display = "none";
             btnUlang.style.display = "block";
             btnKirim.style.display = "block";
+            btnKirim.disabled = false;
+            btnKirim.innerHTML = '<i class="bi bi-send-check me-2"></i> Kirim Presensi Piket';
         });
 
         // Ulangi Foto
@@ -279,12 +361,32 @@
             hasilFoto.style.display = "none";
             kamera.style.display = "block";
             if (btnFlip) btnFlip.style.display = "flex";
+            if (viewfinder) viewfinder.style.display = "block";
 
             btnJepret.style.display = "block";
             btnUlang.style.display = "none";
             btnKirim.style.display = "none";
             inputBase64.value = "";
         });
+
+        // Pengiriman Form Piket dengan Loading State Protektif
+        if (formPiket) {
+            formPiket.addEventListener('submit', function(e) {
+                if (!inputBase64.value) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Foto Belum Diambil',
+                        text: 'Silakan ambil foto dokumentasi kegiatan piket terlebih dahulu.',
+                        confirmButtonColor: '#0f5132'
+                    });
+                    return;
+                }
+                btnKirim.disabled = true;
+                btnKirim.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Mengirim Dokumentasi...';
+                btnUlang.disabled = true;
+            });
+        }
     </script>
 <?php endif; ?>
 <?= $this->endSection() ?>

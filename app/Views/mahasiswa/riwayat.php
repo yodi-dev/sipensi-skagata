@@ -408,7 +408,7 @@ $periodeText = ($namaBulanIndo[$bulan_pilih] ?? $bulan_pilih) . ' ' . $tahun_pil
 
 <!-- Modal Upload Bukti Susulan yang Dipoles -->
 <div class="modal fade" id="modalSusulan" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-success text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
@@ -489,6 +489,18 @@ $periodeText = ($namaBulanIndo[$bulan_pilih] ?? $bulan_pilih) . ' ' . $tahun_pil
         } else {
             infoLabel.classList.add('d-none');
         }
+    }
+
+    // Submit loading state untuk bukti susulan
+    const formSusulan = document.getElementById('formSusulan');
+    if (formSusulan) {
+        formSusulan.addEventListener('submit', function() {
+            const btn = document.getElementById('btnSubmitSusulan');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Mengunggah...';
+            }
+        });
     }
 </script>
 <?= $this->endSection() ?>

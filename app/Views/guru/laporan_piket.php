@@ -132,7 +132,7 @@
 
                                         <!-- Modal Foto Bukti -->
                                         <div class="modal fade" id="modalFoto<?= (int) $row['id'] ?>" tabindex="-1" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                                                 <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
                                                     <div class="modal-header border-0 pb-2">
                                                         <h6 class="modal-title fw-bold text-dark">

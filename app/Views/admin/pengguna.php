@@ -353,7 +353,7 @@ function getInitials($name)
 
 <!-- Modal Tambah Pengguna Modern -->
 <div class="modal fade" id="modalTambahUser" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-success text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
@@ -438,7 +438,7 @@ function getInitials($name)
 
 <!-- Modal Edit Pengguna Modern -->
 <div class="modal fade" id="modalEditUser" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-primary text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
@@ -515,7 +515,7 @@ function getInitials($name)
 
 <!-- Modal Reset Password Modern -->
 <div class="modal fade" id="modalResetPassword" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-warning text-dark py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
