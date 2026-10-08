@@ -12,13 +12,30 @@
     .password-header {
         background: linear-gradient(135deg, #0f5132, #0a3622);
         color: white;
-        padding: 2.5rem 1.5rem;
+        padding: 2rem 1.25rem;
         text-align: center;
     }
 
     .password-body {
-        padding: 2.5rem;
+        padding: 1.25rem;
         background-color: #ffffff;
+    }
+
+    @media (min-width: 768px) {
+        .password-header {
+            padding: 2.5rem 1.5rem;
+        }
+
+        .password-body {
+            padding: 2.25rem;
+        }
+    }
+
+    .account-badge-card {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.85rem;
+        padding: 0.75rem 0.9rem;
     }
 
     .form-control {
@@ -82,7 +99,7 @@
 <?= $this->section('content') ?>
 <div class="container my-4 my-md-5 pb-5 mb-4">
     <div class="row justify-content-center">
-        <div class="col-11 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
 
             <div class="card password-card">
                 <div class="password-header">
@@ -99,29 +116,31 @@
                         'admin'       => 'Administrator',
                         'guru'        => 'Guru Pamong',
                         'guru_pamong' => 'Guru Pamong',
-                        'gtt'         => 'Guru Pamong (GTT)',
-                        'mahasiswa'   => 'Mahasiswa Praktikan'
+                        'gtt'         => 'Guru Pamong',
+                        'mahasiswa'   => 'Mahasiswa'
                     ];
                     $currentUserRoleLabel = $roleLabels[$currentUserRole] ?? ucfirst($currentUserRole);
                     ?>
-                    <!-- Identitas Akun Aktif -->
-                    <div class="d-flex align-items-center justify-content-between p-2.5 px-3 mb-4 rounded-3 bg-light border">
-                        <div class="d-flex align-items-center gap-2 overflow-hidden">
-                            <div class="avatar-initial-sm" style="width: 32px; height: 32px; font-size: 0.8rem; background-color: #0f5132; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">
-                                <?= esc(mb_strtoupper(mb_substr($currentUserName, 0, 1))) ?>
+                    <!-- Identitas Akun Aktif Mobile-Friendly -->
+                    <div class="account-badge-card d-flex align-items-center gap-2.5 mb-4">
+                        <div class="avatar-initial-sm" style="width: 38px; height: 38px; font-size: 0.85rem; background-color: #0f5132; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; box-shadow: 0 2px 5px rgba(15, 81, 50, 0.2);">
+                            <?= esc(mb_strtoupper(mb_substr($currentUserName, 0, 1))) ?>
+                        </div>
+                        <div class="min-w-0 flex-grow-1 overflow-hidden">
+                            <div class="fw-bold text-dark text-truncate" style="font-size: 0.875rem;" title="<?= esc($currentUserName) ?>">
+                                <?= esc($currentUserName) ?>
                             </div>
-                            <div class="overflow-hidden pe-1">
-                                <div class="fw-semibold text-dark text-truncate" style="font-size: 0.875rem; max-width: 170px;">
-                                    <?= esc($currentUserName) ?>
-                                </div>
-                                <div class="text-muted small" style="font-size: 0.72rem;">
-                                    Sesi akun aktif saat ini
-                                </div>
+                            <div class="d-flex align-items-center gap-1.5 mt-0.5 flex-wrap">
+                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0.5 fw-semibold" style="font-size: 0.68rem;">
+                                    <?= esc($currentUserRoleLabel) ?>
+                                </span>
+                                <?php if (!empty(session()->get('username'))): ?>
+                                    <span class="text-muted small text-truncate" style="font-size: 0.72rem;">
+                                        @<?= esc(session()->get('username')) ?>
+                                    </span>
+                                <?php endif; ?>
                             </div>
                         </div>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 small fw-semibold flex-shrink-0" style="font-size: 0.72rem;">
-                            <?= esc($currentUserRoleLabel) ?>
-                        </span>
                     </div>
 
                     <form action="<?= base_url('auth/proses_ubah_password') ?>" method="POST" id="formUbahPassword">
