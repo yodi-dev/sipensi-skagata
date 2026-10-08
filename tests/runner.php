@@ -294,6 +294,13 @@ $runner->it("File .env.example harus tersedia dan tidak boleh memuat password da
     $runner->assertFalse(strpos($content, 'sql204.infinityfree.com') !== false, "Host produksi tidak boleh bocor di .env.example");
 });
 
+$runner->it("Konfigurasi Config\\Filters harus menggunakan HTTP method uppercase ('POST') untuk mencegah deprecation warning", function() use ($runner) {
+    require_once __DIR__ . '/../app/Config/Filters.php';
+    $filtersConfig = new \Config\Filters();
+    $runner->assertTrue(isset($filtersConfig->methods['POST']), "Method POST harus terdaftar dengan huruf kapital");
+    $runner->assertFalse(isset($filtersConfig->methods['post']), "Method 'post' huruf kecil tidak boleh digunakan (deprecated)");
+});
+
 
 // ==========================================
 // 7. PENGUJIAN GPS GEOFENCING & HAVERSINE FORMULA
