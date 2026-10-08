@@ -278,6 +278,84 @@
                 overflow: hidden !important;
             }
         }
+
+        /* ============================================== */
+        /* MOBILE BOTTOM NAVIGATION BAR (THUMB ZONE)      */
+        /* ============================================== */
+        .skagata-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: calc(60px + env(safe-area-inset-bottom, 0px));
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            background-color: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -4px 16px rgba(15, 81, 50, 0.08);
+            z-index: 1030;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            height: 100%;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 500;
+            transition: color 0.18s ease, transform 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+            padding: 4px 0;
+            border: none;
+            background: transparent;
+        }
+
+        .bottom-nav-item i {
+            font-size: 1.25rem;
+            line-height: 1.2;
+            margin-bottom: 2px;
+            transition: transform 0.18s ease;
+        }
+
+        .bottom-nav-item:hover,
+        .bottom-nav-item:focus {
+            color: var(--skagata-primary);
+        }
+
+        .bottom-nav-item.active {
+            color: var(--skagata-primary);
+            font-weight: 700;
+        }
+
+        .bottom-nav-item.active i {
+            color: var(--skagata-mint);
+            transform: translateY(-2px);
+        }
+
+        .bottom-nav-item:active {
+            transform: scale(0.92);
+        }
+
+        @media (max-width: 767.98px) {
+            body.has-bottom-nav .main-content {
+                padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px));
+            }
+            body.has-bottom-nav .footer-skagata {
+                margin-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+            }
+        }
+
+        @media (min-width: 768px) {
+            .skagata-bottom-nav {
+                display: none !important;
+            }
+        }
     </style>
 
     <?= $this->renderSection('styles'); ?>
@@ -285,7 +363,7 @@
 
 </head>
 
-<body>
+<body class="<?= (session()->get('isLoggedIn') || session()->get('logged_in')) && session()->get('role') !== 'admin' ? 'has-bottom-nav' : '' ?>">
 
     <?php if (session()->get('isLoggedIn') || session()->get('logged_in')): ?>
         <?php
@@ -439,8 +517,8 @@
                 <!-- Topbar -->
                 <header class="admin-topbar">
                     <div class="d-flex align-items-center gap-2">
-                        <button type="button" class="btn btn-sm btn-light border text-success rounded-circle p-0 d-flex align-items-center justify-content-center shadow-xs" onclick="toggleAdminSidebar()" title="Buka Menu" style="width: 38px; height: 38px; flex-shrink: 0;">
-                            <i class="bi bi-list fs-5"></i>
+                        <button type="button" class="btn btn-sm btn-light border text-success rounded-circle p-0 d-flex align-items-center justify-content-center shadow-xs" onclick="toggleAdminSidebar()" title="Buka Menu" style="width: 42px; height: 42px; flex-shrink: 0;" aria-label="Buka Menu Navigasi">
+                            <i class="bi bi-list fs-4"></i>
                         </button>
                         <a href="<?= base_url($role === 'admin' ? 'admin' : (($role === 'guru' || $role === 'guru_pamong') ? 'guru' : 'mahasiswa')) ?>" class="d-flex align-items-center gap-2 text-decoration-none text-dark d-lg-none ms-1">
                             <img src="<?= base_url('logo-skagata.png') ?>" alt="Logo Skagata" style="width: 26px; height: 26px; object-fit: contain;">
@@ -581,6 +659,78 @@
                 </footer>
             </div>
         </div>
+
+        <?php if ($role !== 'admin'): ?>
+            <!-- ============================================== -->
+            <!-- 2. MOBILE BOTTOM NAVIGATION (THUMB ZONE)       -->
+            <!-- ============================================== -->
+            <nav class="skagata-bottom-nav d-md-none" aria-label="Navigasi Utama Mobile">
+                <?php if ($role === 'guru' || $role === 'guru_pamong' || $role === 'gtt'): ?>
+                    <a href="<?= base_url('guru') ?>" class="bottom-nav-item <?= ($currentUri === 'guru' || $currentUri === 'guru/') ? 'active' : '' ?>">
+                        <i class="bi bi-calendar2-check-fill"></i>
+                        <span>Presensi</span>
+                    </a>
+                    <a href="<?= base_url('guru/laporan_piket') ?>" class="bottom-nav-item <?= (strpos($currentUri, 'guru/laporan_piket') !== false) ? 'active' : '' ?>">
+                        <i class="bi bi-camera-fill"></i>
+                        <span>Piket</span>
+                    </a>
+                    <a href="<?= base_url('guru/laporan') ?>" class="bottom-nav-item <?= (strpos($currentUri, 'guru/laporan') !== false && strpos($currentUri, 'guru/laporan_piket') === false) ? 'active' : '' ?>">
+                        <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                        <span>Rekap</span>
+                    </a>
+                <?php else: /* Mahasiswa */ ?>
+                    <a href="<?= base_url('mahasiswa') ?>" class="bottom-nav-item <?= ($currentUri === 'mahasiswa' || $currentUri === 'mahasiswa/') ? 'active' : '' ?>">
+                        <i class="bi bi-clock-fill"></i>
+                        <span>Presensi</span>
+                    </a>
+                    <a href="<?= base_url('mahasiswa/piket') ?>" class="bottom-nav-item <?= (strpos($currentUri, 'mahasiswa/piket') !== false) ? 'active' : '' ?>">
+                        <i class="bi bi-camera-fill"></i>
+                        <span>Piket KBM</span>
+                    </a>
+                    <a href="<?= base_url('mahasiswa/riwayat') ?>" class="bottom-nav-item <?= (strpos($currentUri, 'mahasiswa/riwayat') !== false) ? 'active' : '' ?>">
+                        <i class="bi bi-calendar-check-fill"></i>
+                        <span>Riwayat</span>
+                    </a>
+                <?php endif; ?>
+
+                <button type="button" class="bottom-nav-item <?= (strpos($currentUri, 'ubah_password') !== false) ? 'active' : '' ?>" data-bs-toggle="modal" data-bs-target="#modalMobileUserMenu" aria-label="Menu Akun">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Akun</span>
+                </button>
+            </nav>
+
+            <!-- Modal Mobile User Menu (Bottom Sheet Style) -->
+            <div class="modal fade" id="modalMobileUserMenu" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-sm">
+                    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                        <div class="modal-header bg-success text-white py-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-initial-sm" style="background-color: #10b981;">
+                                    <?= esc(mb_strtoupper(mb_substr($namaUser, 0, 1))) ?>
+                                </div>
+                                <div class="lh-1 overflow-hidden">
+                                    <span class="d-block fw-bold text-white small text-truncate" style="max-width: 190px;"><?= esc($namaUser) ?></span>
+                                    <span class="badge bg-white bg-opacity-25 rounded-pill mt-1" style="font-size: 0.65rem;"><?= esc($roleLabel) ?></span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-3">
+                            <div class="d-flex flex-column gap-2">
+                                <a href="<?= base_url('ubah_password') ?>" class="btn btn-light text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 text-dark fw-medium border">
+                                    <i class="bi bi-key text-success fs-5"></i>
+                                    <span>Ubah Password</span>
+                                </a>
+                                <button type="button" onclick="konfirmasiLogout()" class="btn btn-light text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 text-danger fw-medium border w-100">
+                                    <i class="bi bi-box-arrow-right fs-5"></i>
+                                    <span>Keluar (Logout)</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
 
     <?php else: ?>
         <!-- ============================================== -->
