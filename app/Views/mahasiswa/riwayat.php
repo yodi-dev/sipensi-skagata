@@ -112,22 +112,18 @@ $periodeText = ($namaBulanIndo[$bulan_pilih] ?? $bulan_pilih) . ' ' . $tahun_pil
 
 <div class="container py-4">
 
-    <!-- Header Halaman & Tombol Navigasi -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-        <div>
-            <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                <i class="bi bi-clock-history text-success"></i>
-                <span>Riwayat Presensi Mandiri</span>
-            </h4>
-            <p class="text-muted small mt-1 mb-0">
-                Catatan kehadiran <strong><?= esc($namaMhs) ?></strong> (<?= esc($jurusanMhs) ?>) di SMKN 3 Yogyakarta
-            </p>
-        </div>
-        <div>
-            <a href="<?= base_url('mahasiswa') ?>" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-sm">
-                <i class="bi bi-arrow-left"></i>
-                <span>Dashboard</span>
-            </a>
+    <!-- Header Halaman Riwayat Presensi -->
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="rounded-3 bg-success-subtle text-success border border-success-subtle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 46px; height: 46px;">
+                <i class="bi bi-clock-history fs-4"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold text-dark mb-1" style="letter-spacing: -0.3px;">Riwayat Presensi</h4>
+                <p class="text-muted small mb-0">
+                    Catatan kehadiran <strong><?= esc($namaMhs) ?></strong> &bull; <?= esc($jurusanMhs) ?>
+                </p>
+            </div>
         </div>
     </div>
 
