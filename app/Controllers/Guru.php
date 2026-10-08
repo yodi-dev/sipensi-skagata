@@ -6,6 +6,7 @@ use App\Models\GuruPamongModel;
 use App\Models\JurusanModel;
 use App\Models\PiketModel;
 use App\Models\PresensiModel;
+use App\Models\UserModel;
 use Config\Database;
 
 class Guru extends BaseController
@@ -139,6 +140,14 @@ class Guru extends BaseController
             $assignedJurusans = $jurusanModel->getDaftarNama();
         }
 
+        $jurusanInput = $this->request->getGet('jurusan');
+        $jurusanFilter = null;
+        if (!empty($jurusanInput) && in_array($jurusanInput, $assignedJurusans, true)) {
+            $jurusanFilter = [$jurusanInput];
+        } else {
+            $jurusanFilter = $assignedJurusans;
+        }
+
         $db      = Database::connect();
         $builder = $db->table('users');
 
@@ -163,8 +172,8 @@ class Guru extends BaseController
                 ->join('presensi', "presensi.user_id = users.id AND presensi.tanggal >= '{$startDate}' AND presensi.tanggal <= '{$endDate}'", 'left')
                 ->where('users.role', 'mahasiswa');
 
-            if (!empty($assignedJurusans)) {
-                $builder->whereIn('users.jurusan', $assignedJurusans);
+            if (!empty($jurusanFilter)) {
+                $builder->whereIn('users.jurusan', $jurusanFilter);
             }
 
             $laporan = $builder->groupBy('users.id')
@@ -173,11 +182,19 @@ class Guru extends BaseController
                 ->getResultArray();
         }
 
+        // Ambil data profil guru untuk NIP pada lembar tanda tangan cetak
+        $userModel = new UserModel();
+        $guruData  = !empty($guruId) ? $userModel->find($guruId) : null;
+        $nipGuru   = $guruData['nomor_induk'] ?? null;
+
         $data = [
             'laporan'           => $laporan,
             'bulan_pilih'       => $bulan,
             'tahun_pilih'       => $tahun,
             'assigned_jurusans' => $assignedJurusans,
+            'daftar_jurusan'    => $assignedJurusans,
+            'jurusan_terpilih'  => $jurusanInput,
+            'nip_guru'          => $nipGuru,
             'title'             => 'Laporan Bulanan - Presensi PPL'
         ];
 
@@ -202,6 +219,14 @@ class Guru extends BaseController
             $assignedJurusans = $jurusanModel->getDaftarNama();
         }
 
+        $jurusanInput = $this->request->getGet('jurusan');
+        $jurusanFilter = null;
+        if (!empty($jurusanInput) && in_array($jurusanInput, $assignedJurusans, true)) {
+            $jurusanFilter = [$jurusanInput];
+        } else {
+            $jurusanFilter = $assignedJurusans;
+        }
+
         $db      = Database::connect();
         $builder = $db->table('users');
 
@@ -226,8 +251,8 @@ class Guru extends BaseController
                 ->join('presensi', "presensi.user_id = users.id AND presensi.tanggal >= '{$startDate}' AND presensi.tanggal <= '{$endDate}'", 'left')
                 ->where('users.role', 'mahasiswa');
 
-            if (!empty($assignedJurusans)) {
-                $builder->whereIn('users.jurusan', $assignedJurusans);
+            if (!empty($jurusanFilter)) {
+                $builder->whereIn('users.jurusan', $jurusanFilter);
             }
 
             $laporan = $builder->groupBy('users.id')
@@ -244,7 +269,7 @@ class Guru extends BaseController
         ];
         $labelBulan = $namaBulan[$bulan] ?? $bulan;
         $namaGuru   = session()->get('nama') ?? 'Guru Pamong';
-        $labelJurusan = !empty($assignedJurusans) ? implode(', ', $assignedJurusans) : 'Semua Jurusan';
+        $labelJurusan = !empty($jurusanInput) ? $jurusanInput : (!empty($assignedJurusans) ? implode(', ', $assignedJurusans) : 'Semua Jurusan');
 
         // Render HTML Spreadsheet
         $output = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
@@ -259,15 +284,16 @@ class Guru extends BaseController
             .subtitle { font-size: 12px; text-align: center; border: none; margin-bottom: 5px; }
         </style></head><body>';
         $output .= '<table>';
-        $output .= '<tr><td colspan="8" class="title">REKAPITULASI LAPORAN PRESENSI MAHASISWA PPL</td></tr>';
-        $output .= "<tr><td colspan=\"8\" class=\"subtitle\">Guru Pamong: " . htmlspecialchars($namaGuru, ENT_QUOTES, 'UTF-8') . " | Jurusan Bimbingan: " . htmlspecialchars($labelJurusan, ENT_QUOTES, 'UTF-8') . "</td></tr>";
-        $output .= "<tr><td colspan=\"8\" class=\"subtitle\">Periode: {$labelBulan} {$tahun}</td></tr>";
-        $output .= '<tr><td colspan="8" style="border:none;"></td></tr>';
+        $output .= '<tr><td colspan="9" class="title">REKAPITULASI LAPORAN PRESENSI MAHASISWA PPL</td></tr>';
+        $output .= "<tr><td colspan=\"9\" class=\"subtitle\">Guru Pamong: " . htmlspecialchars($namaGuru, ENT_QUOTES, 'UTF-8') . " | Jurusan Bimbingan: " . htmlspecialchars($labelJurusan, ENT_QUOTES, 'UTF-8') . "</td></tr>";
+        $output .= "<tr><td colspan=\"9\" class=\"subtitle\">Periode: {$labelBulan} {$tahun} &bull; Basis 5 Hari Kerja Efektif</td></tr>";
+        $output .= '<tr><td colspan="9" style="border:none;"></td></tr>';
         $output .= '<tr>
             <th rowspan="2" style="vertical-align:middle;">No</th>
             <th rowspan="2" style="vertical-align:middle;" class="text-left">Nama Mahasiswa</th>
             <th rowspan="2" style="vertical-align:middle;">Jurusan</th>
-            <th colspan="5">Total Kehadiran</th>
+            <th colspan="5">Total Kehadiran (Hari)</th>
+            <th rowspan="2" style="vertical-align:middle;">% Kehadiran Efektif</th>
         </tr>';
         $output .= '<tr class="sub-header">
             <th>Hadir</th>
@@ -278,12 +304,15 @@ class Guru extends BaseController
         </tr>';
 
         if (empty($laporan)) {
-            $output .= '<tr><td colspan="8">Tidak ada data presensi pada periode ini.</td></tr>';
+            $output .= '<tr><td colspan="9">Tidak ada data presensi pada periode ini.</td></tr>';
         } else {
             foreach ($laporan as $idx => $row) {
                 $no = $idx + 1;
                 $nama = htmlspecialchars($row['nama'], ENT_QUOTES, 'UTF-8');
                 $jurusan = htmlspecialchars($row['jurusan'] ?? '-', ENT_QUOTES, 'UTF-8');
+                $total_masuk = $row['total_hadir'] + $row['total_terlambat'] + $row['total_izin'] + $row['total_sakit'] + $row['total_alpa'];
+                $total_hadir_efektif = $row['total_hadir'] + $row['total_terlambat'];
+                $persen = ($total_masuk > 0) ? round(($total_hadir_efektif / $total_masuk) * 100) : 0;
                 $output .= "<tr>
                     <td>{$no}</td>
                     <td class=\"text-left\">{$nama}</td>
@@ -293,13 +322,15 @@ class Guru extends BaseController
                     <td>{$row['total_izin']}</td>
                     <td>{$row['total_sakit']}</td>
                     <td>{$row['total_alpa']}</td>
+                    <td>{$persen}%</td>
                 </tr>";
             }
         }
 
         $output .= '</table></body></html>';
 
-        $fileName = "laporan_presensi_{$bulan}_{$tahun}.xls";
+        $safeJurusanPart = !empty($jurusanInput) ? '_' . preg_replace('/[^a-zA-Z0-9_-]/', '', $jurusanInput) : '';
+        $fileName = "rekap_presensi_{$bulan}_{$tahun}{$safeJurusanPart}.xls";
 
         return $this->response
             ->setHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8')
