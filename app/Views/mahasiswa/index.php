@@ -101,6 +101,28 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?php
+$namaHariIndo = [
+    'Sunday'    => 'Minggu',
+    'Monday'    => 'Senin',
+    'Tuesday'   => 'Selasa',
+    'Wednesday' => 'Rabu',
+    'Thursday'  => 'Kamis',
+    'Friday'    => 'Jumat',
+    'Saturday'  => 'Sabtu'
+];
+
+$namaBulanIndo = [
+    '01' => 'Januari',   '02' => 'Februari', '03' => 'Maret',
+    '04' => 'April',     '05' => 'Mei',      '06' => 'Juni',
+    '07' => 'Juli',      '08' => 'Agustus',  '09' => 'September',
+    '10' => 'Oktober',   '11' => 'November', '12' => 'Desember'
+];
+
+$hariIni = $namaHariIndo[date('l')] ?? date('l');
+$bulanIni = $namaBulanIndo[date('m')] ?? date('F');
+$tanggalLengkapIndo = $hariIni . ', ' . date('d') . ' ' . $bulanIni . ' ' . date('Y');
+?>
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6 col-xl-5">
@@ -120,9 +142,9 @@
 
             <!-- Card Utama Absensi -->
             <div class="card mobile-dashboard-card text-center p-4 mb-3">
-                <div class="text-muted text-uppercase fw-semibold small mb-1">Waktu Server Presensi</div>
+                <div class="text-muted text-uppercase fw-semibold small mb-1">Waktu Sekarang</div>
                 <div class="clock-display mb-1" id="clock">00:00:00</div>
-                <div class="text-secondary small fw-medium mb-4"><?= date('l, d F Y') ?></div>
+                <div class="text-secondary small fw-medium mb-4"><?= esc($tanggalLengkapIndo) ?></div>
 
                 <!-- Tombol Aksi Datang & Pulang -->
                 <div class="d-flex justify-content-center gap-4 mb-4">
