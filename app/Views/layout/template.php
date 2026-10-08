@@ -419,7 +419,7 @@
                         <i class="bi bi-key-fill"></i>
                         <span>Ubah Password</span>
                     </a>
-                    <a href="<?= base_url('auth/logout') ?>" class="sidebar-nav-item text-danger-subtle">
+                    <a href="javascript:void(0)" onclick="konfirmasiLogout()" class="sidebar-nav-item text-danger-subtle">
                         <i class="bi bi-box-arrow-right"></i>
                         <span>Keluar (Logout)</span>
                     </a>
@@ -482,12 +482,17 @@
                                 </li>
                                 <li><hr class="dropdown-divider my-1"></li>
                                 <li>
-                                    <a class="dropdown-item py-2 text-danger d-flex align-items-center gap-2" href="<?= base_url('auth/logout') ?>">
+                                    <button type="button" class="dropdown-item py-2 text-danger d-flex align-items-center gap-2 border-0 bg-transparent w-100 text-start" onclick="konfirmasiLogout()">
                                         <i class="bi bi-box-arrow-right"></i> Logout
-                                    </a>
+                                    </button>
                                 </li>
                             </ul>
                         </div>
+
+                        <!-- Form Logout Global Terproteksi CSRF -->
+                        <form id="formLogoutGlobal" action="<?= base_url('auth/logout') ?>" method="POST" style="display: none;">
+                            <?= csrf_field() ?>
+                        </form>
                     </div>
                 </header>
 
@@ -677,6 +682,41 @@
                 input.type = 'password';
                 icon.classList.remove('bi-eye-slash');
                 icon.classList.add('bi-eye');
+            }
+        }
+
+        function konfirmasiLogout() {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Keluar dari Sistem?',
+                    text: 'Sesi login Anda akan diakhiri. Pastikan pekerjaan Anda telah tersimpan.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="bi bi-box-arrow-right me-1"></i> Ya, Keluar',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    focusCancel: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const form = document.getElementById('formLogoutGlobal');
+                        if (form) {
+                            form.submit();
+                        } else {
+                            window.location.href = '<?= base_url('auth/logout') ?>';
+                        }
+                    }
+                });
+            } else {
+                if (confirm('Keluar dari sistem? Sesi login Anda akan diakhiri.')) {
+                    const form = document.getElementById('formLogoutGlobal');
+                    if (form) {
+                        form.submit();
+                    } else {
+                        window.location.href = '<?= base_url('auth/logout') ?>';
+                    }
+                }
             }
         }
     </script>

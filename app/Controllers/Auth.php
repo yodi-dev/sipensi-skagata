@@ -128,6 +128,6 @@ class Auth extends BaseController
     {
         // Hancurkan session saat logout
         session()->destroy();
-        return redirect()->to('/auth');
+        return redirect()->to('/auth')->with('pesan', 'Anda telah berhasil keluar dari sistem.');
     }
 }

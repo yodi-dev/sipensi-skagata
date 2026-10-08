@@ -12,7 +12,7 @@ $routes->post('/auth/proses_login', 'Auth::proses_login');
 // Route yang membutuhkan autentikasi umum
 $routes->get('/ubah_password', 'Auth::ubahPasswordView', ['filter' => 'auth']);
 $routes->post('/auth/proses_ubah_password', 'Auth::prosesUbahPassword', ['filter' => 'auth']);
-$routes->get('/auth/logout', 'Auth::logout');
+$routes->match(['get', 'post'], '/auth/logout', 'Auth::logout');
 
 // Rute khusus Guru
 $routes->group('guru', ['filter' => ['auth', 'role:guru']], static function ($routes) {
