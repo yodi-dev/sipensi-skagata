@@ -57,6 +57,24 @@
         border: 1px solid #bbf7d0;
         flex-shrink: 0;
     }
+
+    /* Pagination Styling Emerald */
+    .page-item.active .page-link {
+        background-color: #0f5132 !important;
+        border-color: #0f5132 !important;
+        color: #ffffff !important;
+    }
+    .page-link {
+        color: #0f5132;
+        border-radius: 0.375rem;
+        margin: 0 2px;
+        transition: all 0.2s ease;
+    }
+    .page-link:hover {
+        background-color: #ecfdf5;
+        color: #0f5132;
+        border-color: #86efac;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -220,7 +238,11 @@ function getInitials($name)
                             </td>
                         </tr>
                     <?php else: ?>
-                        <?php $no = 1; foreach ($users as $u): ?>
+                        <?php 
+                        $currentPage = !empty($pager) ? $pager->getCurrentPage() : 1;
+                        $no = (($currentPage - 1) * ($perPage ?? 15)) + 1;
+                        foreach ($users as $u): 
+                        ?>
                             <tr>
                                 <td class="text-center text-muted fw-semibold"><?= $no++ ?></td>
                                 <td>
@@ -311,6 +333,20 @@ function getInitials($name)
                 </tbody>
             </table>
         </div>
+        <?php if (!empty($pager) && $pager->getPageCount() > 1): ?>
+            <div class="card-footer bg-white border-top py-3 px-4 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+                <div class="text-muted small">
+                    Menampilkan <span class="fw-semibold text-dark"><?= count($users) ?></span> dari <span class="fw-semibold text-dark"><?= $totalFiltered ?? count($users) ?></span> total pengguna
+                </div>
+                <div>
+                    <?= $pager->links('default', 'bootstrap') ?>
+                </div>
+            </div>
+        <?php elseif (!empty($users)): ?>
+            <div class="card-footer bg-white border-top py-2 px-4 text-muted small">
+                Menampilkan seluruh <span class="fw-semibold text-dark"><?= count($users) ?></span> pengguna
+            </div>
+        <?php endif; ?>
     </div>
 
 </div>

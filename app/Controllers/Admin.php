@@ -110,43 +110,45 @@ class Admin extends BaseController
         $universitasFilter = $this->request->getGet('universitas');
         $periodeFilter = $this->request->getGet('periode');
 
-        // Hitung statistik
-        $totalMahasiswa = (clone $builder)->where('role', 'mahasiswa')->countAllResults();
-        $totalGuru = (clone $builder)->where('role', 'guru')->countAllResults();
+        // Hitung statistik keseluruhan (tanpa filter pencarian)
+        $totalMahasiswa = $this->userModel->where('role', 'mahasiswa')->countAllResults();
+        $totalGuru = $this->userModel->where('role', 'guru')->countAllResults();
+
+        // Siapkan query pengguna dengan filter
+        $userQuery = $this->userModel->select('users.*, periode.nama_periode AS nama_periode_relasi')
+            ->join('periode', 'periode.id = users.periode_id', 'left')
+            ->where('role !=', 'admin');
 
         // Terapkan filter query
         if (!empty($keyword)) {
-            $builder->groupStart()
+            $userQuery->groupStart()
                 ->like('users.nama', $keyword)
                 ->orLike('users.username', $keyword)
                 ->groupEnd();
         }
 
-        // Kecualikan akun administrator dari tabel daftar pengguna
-        $builder->where('role !=', 'admin');
-
         if (!empty($roleFilter) && in_array($roleFilter, ['mahasiswa', 'guru'], true)) {
-            $builder->where('users.role', $roleFilter);
+            $userQuery->where('users.role', $roleFilter);
         }
 
         if (!empty($jurusanFilter)) {
-            $builder->where('users.jurusan', $jurusanFilter);
+            $userQuery->where('users.jurusan', $jurusanFilter);
         }
 
         if (!empty($universitasFilter)) {
-            $builder->where('users.universitas', $universitasFilter);
+            $userQuery->where('users.universitas', $universitasFilter);
         }
 
         if (!empty($periodeFilter)) {
-            $builder->where('users.periode_id', (int) $periodeFilter);
+            $userQuery->where('users.periode_id', (int) $periodeFilter);
         }
 
-        $users = $builder->select('users.*, periode.nama_periode AS nama_periode_relasi')
-            ->join('periode', 'periode.id = users.periode_id', 'left')
-            ->orderBy('users.role', 'ASC')
+        $perPage = 15;
+        $users = $userQuery->orderBy('users.role', 'ASC')
             ->orderBy('users.nama', 'ASC')
-            ->get()
-            ->getResultArray();
+            ->paginate($perPage);
+
+        $pager = $this->userModel->pager;
 
         // Ambil data admin saat ini untuk modal ubah profil
         $currentAdmin = $this->userModel->find(session()->get('id_user'));
@@ -184,6 +186,9 @@ class Admin extends BaseController
 
         $data = [
             'users'              => $users,
+            'pager'              => $pager,
+            'perPage'            => $perPage,
+            'totalFiltered'      => $pager ? $pager->getTotal() : count($users),
             'current_admin'      => $currentAdmin,
             'totalMahasiswa'     => $totalMahasiswa,
             'totalGuru'          => $totalGuru,

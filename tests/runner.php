@@ -658,8 +658,19 @@ $runner->it("Controller Admin harus memiliki method pengguna, updateProfil, dan 
     $runner->assertTrue(file_exists($controllerFile));
     $content = file_get_contents($controllerFile);
     $runner->assertTrue(strpos($content, "where('role !=', 'admin')") !== false, "Query harus mengecualikan role admin");
+    $runner->assertTrue(strpos($content, 'paginate(') !== false, "Controller Admin harus menggunakan paginate()");
+    $runner->assertTrue(strpos($content, 'pager') !== false, "Controller Admin harus menyediakan objek pager");
     $runner->assertTrue(strpos($content, 'daftar_jurusan') !== false, "Controller harus menyediakan daftar_jurusan dinamis");
     $runner->assertTrue(strpos($content, 'SIPENSI SKAGATA') !== false, "Title harus mencerminkan SIPENSI SKAGATA");
+});
+
+$runner->it("Manajemen pengguna harus mendukung pagination Bootstrap 5 dan template kustom", function() use ($runner) {
+    $viewContent = file_get_contents(APPPATH . 'Views/admin/pengguna.php');
+    $runner->assertTrue(strpos($viewContent, 'links(') !== false, "View pengguna harus memuat pemanggilan pager->links");
+    $runner->assertTrue(file_exists(APPPATH . 'Views/pagers/bootstrap_pagination.php'), "File Views/pagers/bootstrap_pagination.php harus tersedia");
+
+    $pagerConfig = file_get_contents(APPPATH . 'Config/Pager.php');
+    $runner->assertTrue(strpos($pagerConfig, "'bootstrap'") !== false, "Template bootstrap harus terdaftar di Config/Pager.php");
 });
 
 $runner->describe("16. Pengujian Master Data Jurusan (Konsentrasi Keahlian)");
