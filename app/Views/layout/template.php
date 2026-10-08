@@ -412,7 +412,7 @@
             } elseif (strpos($currentUri, 'ubah_password') !== false) {
                 $pageTitleDesktop = 'Ubah Kata Sandi';
             } else {
-                $pageTitleDesktop = 'Monitoring Presensi';
+                $pageTitleDesktop = 'Presensi Harian';
             }
         } elseif ($role === 'mahasiswa') {
             if (strpos($currentUri, 'mahasiswa/piket') !== false) {
@@ -588,9 +588,11 @@
                             </button>
                             <div class="d-flex align-items-center gap-2">
                                 <span class="fw-bold text-dark fs-6 mb-0" style="letter-spacing: -0.2px;"><?= esc($pageTitleDesktop) ?></span>
-                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small px-2 py-0.5" style="font-size: 0.7rem;">
-                                    <?= ($role === 'mahasiswa') ? 'PPL 2026' : 'Pamong' ?>
-                                </span>
+                                <?php if ($role === 'mahasiswa'): ?>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small px-2 py-0.5" style="font-size: 0.7rem;">
+                                        PPL 2026
+                                    </span>
+                                <?php endif; ?>
                             </div>
                         </div>
 

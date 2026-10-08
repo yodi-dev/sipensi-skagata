@@ -85,34 +85,6 @@ $tanggalFormatIndo = $hariTerpilih . ', ' . date('d', $tsTanggal) . ' ' . $bulan
 ?>
 <div class="container py-4">
 
-    <!-- Top Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-        <div class="d-flex align-items-center gap-3">
-            <div class="rounded-3 bg-success-subtle text-success border border-success-subtle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 46px; height: 46px;">
-                <i class="bi bi-calendar2-check-fill fs-4"></i>
-            </div>
-            <div>
-                <div class="d-flex align-items-center flex-wrap gap-2">
-                    <h4 class="fw-bold text-dark mb-0" style="letter-spacing: -0.3px;">Monitoring Presensi Harian</h4>
-                    <?php if (!empty($assigned_jurusans)): ?>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-semibold small" style="font-size: 0.72rem;">
-                            <i class="bi bi-mortarboard-fill me-1"></i>Pamong: <?= esc(implode(', ', $assigned_jurusans)) ?>
-                        </span>
-                    <?php endif; ?>
-                </div>
-                <p class="text-muted small mb-0 mt-1">Verifikasi kehadiran dan perizinan mahasiswa praktikan di SMKN 3 Yogyakarta</p>
-            </div>
-        </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="<?= base_url('guru/laporan_piket') ?>" class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-xs">
-                <i class="bi bi-camera me-1"></i> Laporan Piket
-            </a>
-            <a href="<?= base_url('guru/laporan') ?>" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm">
-                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Rekap Bulanan
-            </a>
-        </div>
-    </div>
-
     <?php if (empty($assigned_jurusans) && session()->get('role') === 'guru'): ?>
         <div class="alert alert-warning rounded-4 border-0 shadow-sm d-flex align-items-center gap-3 mb-4 p-3" role="alert">
             <i class="bi bi-exclamation-triangle-fill text-warning fs-3"></i>
@@ -127,8 +99,15 @@ $tanggalFormatIndo = $hariTerpilih . ', ' . date('d', $tsTanggal) . ' ' . $bulan
 
         <div class="card-header-custom d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
             <div>
-                <h6 class="mb-1 fw-bold text-dark">Data Presensi Tanggal Terpilih</h6>
-                <p class="text-muted small mb-0">
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="mb-0 fw-bold text-dark" style="letter-spacing: -0.2px;">Presensi Mahasiswa Praktikan</h5>
+                    <?php if (!empty($assigned_jurusans)): ?>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-0.5 fw-semibold small" style="font-size: 0.72rem;">
+                            <?= esc(implode(', ', $assigned_jurusans)) ?>
+                        </span>
+                    <?php endif; ?>
+                </div>
+                <p class="text-muted small mb-0 mt-1">
                     Menampilkan data untuk: <span class="fw-semibold text-success"><?= esc($tanggalFormatIndo) ?></span>
                 </p>
             </div>
