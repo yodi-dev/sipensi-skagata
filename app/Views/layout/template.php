@@ -537,12 +537,13 @@
                 </div>
 
                 <div class="sidebar-footer">
-                    <div class="text-white-50" style="font-size: 0.74rem; line-height: 1.45;">
-                        <div>
-                            Crafted with <span class="text-danger">❤️</span> by <a href="https://awanbeo.my.id" target="_blank" class="fw-semibold text-white text-decoration-none">awanbeo.my.id</a>
+                    <div class="text-white-50" style="font-size: 0.72rem; line-height: 1.45;">
+                        <div class="fw-semibold text-white d-flex align-items-center gap-1 mb-1">
+                            <i class="bi bi-gift-fill text-warning"></i>
+                            <span>Persembahan PPL - PPG Angkatan 1 Tahun 2026</span>
                         </div>
-                        <div class="mt-1 text-white-50" style="font-size: 0.7rem;">
-                            PPL - PPG Angkatan 1 Tahun 2026
+                        <div>
+                            Supported by <a href="https://awanbeo.my.id" target="_blank" class="text-white fw-semibold text-decoration-underline text-opacity-75">awanbeo.my.id</a>
                         </div>
                     </div>
                 </div>
@@ -564,29 +565,28 @@
                             </div>
                         </a>
 
-                        <!-- Sisi Kiri Desktop: Toggle Sidebar & Konteks Halaman Aktif (Bebas Logo Dobel) -->
+                        <!-- Sisi Kiri Desktop: Toggle Sidebar & Konteks Halaman Aktif -->
                         <div class="d-none d-md-flex align-items-center gap-3">
                             <button type="button" class="btn btn-sm btn-light border text-success rounded-circle p-0 d-flex align-items-center justify-content-center shadow-xs" onclick="toggleAdminSidebar()" title="Toggle Menu Sidebar" style="width: 40px; height: 40px; flex-shrink: 0;" aria-label="Buka/Tutup Menu">
                                 <i class="bi bi-list fs-4"></i>
                             </button>
-                            <div class="d-flex flex-column">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="fw-bold text-dark" style="font-size: 0.98rem; letter-spacing: -0.2px;"><?= esc($pageTitleMahasiswa) ?></span>
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small px-2 py-0.5" style="font-size: 0.7rem;">
-                                        PPL 2026
-                                    </span>
-                                </div>
-                                <span class="text-muted small" style="font-size: 0.76rem;">
-                                    <?= $greetingTemplate ?>, <strong><?= esc($namaUser) ?></strong>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold text-dark fs-6 mb-0" style="letter-spacing: -0.2px;"><?= esc($pageTitleMahasiswa) ?></span>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small px-2 py-0.5" style="font-size: 0.7rem;">
+                                    PPL 2026
                                 </span>
                             </div>
                         </div>
 
-                        <!-- Sisi Kanan Desktop: Widget Kalender Live, Bersih di Mobile -->
+                        <!-- Sisi Kanan Desktop: Sapaan Personal Mahasiswa (Bebas Tanggal Ganda) -->
                         <div class="d-none d-md-flex align-items-center gap-2">
-                            <div class="d-flex align-items-center gap-2 bg-light px-3 py-1.5 rounded-pill border shadow-xs" style="font-size: 0.8rem;">
-                                <i class="bi bi-calendar3 text-success"></i>
-                                <span class="fw-medium text-secondary"><?= esc($tanggalIndoTemplate) ?></span>
+                            <div class="d-flex align-items-center gap-2 bg-light px-3 py-1.5 rounded-pill border shadow-xs" style="font-size: 0.85rem;">
+                                <span class="avatar-initial-sm" style="width: 26px; height: 26px; font-size: 0.7rem; background-color: var(--skagata-primary);">
+                                    <?= esc(mb_strtoupper(mb_substr($namaUser, 0, 1))) ?>
+                                </span>
+                                <span class="text-secondary">
+                                    <?= $greetingTemplate ?>, <strong class="text-dark"><?= esc(explode(' ', trim($namaUser))[0]) ?></strong> 👋
+                                </span>
                             </div>
                         </div>
 
@@ -728,11 +728,12 @@
                 <!-- Footer Skagata: Hanya di Mobile untuk Mahasiswa (Desktop Kredit di Sidebar Footer) -->
                 <footer class="footer-skagata py-3 text-center <?= ($role === 'mahasiswa') ? 'd-md-none' : '' ?>">
                     <div class="container-fluid px-4">
-                        <div class="small text-muted">
-                            Crafted with <span class="text-danger">❤️</span> by <a href="https://awanbeo.my.id" target="_blank" class="fw-semibold text-success text-decoration-none">awanbeo.my.id</a>
+                        <div class="small text-muted fw-semibold d-flex align-items-center justify-content-center gap-1">
+                            <i class="bi bi-gift-fill text-warning"></i>
+                            <span>Persembahan PPL - PPG Angkatan 1 Tahun 2026</span>
                         </div>
-                        <div class="small text-muted mt-1 fw-medium" style="font-size: 0.8rem;">
-                            PPL - PPG Angkatan 1 Tahun 2026
+                        <div class="small text-muted mt-1" style="font-size: 0.8rem;">
+                            Supported by <a href="https://awanbeo.my.id" target="_blank" class="fw-semibold text-success text-decoration-none">awanbeo.my.id</a>
                         </div>
                     </div>
                 </footer>
@@ -821,11 +822,12 @@
 
         <footer class="footer-skagata py-3 text-center">
             <div class="container">
-                <div class="small text-muted">
-                    Crafted with <span class="text-danger">❤️</span> by <a href="https://awanbeo.my.id" target="_blank" class="fw-semibold text-success text-decoration-none">awanbeo.my.id</a>
+                <div class="small text-muted fw-semibold d-flex align-items-center justify-content-center gap-1">
+                    <i class="bi bi-gift-fill text-warning"></i>
+                    <span>Persembahan PPL - PPG Angkatan 1 Tahun 2026</span>
                 </div>
-                <div class="small text-muted mt-1 fw-medium" style="font-size: 0.8rem;">
-                    PPL - PPG Angkatan 1 Tahun 2026
+                <div class="small text-muted mt-1" style="font-size: 0.8rem;">
+                    Supported by <a href="https://awanbeo.my.id" target="_blank" class="fw-semibold text-success text-decoration-none">awanbeo.my.id</a>
                 </div>
             </div>
         </footer>
