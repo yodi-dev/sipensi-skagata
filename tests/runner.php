@@ -752,5 +752,80 @@ $runner->it("Layout template dan manajemen pengguna harus terintegrasi dengan Ma
     $runner->assertTrue(strpos($adminIndex, '$daftar_universitas') !== false, "Admin index harus mendukung daftar_universitas");
 });
 
+$runner->describe("18. Pengujian Master Data Periode (Gelombang PPL & Tahun Ajaran)");
+
+$runner->it("PeriodeModel harus memiliki validasi lengkap, timeline stats, dan helper methods", function() use ($runner) {
+    $model = new \App\Models\PeriodeModel();
+    $runner->assertEquals('periode', $model->getTable(), "Tabel PeriodeModel harus 'periode'");
+    $rules = $model->getValidationRules();
+    $runner->assertTrue(isset($rules['nama_periode']), "Rule nama_periode harus ada");
+    $runner->assertTrue(isset($rules['tahun_ajaran']), "Rule tahun_ajaran harus ada");
+    $runner->assertTrue(isset($rules['semester']), "Rule semester harus ada");
+    $runner->assertTrue(isset($rules['tanggal_mulai']), "Rule tanggal_mulai harus ada");
+    $runner->assertTrue(isset($rules['tanggal_selesai']), "Rule tanggal_selesai harus ada");
+
+    $runner->assertTrue(method_exists($model, 'getPeriodeWithStats'), "Method getPeriodeWithStats harus ada");
+    $runner->assertTrue(method_exists($model, 'getPeriodeAktif'), "Method getPeriodeAktif harus ada");
+    $runner->assertTrue(method_exists($model, 'setAktif'), "Method setAktif harus ada");
+    $runner->assertTrue(method_exists($model, 'countPenggunaByPeriode'), "Method countPenggunaByPeriode harus ada");
+    $runner->assertTrue(method_exists($model, 'getDaftarPilihan'), "Method getDaftarPilihan harus ada");
+
+    $periodeAktif = $model->getPeriodeAktif();
+    $runner->assertTrue(is_array($periodeAktif), "Harus ada periode aktif yang ditemukan");
+    $runner->assertEquals(1, (int)$periodeAktif['is_aktif'], "Periode aktif harus memiliki is_aktif = 1");
+});
+
+$runner->it("Route master data periode harus terdaftar di Config/Routes.php", function() use ($runner) {
+    $routesFile = APPPATH . 'Config/Routes.php';
+    $runner->assertTrue(file_exists($routesFile));
+    $content = file_get_contents($routesFile);
+    $runner->assertTrue(strpos($content, "'Admin::periode'") !== false, "Route GET admin/periode harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::tambahPeriode'") !== false, "Route POST admin/periode/tambah harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::editPeriode'") !== false, "Route POST admin/periode/edit harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::hapusPeriode'") !== false, "Route POST admin/periode/hapus harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::setAktifPeriode'") !== false, "Route POST admin/periode/set-aktif harus terdaftar");
+});
+
+$runner->it("Controller Admin harus mengimplementasikan CRUD periode, aktivasi gelombang, dan proteksi integritas", function() use ($runner) {
+    $controller = new \App\Controllers\Admin();
+    $runner->assertTrue(method_exists($controller, 'periode'), "Admin::periode harus terdefinisi");
+    $runner->assertTrue(method_exists($controller, 'tambahPeriode'), "Admin::tambahPeriode harus terdefinisi");
+    $runner->assertTrue(method_exists($controller, 'editPeriode'), "Admin::editPeriode harus terdefinisi");
+    $runner->assertTrue(method_exists($controller, 'hapusPeriode'), "Admin::hapusPeriode harus terdefinisi");
+    $runner->assertTrue(method_exists($controller, 'setAktifPeriode'), "Admin::setAktifPeriode harus terdefinisi");
+
+    $controllerFile = APPPATH . 'Controllers/Admin.php';
+    $content = file_get_contents($controllerFile);
+    $runner->assertTrue(strpos($content, 'countPenggunaByPeriode') !== false, "Hapus periode harus memeriksa countPenggunaByPeriode untuk keamanan data");
+    $runner->assertTrue(strpos($content, 'strtotime($tanggalSelesai) < strtotime($tanggalMulai)') !== false, "Validasi rentang tanggal harus memastikan tanggal_selesai >= tanggal_mulai");
+});
+
+$runner->it("View admin/periode harus memuat stat-card, tabel interaktif, dan modal CRUD SweetAlert", function() use ($runner) {
+    $viewFile = APPPATH . 'Views/admin/periode.php';
+    $runner->assertTrue(file_exists($viewFile), "File Views/admin/periode.php harus ada");
+    $content = file_get_contents($viewFile);
+    $runner->assertTrue(strpos($content, 'stat-card-modern') !== false, "Harus memuat stat-card-modern");
+    $runner->assertTrue(strpos($content, 'modalTambahPeriode') !== false, "Harus memuat modalTambahPeriode");
+    $runner->assertTrue(strpos($content, 'modalEditPeriode') !== false, "Harus memuat modalEditPeriode");
+    $runner->assertTrue(strpos($content, 'konfirmasiSetAktif') !== false, "Harus memuat konfirmasiSetAktif");
+    $runner->assertTrue(strpos($content, 'konfirmasiHapusPeriode') !== false, "Harus memuat konfirmasiHapusPeriode");
+    $runner->assertTrue(strpos($content, 'Swal.fire') !== false, "Harus memuat integrasi SweetAlert2");
+});
+
+$runner->it("Layout template dan manajemen pengguna harus terintegrasi dengan Master Data Periode", function() use ($runner) {
+    $templateFile = APPPATH . 'Views/layout/template.php';
+    $runner->assertTrue(file_exists($templateFile));
+    $content = file_get_contents($templateFile);
+    $runner->assertTrue(strpos($content, 'admin/periode') !== false, "Sidebar harus mengarahkan ke admin/periode");
+
+    $penggunaView = file_get_contents(APPPATH . 'Views/admin/pengguna.php');
+    $runner->assertTrue(strpos($penggunaView, '$daftar_periode') !== false, "Pengguna view harus mendukung daftar_periode");
+    $runner->assertTrue(strpos($penggunaView, 'editPeriodeWrapper') !== false, "Pengguna view harus memiliki editPeriodeWrapper");
+
+    $adminIndex = file_get_contents(APPPATH . 'Views/admin/index.php');
+    $runner->assertTrue(strpos($adminIndex, '$daftar_periode') !== false, "Admin index harus mendukung daftar_periode");
+    $runner->assertTrue(strpos($adminIndex, 'admin/periode') !== false, "Admin index harus menyediakan pintasan admin/periode");
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());

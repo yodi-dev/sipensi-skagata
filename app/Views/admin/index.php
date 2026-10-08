@@ -374,6 +374,16 @@ function getInitials($name)
                         </div>
                     </a>
 
+                    <a href="<?= base_url('admin/periode') ?>" class="quick-action-item">
+                        <div class="stat-icon-circle" style="width: 38px; height: 38px; font-size: 1rem; background-color: #d1fae5; color: #065f46;">
+                            <i class="bi bi-calendar-range-fill"></i>
+                        </div>
+                        <div class="lh-sm">
+                            <span class="d-block fw-bold text-dark" style="font-size: 0.88rem;">Periode PPL / PK</span>
+                            <small class="text-muted" style="font-size: 0.75rem;">Atur tahun ajaran &amp; gelombang aktif</small>
+                        </div>
+                    </a>
+
                     <a href="<?= base_url('admin/pengaturan') ?>" class="quick-action-item">
                         <div class="stat-icon-circle" style="width: 38px; height: 38px; font-size: 1rem; background-color: #fef3c7; color: #92400e;">
                             <i class="bi bi-geo-alt-fill"></i>
@@ -436,7 +446,7 @@ function getInitials($name)
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
-                        <select name="role" class="form-select" id="tambahRoleSelectDash" onchange="toggleJurusanField('tambahRoleSelectDash', 'tambahJurusanWrapperDash', 'tambahUniversitasWrapperDash')" required>
+                        <select name="role" class="form-select" id="tambahRoleSelectDash" onchange="toggleJurusanField('tambahRoleSelectDash', 'tambahJurusanWrapperDash', 'tambahUniversitasWrapperDash', 'tambahPeriodeWrapperDash')" required>
                             <option value="mahasiswa" selected>Mahasiswa Praktikan (PPL/PK)</option>
                             <option value="guru">Guru Pamong / GTT</option>
                         </select>
@@ -469,6 +479,19 @@ function getInitials($name)
                             <?php endif; ?>
                         </select>
                     </div>
+                    <div class="mb-3" id="tambahPeriodeWrapperDash">
+                        <label class="form-label fw-semibold small text-dark">Periode PPL / PK</label>
+                        <select name="periode_id" class="form-select">
+                            <option value="">-- Pilih Periode PPL / PK --</option>
+                            <?php if (!empty($daftar_periode)): ?>
+                                <?php foreach ($daftar_periode as $prd): ?>
+                                    <option value="<?= $prd['id'] ?>" <?= ((int)$prd['is_aktif'] === 1) ? 'selected' : '' ?>>
+                                        <?= esc($prd['nama_periode']) ?><?= ((int)$prd['is_aktif'] === 1) ? ' (Aktif)' : '' ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold small text-dark">Password Awal</label>
                         <div class="input-group">
@@ -494,15 +517,19 @@ function getInitials($name)
 
 <?= $this->section('scripts') ?>
 <script>
-    function toggleJurusanField(roleSelectId, jurusanWrapperId, universitasWrapperId) {
+    function toggleJurusanField(roleSelectId, jurusanWrapperId, universitasWrapperId, periodeWrapperId) {
         const role = document.getElementById(roleSelectId).value;
         const jWrapper = document.getElementById(jurusanWrapperId);
         const uWrapper = universitasWrapperId ? document.getElementById(universitasWrapperId) : null;
+        const pWrapper = periodeWrapperId ? document.getElementById(periodeWrapperId) : null;
         if (jWrapper) {
             jWrapper.style.display = (role === 'mahasiswa') ? 'block' : 'none';
         }
         if (uWrapper) {
             uWrapper.style.display = (role === 'mahasiswa') ? 'block' : 'none';
+        }
+        if (pWrapper) {
+            pWrapper.style.display = (role === 'mahasiswa') ? 'block' : 'none';
         }
     }
 

@@ -10,6 +10,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call('JurusanSeeder');
         $this->call('UniversitasSeeder');
+        $this->call('PeriodeSeeder');
         $this->call('UserSeeder');
         $this->call('SettingSeeder');
         $this->call('PresensiSeeder');

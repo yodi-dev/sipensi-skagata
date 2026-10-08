@@ -51,6 +51,11 @@ $routes->group('admin', ['filter' => ['auth', 'role:admin']], static function ($
     $routes->post('universitas/tambah', 'Admin::tambahUniversitas');
     $routes->post('universitas/edit', 'Admin::editUniversitas');
     $routes->post('universitas/hapus', 'Admin::hapusUniversitas');
+    $routes->get('periode', 'Admin::periode');
+    $routes->post('periode/tambah', 'Admin::tambahPeriode');
+    $routes->post('periode/edit', 'Admin::editPeriode');
+    $routes->post('periode/hapus', 'Admin::hapusPeriode');
+    $routes->post('periode/set-aktif', 'Admin::setAktifPeriode');
     $routes->get('pengaturan', 'Admin::pengaturan');
     $routes->post('pengaturan/simpan', 'Admin::simpanPengaturan');
     $routes->post('update-profil', 'Admin::updateProfil');

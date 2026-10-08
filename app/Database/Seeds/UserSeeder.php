@@ -25,6 +25,7 @@ class UserSeeder extends Seeder
                 'role'        => 'admin',
                 'jurusan'     => null,
                 'universitas' => null,
+                'periode_id'  => null,
             ],
 
             // 2. Akun Guru Pamong / Pembimbing
@@ -35,6 +36,7 @@ class UserSeeder extends Seeder
                 'role'        => 'guru',
                 'jurusan'     => null,
                 'universitas' => null,
+                'periode_id'  => null,
             ],
             [
                 'username'    => 'jumari',
@@ -43,6 +45,7 @@ class UserSeeder extends Seeder
                 'role'        => 'guru',
                 'jurusan'     => null,
                 'universitas' => null,
+                'periode_id'  => null,
             ],
 
             // 3. Akun Mahasiswa PPL - Jurusan Informatika
@@ -52,7 +55,8 @@ class UserSeeder extends Seeder
                 'password'    => $defaultPassword,
                 'role'        => 'mahasiswa',
                 'jurusan'     => 'Informatika',
-                'universitas' => 'Universitas Negeri Yogyakarta'
+                'universitas' => 'Universitas Negeri Yogyakarta',
+                'periode_id'  => 1,
             ],
             [
                 'username'    => 'fajar',
@@ -60,7 +64,8 @@ class UserSeeder extends Seeder
                 'password'    => $defaultPassword,
                 'role'        => 'mahasiswa',
                 'jurusan'     => 'Informatika',
-                'universitas' => 'Universitas Negeri Yogyakarta'
+                'universitas' => 'Universitas Negeri Yogyakarta',
+                'periode_id'  => 1,
             ],
             [
                 'username'    => 'ina',
@@ -68,7 +73,8 @@ class UserSeeder extends Seeder
                 'password'    => $defaultPassword,
                 'role'        => 'mahasiswa',
                 'jurusan'     => 'Informatika',
-                'universitas' => 'Universitas Negeri Yogyakarta'
+                'universitas' => 'Universitas Negeri Yogyakarta',
+                'periode_id'  => 1,
             ],
 
             // 4. Akun Mahasiswa PPL - Jurusan Bimbingan Konseling (BK)
@@ -78,7 +84,8 @@ class UserSeeder extends Seeder
                 'password'    => $defaultPassword,
                 'role'        => 'mahasiswa',
                 'jurusan'     => 'Bimbingan Konseling',
-                'universitas' => 'Universitas Ahmad Dahlan'
+                'universitas' => 'Universitas Ahmad Dahlan',
+                'periode_id'  => 1,
             ],
             [
                 'username'    => 'asih',
@@ -86,7 +93,8 @@ class UserSeeder extends Seeder
                 'password'    => $defaultPassword,
                 'role'        => 'mahasiswa',
                 'jurusan'     => 'Bimbingan Konseling',
-                'universitas' => 'Universitas Ahmad Dahlan'
+                'universitas' => 'Universitas Ahmad Dahlan',
+                'periode_id'  => 1,
             ],
             [
                 'username'    => 'dimas',
@@ -94,7 +102,8 @@ class UserSeeder extends Seeder
                 'password'    => $defaultPassword,
                 'role'        => 'mahasiswa',
                 'jurusan'     => 'Bimbingan Konseling',
-                'universitas' => 'Universitas Ahmad Dahlan'
+                'universitas' => 'Universitas Ahmad Dahlan',
+                'periode_id'  => 1,
             ],
 
             // 5. Akun Mahasiswa PPL - Jurusan Teknik Listrik (TL)
@@ -104,7 +113,8 @@ class UserSeeder extends Seeder
                 'password'    => $defaultPassword,
                 'role'        => 'mahasiswa',
                 'jurusan'     => 'Teknik Ketenagalistrikan',
-                'universitas' => 'Universitas Sarjanawiyata Tamansiswa'
+                'universitas' => 'Universitas Sarjanawiyata Tamansiswa',
+                'periode_id'  => 1,
             ],
             [
                 'username'    => 'khoerul',
@@ -112,7 +122,8 @@ class UserSeeder extends Seeder
                 'password'    => $defaultPassword,
                 'role'        => 'mahasiswa',
                 'jurusan'     => 'Teknik Ketenagalistrikan',
-                'universitas' => 'Universitas Sarjanawiyata Tamansiswa'
+                'universitas' => 'Universitas Sarjanawiyata Tamansiswa',
+                'periode_id'  => 1,
             ],
 
             // 6. Akun Mahasiswa PPL - Jurusan Teknik Otomotif (TO)
@@ -122,7 +133,8 @@ class UserSeeder extends Seeder
                 'password'    => $defaultPassword,
                 'role'        => 'mahasiswa',
                 'jurusan'     => 'Teknik Otomotif',
-                'universitas' => 'Universitas Negeri Yogyakarta'
+                'universitas' => 'Universitas Negeri Yogyakarta',
+                'periode_id'  => 1,
             ],
             [
                 'username'    => 'nuraini',
@@ -130,7 +142,8 @@ class UserSeeder extends Seeder
                 'password'    => $defaultPassword,
                 'role'        => 'mahasiswa',
                 'jurusan'     => 'Teknik Otomotif',
-                'universitas' => 'Universitas Negeri Yogyakarta'
+                'universitas' => 'Universitas Negeri Yogyakarta',
+                'periode_id'  => 1,
             ],
 
             // 7. Akun Mahasiswa PPL - Jurusan PJOK
@@ -140,7 +153,8 @@ class UserSeeder extends Seeder
                 'password'    => $defaultPassword,
                 'role'        => 'mahasiswa',
                 'jurusan'     => 'Pendidikan Jasmani Olahraga & Kesehatan',
-                'universitas' => 'Universitas PGRI Yogyakarta'
+                'universitas' => 'Universitas PGRI Yogyakarta',
+                'periode_id'  => 1,
             ],
             [
                 'username'    => 'panji',
@@ -148,7 +162,8 @@ class UserSeeder extends Seeder
                 'password'    => $defaultPassword,
                 'role'        => 'mahasiswa',
                 'jurusan'     => 'Pendidikan Jasmani Olahraga & Kesehatan',
-                'universitas' => 'Universitas PGRI Yogyakarta'
+                'universitas' => 'Universitas PGRI Yogyakarta',
+                'periode_id'  => 1,
             ],
             [
                 'username'    => 'putri',
@@ -156,7 +171,8 @@ class UserSeeder extends Seeder
                 'password'    => $defaultPassword,
                 'role'        => 'mahasiswa',
                 'jurusan'     => 'Pendidikan Jasmani Olahraga & Kesehatan',
-                'universitas' => 'Universitas PGRI Yogyakarta'
+                'universitas' => 'Universitas PGRI Yogyakarta',
+                'periode_id'  => 1,
             ],
         ];
 

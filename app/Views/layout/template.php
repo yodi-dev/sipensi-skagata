@@ -358,6 +358,10 @@
                             <i class="bi bi-buildings-fill"></i>
                             <span>Asal Universitas</span>
                         </a>
+                        <a href="<?= base_url('admin/periode') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'admin/periode') !== false) ? 'active' : '' ?>">
+                            <i class="bi bi-calendar-range-fill"></i>
+                            <span>Periode PPL / PK</span>
+                        </a>
 
                         <div class="sidebar-section-label">Sistem &amp; Pengaturan</div>
                         <a href="<?= base_url('admin/pengaturan') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'admin/pengaturan') !== false) ? 'active' : '' ?>">

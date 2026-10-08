@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\JurusanModel;
+use App\Models\PeriodeModel;
 use App\Models\SettingModel;
 use App\Models\UniversitasModel;
 use App\Models\UserModel;
@@ -13,12 +14,14 @@ class Admin extends BaseController
     protected UserModel $userModel;
     protected JurusanModel $jurusanModel;
     protected UniversitasModel $universitasModel;
+    protected PeriodeModel $periodeModel;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
         $this->jurusanModel = new JurusanModel();
         $this->universitasModel = new UniversitasModel();
+        $this->periodeModel = new PeriodeModel();
     }
 
     public function index()
@@ -84,6 +87,8 @@ class Admin extends BaseController
             'jam_pulang_min'        => $jamPulangMin,
             'daftar_jurusan'        => $this->jurusanModel->getDaftarNama(),
             'daftar_universitas'    => $this->universitasModel->getDaftarNama(),
+            'daftar_periode'        => $this->periodeModel->getDaftarPilihan(),
+            'periode_aktif'         => $this->periodeModel->getPeriodeAktif(),
             'title'                 => 'Dashboard Administrator - SIPENSI SKAGATA'
         ];
 
@@ -100,6 +105,7 @@ class Admin extends BaseController
         $roleFilter = $this->request->getGet('role');
         $jurusanFilter = $this->request->getGet('jurusan');
         $universitasFilter = $this->request->getGet('universitas');
+        $periodeFilter = $this->request->getGet('periode');
 
         // Hitung statistik
         $totalMahasiswa = (clone $builder)->where('role', 'mahasiswa')->countAllResults();
@@ -108,8 +114,8 @@ class Admin extends BaseController
         // Terapkan filter query
         if (!empty($keyword)) {
             $builder->groupStart()
-                ->like('nama', $keyword)
-                ->orLike('username', $keyword)
+                ->like('users.nama', $keyword)
+                ->orLike('users.username', $keyword)
                 ->groupEnd();
         }
 
@@ -117,19 +123,25 @@ class Admin extends BaseController
         $builder->where('role !=', 'admin');
 
         if (!empty($roleFilter) && in_array($roleFilter, ['mahasiswa', 'guru'], true)) {
-            $builder->where('role', $roleFilter);
+            $builder->where('users.role', $roleFilter);
         }
 
         if (!empty($jurusanFilter)) {
-            $builder->where('jurusan', $jurusanFilter);
+            $builder->where('users.jurusan', $jurusanFilter);
         }
 
         if (!empty($universitasFilter)) {
-            $builder->where('universitas', $universitasFilter);
+            $builder->where('users.universitas', $universitasFilter);
         }
 
-        $users = $builder->orderBy('role', 'ASC')
-            ->orderBy('nama', 'ASC')
+        if (!empty($periodeFilter)) {
+            $builder->where('users.periode_id', (int) $periodeFilter);
+        }
+
+        $users = $builder->select('users.*, periode.nama_periode AS nama_periode_relasi')
+            ->join('periode', 'periode.id = users.periode_id', 'left')
+            ->orderBy('users.role', 'ASC')
+            ->orderBy('users.nama', 'ASC')
             ->get()
             ->getResultArray();
 
@@ -144,6 +156,7 @@ class Admin extends BaseController
             ->groupBy('jurusan')
             ->get()
             ->getResultArray();
+        $jurusanFromDb = array_filter(array_column($jurusanRaw, 'jurusan'));
         $masterJurusan = $this->jurusanModel->getDaftarNama();
         $defaultJurusan = ['Informatika', 'PJOK', 'BK', 'TL', 'TO'];
         $daftarJurusan = array_values(array_unique(array_merge($defaultJurusan, $masterJurusan, $jurusanFromDb)));
@@ -162,6 +175,10 @@ class Admin extends BaseController
         $daftarUniversitas = array_values(array_unique(array_merge($masterUniversitas, $univFromDb)));
         sort($daftarUniversitas);
 
+        // Ambil daftar periode dan periode aktif
+        $daftarPeriode = $this->periodeModel->getDaftarPilihan();
+        $periodeAktif = $this->periodeModel->getPeriodeAktif();
+
         $data = [
             'users'              => $users,
             'current_admin'      => $currentAdmin,
@@ -171,8 +188,11 @@ class Admin extends BaseController
             'role_terpilih'      => $roleFilter,
             'jurusan_pilih'      => $jurusanFilter,
             'universitas_pilih'  => $universitasFilter,
+            'periode_pilih'      => $periodeFilter,
             'daftar_jurusan'     => $daftarJurusan,
             'daftar_universitas' => $daftarUniversitas,
+            'daftar_periode'     => $daftarPeriode,
+            'periode_aktif'      => $periodeAktif,
             'title'              => 'Manajemen Pengguna - SIPENSI SKAGATA'
         ];
 
@@ -198,7 +218,19 @@ class Admin extends BaseController
         $role        = (string) $this->request->getPost('role');
         $jurusan     = trim((string) $this->request->getPost('jurusan'));
         $universitas = trim((string) $this->request->getPost('universitas'));
+        $periodeId   = $this->request->getPost('periode_id');
         $password    = (string) $this->request->getPost('password');
+
+        if ($role === 'mahasiswa') {
+            if (empty($periodeId)) {
+                $periodeAktif = $this->periodeModel->getPeriodeAktif();
+                $periodeId = $periodeAktif ? (int) $periodeAktif['id'] : null;
+            } else {
+                $periodeId = (int) $periodeId;
+            }
+        } else {
+            $periodeId = null;
+        }
 
         $this->userModel->insert([
             'username'    => $username,
@@ -206,6 +238,7 @@ class Admin extends BaseController
             'role'        => $role,
             'jurusan'     => !empty($jurusan) ? $jurusan : null,
             'universitas' => ($role === 'mahasiswa' && !empty($universitas)) ? $universitas : null,
+            'periode_id'  => $periodeId,
             'password'    => password_hash($password, PASSWORD_BCRYPT)
         ]);
 
@@ -240,13 +273,16 @@ class Admin extends BaseController
         $role        = (string) $this->request->getPost('role');
         $jurusan     = trim((string) $this->request->getPost('jurusan'));
         $universitas = trim((string) $this->request->getPost('universitas'));
+        $periodeId   = $this->request->getPost('periode_id');
+        $periodeVal  = ($role === 'mahasiswa' && !empty($periodeId)) ? (int) $periodeId : null;
 
         $this->userModel->update($userId, [
             'username'    => $username,
             'nama'        => $nama,
             'role'        => $role,
             'jurusan'     => !empty($jurusan) ? $jurusan : null,
-            'universitas' => ($role === 'mahasiswa' && !empty($universitas)) ? $universitas : null
+            'universitas' => ($role === 'mahasiswa' && !empty($universitas)) ? $universitas : null,
+            'periode_id'  => $periodeVal,
         ]);
 
         return redirect()->to('/admin/pengguna')->with('pesan', "Data pengguna {$nama} berhasil diperbarui!");
@@ -609,6 +645,169 @@ class Admin extends BaseController
         $this->universitasModel->delete($id);
 
         return redirect()->to('/admin/universitas')->with('pesan', "Universitas {$existing['nama_universitas']} ({$existing['kode_universitas']}) berhasil dihapus!");
+    }
+
+    public function periode()
+    {
+        $keyword = trim((string) $this->request->getGet('keyword'));
+        $periodeList = $this->periodeModel->getPeriodeWithStats($keyword);
+
+        $totalPeriode = $this->periodeModel->countAllResults();
+        $periodeAktif = $this->periodeModel->getPeriodeAktif();
+        $totalMahasiswaAktif = $periodeAktif ? $this->periodeModel->countPenggunaByPeriode((int) $periodeAktif['id']) : 0;
+        $totalMahasiswa = $this->userModel->where('role', 'mahasiswa')->countAllResults();
+
+        $currentAdmin = $this->userModel->find(session()->get('id_user'));
+
+        $data = [
+            'title'                 => 'Master Data Periode PPL / PK - SIPENSI SKAGATA',
+            'current_admin'         => $currentAdmin,
+            'periode_list'          => $periodeList,
+            'total_periode'         => $totalPeriode,
+            'periode_aktif'         => $periodeAktif,
+            'total_mahasiswa_aktif' => $totalMahasiswaAktif,
+            'total_mahasiswa'       => $totalMahasiswa,
+            'keyword'               => $keyword,
+        ];
+
+        return view('admin/periode', $data);
+    }
+
+    public function tambahPeriode()
+    {
+        $rules = [
+            'nama_periode'    => 'required|min_length[3]|max_length[100]',
+            'tahun_ajaran'    => 'required|min_length[4]|max_length[20]',
+            'semester'        => 'required|in_list[Ganjil,Genap]',
+            'tanggal_mulai'   => 'required|valid_date[Y-m-d]',
+            'tanggal_selesai' => 'required|valid_date[Y-m-d]',
+        ];
+
+        if (!$this->validate($rules)) {
+            $errors = implode(' ', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('error', $errors);
+        }
+
+        $nama           = trim(strip_tags((string) $this->request->getPost('nama_periode')));
+        $tahunAjaran    = trim(strip_tags((string) $this->request->getPost('tahun_ajaran')));
+        $semester       = (string) $this->request->getPost('semester');
+        $tanggalMulai   = (string) $this->request->getPost('tanggal_mulai');
+        $tanggalSelesai = (string) $this->request->getPost('tanggal_selesai');
+        $isAktif        = $this->request->getPost('is_aktif') ? 1 : 0;
+        $keterangan     = trim(strip_tags((string) $this->request->getPost('keterangan')));
+
+        if (strtotime($tanggalSelesai) < strtotime($tanggalMulai)) {
+            return redirect()->back()->withInput()->with('error', 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai!');
+        }
+
+        $newId = $this->periodeModel->insert([
+            'nama_periode'    => $nama,
+            'tahun_ajaran'    => $tahunAjaran,
+            'semester'        => $semester,
+            'tanggal_mulai'   => $tanggalMulai,
+            'tanggal_selesai' => $tanggalSelesai,
+            'is_aktif'        => 0,
+            'keterangan'      => !empty($keterangan) ? $keterangan : null,
+        ]);
+
+        if ($isAktif === 1 && $newId) {
+            $this->periodeModel->setAktif((int) $newId);
+        }
+
+        return redirect()->to('/admin/periode')->with('pesan', "Periode '{$nama}' berhasil ditambahkan!");
+    }
+
+    public function editPeriode()
+    {
+        $id = $this->request->getPost('id');
+        if (empty($id) || !is_numeric($id)) {
+            return redirect()->back()->with('error', 'ID periode tidak valid!');
+        }
+
+        $existing = $this->periodeModel->find($id);
+        if (!$existing) {
+            return redirect()->back()->with('error', 'Data periode tidak ditemukan!');
+        }
+
+        $rules = [
+            'nama_periode'    => 'required|min_length[3]|max_length[100]',
+            'tahun_ajaran'    => 'required|min_length[4]|max_length[20]',
+            'semester'        => 'required|in_list[Ganjil,Genap]',
+            'tanggal_mulai'   => 'required|valid_date[Y-m-d]',
+            'tanggal_selesai' => 'required|valid_date[Y-m-d]',
+        ];
+
+        if (!$this->validate($rules)) {
+            $errors = implode(' ', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('error', $errors);
+        }
+
+        $nama           = trim(strip_tags((string) $this->request->getPost('nama_periode')));
+        $tahunAjaran    = trim(strip_tags((string) $this->request->getPost('tahun_ajaran')));
+        $semester       = (string) $this->request->getPost('semester');
+        $tanggalMulai   = (string) $this->request->getPost('tanggal_mulai');
+        $tanggalSelesai = (string) $this->request->getPost('tanggal_selesai');
+        $isAktif        = $this->request->getPost('is_aktif') ? 1 : 0;
+        $keterangan     = trim(strip_tags((string) $this->request->getPost('keterangan')));
+
+        if (strtotime($tanggalSelesai) < strtotime($tanggalMulai)) {
+            return redirect()->back()->withInput()->with('error', 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai!');
+        }
+
+        $this->periodeModel->update($id, [
+            'nama_periode'    => $nama,
+            'tahun_ajaran'    => $tahunAjaran,
+            'semester'        => $semester,
+            'tanggal_mulai'   => $tanggalMulai,
+            'tanggal_selesai' => $tanggalSelesai,
+            'keterangan'      => !empty($keterangan) ? $keterangan : null,
+        ]);
+
+        if ($isAktif === 1) {
+            $this->periodeModel->setAktif((int) $id);
+        }
+
+        return redirect()->to('/admin/periode')->with('pesan', "Perubahan periode '{$nama}' berhasil disimpan!");
+    }
+
+    public function setAktifPeriode()
+    {
+        $id = $this->request->getPost('id');
+        if (empty($id) || !is_numeric($id)) {
+            return redirect()->back()->with('error', 'ID periode tidak valid!');
+        }
+
+        $existing = $this->periodeModel->find($id);
+        if (!$existing) {
+            return redirect()->back()->with('error', 'Data periode tidak ditemukan!');
+        }
+
+        $this->periodeModel->setAktif((int) $id);
+
+        return redirect()->to('/admin/periode')->with('pesan', "Periode '{$existing['nama_periode']}' berhasil ditetapkan sebagai periode aktif saat ini!");
+    }
+
+    public function hapusPeriode()
+    {
+        $id = $this->request->getPost('id');
+        if (empty($id) || !is_numeric($id)) {
+            return redirect()->back()->with('error', 'ID periode tidak valid!');
+        }
+
+        $existing = $this->periodeModel->find($id);
+        if (!$existing) {
+            return redirect()->back()->with('error', 'Data periode tidak ditemukan!');
+        }
+
+        // Cek apakah masih ada mahasiswa yang menggunakan periode ini
+        $countPengguna = $this->periodeModel->countPenggunaByPeriode((int) $id);
+        if ($countPengguna > 0) {
+            return redirect()->to('/admin/periode')->with('error', "Periode '{$existing['nama_periode']}' tidak dapat dihapus karena masih digunakan oleh {$countPengguna} mahasiswa praktikan. Silakan alihkan data mahasiswa terlebih dahulu!");
+        }
+
+        $this->periodeModel->delete($id);
+
+        return redirect()->to('/admin/periode')->with('pesan', "Periode '{$existing['nama_periode']}' berhasil dihapus!");
     }
 
     public function updateProfil()
