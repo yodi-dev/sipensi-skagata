@@ -59,3 +59,4 @@ $pager->setSurroundCount(2);
         <?php endif ?>
     </ul>
 </nav>
+

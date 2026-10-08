@@ -1026,5 +1026,46 @@ $runner->it("Database MySQL harus memiliki unique username dan index role/jurusa
     $runner->assertTrue(in_array('idx_piket_tanggal', $piketIndexes), "Tabel piket_kbm harus memiliki index idx_piket_tanggal");
 });
 
+
+// ==========================================
+// 21. PENGUJIAN KEAMANAN AUTENTIKASI (H1 & H2)
+// ==========================================
+$runner->describe("21. Pengujian Keamanan Autentikasi (Anti Session Fixation & Rate Limiting)");
+
+$runner->it("Controller Auth::proses_login harus memanggil session->regenerate() sebelum menyimpan data sesi", function() use ($runner) {
+    $authContent = file_get_contents(APPPATH . 'Controllers/Auth.php');
+    $runner->assertTrue(strpos($authContent, 'password_verify') !== false);
+    $loginBlock = substr($authContent, strpos($authContent, 'password_verify'), 500);
+    $runner->assertTrue(strpos($loginBlock, '$session->regenerate()') !== false, "proses_login harus memanggil \$session->regenerate() setelah password valid");
+});
+
+$runner->it("Controller Auth::proses_login harus mengimplementasikan Throttler rate limiting dan reset saat sukses", function() use ($runner) {
+    $authContent = file_get_contents(APPPATH . 'Controllers/Auth.php');
+    $runner->assertTrue(strpos($authContent, "service('throttler')") !== false, "proses_login harus memanggil service throttler");
+    $runner->assertTrue(strpos($authContent, '$throttler->check(') !== false, "proses_login harus mengecek batasan request throttler");
+    $runner->assertTrue(strpos($authContent, 'Terlalu banyak percobaan login') !== false, "proses_login harus memberikan feedback saat kena limit");
+    $runner->assertTrue(strpos($authContent, 'cache()->delete(') !== false, "proses_login harus membersihkan limit throttler saat login sukses");
+});
+
+$runner->it("Service Throttler harus memblokir request setelah batas kapasitas token terlampaui", function() use ($runner) {
+    $throttler = service('throttler');
+    $testKey = 'unit_test_throttle_' . uniqid();
+    $capacity = 3;
+    $seconds = 60;
+
+    // 3 request pertama harus diizinkan
+    for ($i = 0; $i < $capacity; $i++) {
+        $allowed = $throttler->check($testKey, $capacity, $seconds);
+        $runner->assertTrue($allowed, "Request ke-{$i} harus diizinkan");
+    }
+
+    // Request ke-4 harus ditolak (rate limited)
+    $blocked = $throttler->check($testKey, $capacity, $seconds);
+    $runner->assertFalse($blocked, "Request yang melebihi kapasitas harus ditolak oleh Throttler");
+
+    // Bersihkan cache test
+    cache()->delete('throttler_' . $testKey);
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());

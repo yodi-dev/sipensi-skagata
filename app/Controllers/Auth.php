@@ -22,10 +22,26 @@ class Auth extends BaseController
     public function proses_login()
     {
         $session = session();
+        $throttler = service('throttler');
+        $ip = $this->request->getIPAddress();
+        $throttleKey = 'login_' . md5($ip);
+
+        // Proteksi Brute-Force: Batasi maksimal 5 percobaan login per 60 detik per IP
+        if ($throttler->check($throttleKey, 5, 60) === false) {
+            $seconds = max(1, $throttler->getTokenTime());
+            $session->setFlashdata('error', "Terlalu banyak percobaan login. Silakan tunggu {$seconds} detik sebelum mencoba kembali.");
+            return redirect()->to('/auth');
+        }
+
         $userModel = new UserModel();
 
-        $username = $this->request->getPost('username');
-        $password = $this->request->getPost('password');
+        $username = trim((string) $this->request->getPost('username'));
+        $password = (string) $this->request->getPost('password');
+
+        if (empty($username) || empty($password)) {
+            $session->setFlashdata('error', 'Username dan password wajib diisi!');
+            return redirect()->to('/auth');
+        }
 
         // Cari user di database berdasarkan username
         $user = $userModel->where('username', $username)->first();
@@ -33,6 +49,12 @@ class Auth extends BaseController
         if ($user) {
             // Cek kecocokan password
             if (password_verify($password, $user['password'])) {
+
+                // H1: Regenerasi session ID untuk mencegah serangan Session Fixation
+                $session->regenerate();
+
+                // Bersihkan batasan throttle karena kredensial valid
+                cache()->delete('throttler_' . $throttleKey);
 
                 // Jika benar, simpan data user ke Session
                 $dataSession = [
