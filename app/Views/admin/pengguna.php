@@ -17,6 +17,19 @@
         padding: 1.25rem 1.5rem;
     }
 
+    /* Mobile User Card */
+    .user-item-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.875rem;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .user-item-card:active {
+        transform: scale(0.99);
+    }
+
     /* Table & Filter Toolbar */
     .table-custom thead th {
         background-color: #0f5132;
@@ -38,8 +51,14 @@
     .filter-wrapper {
         background-color: #f8fafc;
         border: 1px solid #e2e8f0;
-        border-radius: 2rem;
-        padding: 0.35rem 0.75rem;
+        border-radius: 1rem;
+        padding: 0.5rem 0.75rem;
+    }
+    @media (min-width: 992px) {
+        .filter-wrapper {
+            border-radius: 2rem;
+            padding: 0.35rem 0.75rem;
+        }
     }
 
     /* User Avatar Circle */
@@ -212,32 +231,125 @@ function getInitials($name)
             </form>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover table-custom align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th class="text-center" style="width: 50px;">No</th>
-                        <th>Pengguna</th>
-                        <th>Role Akun</th>
-                        <th>Jurusan &amp; Kampus</th>
-                        <th class="text-center" style="width: 150px;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($users)): ?>
-                        <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <div class="py-4">
-                                    <i class="bi bi-people text-muted opacity-50" style="font-size: 3rem;"></i>
-                                    <h6 class="fw-semibold text-muted mt-3 mb-1">Tidak Ada Data Pengguna</h6>
-                                    <p class="text-muted small mb-3">Tidak ditemukan pengguna yang cocok dengan kriteria pencarian atau filter.</p>
-                                    <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3">
-                                        <i class="bi bi-arrow-clockwise me-1"></i>Reset Filter
-                                    </a>
+        <?php if (empty($users)): ?>
+            <div class="text-center py-5">
+                <div class="py-4">
+                    <i class="bi bi-people text-muted opacity-50" style="font-size: 3rem;"></i>
+                    <h6 class="fw-semibold text-muted mt-3 mb-1">Tidak Ada Data Pengguna</h6>
+                    <p class="text-muted small mb-3">Tidak ditemukan pengguna yang cocok dengan kriteria pencarian atau filter.</p>
+                    <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Reset Filter
+                    </a>
+                </div>
+            </div>
+        <?php else: ?>
+            <!-- ============================================== -->
+            <!-- 1. MOBILE VIEW: Interactive User Cards (< 768px) -->
+            <!-- ============================================== -->
+            <div class="d-block d-md-none p-3">
+                <div class="d-flex flex-column gap-3">
+                    <?php 
+                    $currentPage = !empty($pager) ? $pager->getCurrentPage() : 1;
+                    $noMobile = (($currentPage - 1) * ($perPage ?? 15)) + 1;
+                    foreach ($users as $u): 
+                    ?>
+                        <div class="user-item-card">
+                            <!-- Header Kartu: Inisial, Nama, Username, dan Role -->
+                            <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-initial">
+                                        <?= esc(getInitials($u['nama'])) ?>
+                                    </div>
+                                    <div class="lh-sm">
+                                        <div class="fw-bold text-dark" style="font-size: 0.92rem;"><?= esc($u['nama']) ?></div>
+                                        <small class="text-muted font-monospace" style="font-size: 0.78rem;">@<?= esc($u['username']) ?></small>
+                                    </div>
                                 </div>
-                            </td>
+                                <div>
+                                    <?php if ($u['role'] === 'mahasiswa'): ?>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1" style="font-size: 0.72rem;">
+                                            <i class="bi bi-mortarboard me-1"></i>Mahasiswa
+                                        </span>
+                                    <?php elseif ($u['role'] === 'guru'): ?>
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1" style="font-size: 0.72rem;">
+                                            <i class="bi bi-person-badge me-1"></i>Guru Pamong
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary rounded-pill px-2 py-1" style="font-size: 0.72rem;"><?= esc($u['role']) ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <!-- Detail: Jurusan, Universitas, Periode -->
+                            <div class="bg-light p-2 rounded-3 mb-3" style="font-size: 0.8rem;">
+                                <?php if ($u['role'] === 'guru'): ?>
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="text-muted">Bimbingan:</span>
+                                        <?php if (!empty($u['jurusan'])): ?>
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                                                <i class="bi bi-shield-check me-1"></i><?= esc($u['jurusan']) ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill">
+                                                <i class="bi bi-exclamation-circle me-1"></i>Belum Dipetakan
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                        <span class="text-muted">Jurusan:</span>
+                                        <span class="fw-semibold text-dark"><?= !empty($u['jurusan']) ? esc($u['jurusan']) : '-' ?></span>
+                                    </div>
+                                    <?php if (!empty($u['universitas'])): ?>
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <span class="text-muted">Universitas:</span>
+                                            <span class="fw-semibold text-dark text-truncate" style="max-width: 190px;"><?= esc($u['universitas']) ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                    <?php if (!empty($u['nama_periode_relasi'])): ?>
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="text-muted">Periode:</span>
+                                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill"><?= esc($u['nama_periode_relasi']) ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Tombol Aksi Mobile Touch-Friendly -->
+                            <div class="d-flex align-items-center gap-2 pt-1 border-top">
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.8rem;" onclick="bukaModalEdit(<?= (int) $u['id'] ?>, '<?= esc($u['username'], 'js') ?>', '<?= esc($u['nama'], 'js') ?>', '<?= esc($u['role'], 'js') ?>', '<?= esc($u['jurusan'] ?? '', 'js') ?>', '<?= esc($u['universitas'] ?? '', 'js') ?>', '<?= esc($u['periode_id'] ?? '', 'js') ?>')">
+                                    <i class="bi bi-pencil"></i>
+                                    <span>Edit</span>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-warning rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.8rem;" onclick="bukaModalReset(<?= (int) $u['id'] ?>, '<?= esc($u['nama'], 'js') ?>')">
+                                    <i class="bi bi-key"></i>
+                                    <span>Reset</span>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.8rem;" onclick="konfirmasiHapus(<?= (int) $u['id'] ?>, '<?= esc($u['nama'], 'js') ?>')">
+                                    <i class="bi bi-trash"></i>
+                                    <span>Hapus</span>
+                                </button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 2. DESKTOP VIEW: Full Data Table (>= 768px)    -->
+            <!-- ============================================== -->
+            <div class="table-responsive d-none d-md-block">
+                <table class="table table-hover table-custom align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 50px;">No</th>
+                            <th>Pengguna</th>
+                            <th>Role Akun</th>
+                            <th>Jurusan &amp; Kampus</th>
+                            <th class="text-center" style="width: 150px;">Aksi</th>
                         </tr>
-                    <?php else: ?>
+                    </thead>
+                    <tbody>
                         <?php 
                         $currentPage = !empty($pager) ? $pager->getCurrentPage() : 1;
                         $no = (($currentPage - 1) * ($perPage ?? 15)) + 1;
@@ -329,10 +441,10 @@ function getInitials($name)
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
         <?php if (!empty($pager) && $pager->getPageCount() > 1): ?>
             <div class="card-footer bg-white border-top py-3 px-4 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
                 <div class="text-muted small">
@@ -362,7 +474,7 @@ function getInitials($name)
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/tambah-user') ?>" method="POST">
+            <form action="<?= base_url('admin/tambah-user') ?>" method="POST" id="formTambahUserPengguna">
                 <?= csrf_field() ?>
                 <div class="modal-body text-start p-4">
                     <div class="mb-3">
@@ -427,7 +539,7 @@ function getInitials($name)
                 </div>
                 <div class="modal-footer border-0 bg-light py-2 px-4">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4">
+                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitTambahUserPengguna">
                         <i class="bi bi-plus-circle me-1"></i> Tambah Pengguna
                     </button>
                 </div>
@@ -447,7 +559,7 @@ function getInitials($name)
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/edit-user') ?>" method="POST">
+            <form action="<?= base_url('admin/edit-user') ?>" method="POST" id="formEditUserPengguna">
                 <?= csrf_field() ?>
                 <input type="hidden" name="id" id="editUserId">
                 <div class="modal-body text-start p-4">
@@ -504,7 +616,7 @@ function getInitials($name)
                 </div>
                 <div class="modal-footer border-0 bg-light py-2 px-4">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4">
+                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitEditUserPengguna">
                         <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
                     </button>
                 </div>
@@ -524,7 +636,7 @@ function getInitials($name)
                 </h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/reset-password') ?>" method="POST">
+            <form action="<?= base_url('admin/reset-password') ?>" method="POST" id="formResetPassPengguna">
                 <?= csrf_field() ?>
                 <input type="hidden" name="user_id" id="resetUserId">
                 <div class="modal-body text-start p-4">
@@ -547,7 +659,7 @@ function getInitials($name)
                 </div>
                 <div class="modal-footer border-0 bg-light py-2 px-4">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-warning rounded-pill px-4">
+                    <button type="submit" class="btn btn-sm btn-warning rounded-pill px-4" id="btnSubmitResetPassPengguna">
                         <i class="bi bi-arrow-repeat me-1"></i> Reset Password
                     </button>
                 </div>
@@ -565,6 +677,23 @@ function getInitials($name)
 
 <?= $this->section('scripts') ?>
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bindSubmitSpinner = function(formId, btnId, loadingText) {
+            const form = document.getElementById(formId);
+            const btn = document.getElementById(btnId);
+            if (form && btn) {
+                form.addEventListener('submit', function() {
+                    btn.disabled = true;
+                    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> ${loadingText}`;
+                });
+            }
+        };
+
+        bindSubmitSpinner('formTambahUserPengguna', 'btnSubmitTambahUserPengguna', 'Menyimpan...');
+        bindSubmitSpinner('formEditUserPengguna', 'btnSubmitEditUserPengguna', 'Menyimpan...');
+        bindSubmitSpinner('formResetPassPengguna', 'btnSubmitResetPassPengguna', 'Memproses...');
+    });
+
     function toggleJurusanField(roleSelectId, jurusanWrapperId, universitasWrapperId, periodeWrapperId) {
         const role = document.getElementById(roleSelectId).value;
         const jWrapper = document.getElementById(jurusanWrapperId);
