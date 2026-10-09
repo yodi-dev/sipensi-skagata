@@ -127,6 +127,17 @@
         100% {
             box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
         }
+    /* Mobile Periode Card */
+    .periode-item-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.875rem;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .periode-item-card:active {
+        transform: scale(0.99);
     }
 </style>
 <?= $this->endSection() ?>
@@ -219,23 +230,6 @@
         </div>
     </div>
 
-    <!-- Alert Notifikasi Flash -->
-    <?php if (session()->getFlashdata('pesan')): ?>
-        <div class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm d-flex align-items-center gap-2 mb-4" role="alert">
-            <i class="bi bi-check-circle-fill fs-5"></i>
-            <div><?= session()->getFlashdata('pesan') ?></div>
-            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif; ?>
-
-    <?php if (session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger alert-dismissible fade show rounded-4 border-0 shadow-sm d-flex align-items-center gap-2 mb-4" role="alert">
-            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
-            <div><?= session()->getFlashdata('error') ?></div>
-            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif; ?>
-
     <!-- Kartu Tabel Utama Master Data Periode -->
     <div class="admin-card">
         <div class="card-header-custom d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
@@ -261,34 +255,124 @@
             </div>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-custom align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th class="text-center" style="width: 50px;">No</th>
-                        <th style="width: 260px;">Nama Periode &amp; Status</th>
-                        <th style="width: 150px;">Tahun Ajaran</th>
-                        <th style="width: 220px;">Rentang Waktu &amp; Timeline</th>
-                        <th class="text-center" style="width: 150px;">Mahasiswa</th>
-                        <th>Keterangan</th>
-                        <th class="text-center" style="width: 140px;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($periode_list)): ?>
-                        <tr>
-                            <td colspan="7" class="text-center py-5">
-                                <div class="py-4">
-                                    <i class="bi bi-calendar-x text-muted opacity-50" style="font-size: 3rem;"></i>
-                                    <h6 class="fw-semibold text-muted mt-3 mb-1">Tidak Ada Data Periode</h6>
-                                    <p class="text-muted small mb-3">Tidak ditemukan data periode yang sesuai dengan kriteria pencarian.</p>
-                                    <a href="<?= base_url('admin/periode') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3">
-                                        <i class="bi bi-arrow-clockwise me-1"></i>Muat Ulang Data
-                                    </a>
+        <?php if (empty($periode_list)): ?>
+            <div class="text-center py-5">
+                <div class="py-4">
+                    <i class="bi bi-calendar-x text-muted opacity-50" style="font-size: 3rem;"></i>
+                    <h6 class="fw-semibold text-muted mt-3 mb-1">Tidak Ada Data Periode</h6>
+                    <p class="text-muted small mb-3">Tidak ditemukan data periode yang sesuai dengan kriteria pencarian.</p>
+                    <a href="<?= base_url('admin/periode') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Muat Ulang Data
+                    </a>
+                </div>
+            </div>
+        <?php else: ?>
+            <!-- ============================================== -->
+            <!-- 1. MOBILE VIEW: Interactive Periode Cards (< 768px) -->
+            <!-- ============================================== -->
+            <div class="d-block d-md-none p-3">
+                <div class="d-flex flex-column gap-3">
+                    <?php foreach ($periode_list as $p): ?>
+                        <?php
+                            $jml = (int) ($p['total_mahasiswa'] ?? 0);
+                            $badgeClass = 'bg-secondary';
+                            if ($p['timeline_badge'] === 'success') {
+                                $badgeClass = 'bg-success';
+                            } elseif ($p['timeline_badge'] === 'info') {
+                                $badgeClass = 'bg-info text-dark';
+                            }
+                        ?>
+                        <div class="periode-item-card">
+                            <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                <div>
+                                    <div class="fw-bold text-dark" style="font-size: 0.95rem;"><?= esc($p['nama_periode']) ?></div>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap mt-1">
+                                        <?php if ((int)$p['is_aktif'] === 1): ?>
+                                            <span class="badge-aktif" style="font-size: 0.72rem; padding: 2px 8px;">
+                                                <span class="pulse-dot"></span>
+                                                <span>Aktif</span>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge-arsip" style="font-size: 0.72rem; padding: 2px 8px;">
+                                                <i class="bi bi-archive me-1"></i>Arsip
+                                            </span>
+                                        <?php endif; ?>
+                                        <span class="badge <?= $badgeClass ?> rounded-pill" style="font-size: 0.68rem;">
+                                            <?= esc($p['timeline_status']) ?>
+                                        </span>
+                                    </div>
                                 </div>
-                            </td>
+                                <div class="text-end">
+                                    <?php if ($jml > 0): ?>
+                                        <a href="<?= base_url('admin/pengguna?periode=' . $p['id']) ?>" class="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 text-decoration-none shadow-xs d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;" title="Lihat Mahasiswa">
+                                            <i class="bi bi-mortarboard text-success"></i>
+                                            <strong><?= $jml ?></strong> Mhs
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="badge bg-light text-muted border rounded-pill px-2 py-1" style="font-size: 0.72rem;">0 Mhs</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-column gap-1 my-2 small text-muted" style="font-size: 0.8rem;">
+                                <div class="d-flex align-items-center gap-1 text-dark fw-medium">
+                                    <i class="bi bi-calendar3 text-success me-1"></i>
+                                    <span><?= esc($p['tahun_ajaran']) ?> (Semester <?= esc($p['semester']) ?>)</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <i class="bi bi-clock-history text-muted me-1"></i>
+                                    <span><?= date('d M Y', strtotime($p['tanggal_mulai'])) ?> - <?= date('d M Y', strtotime($p['tanggal_selesai'])) ?></span>
+                                </div>
+                            </div>
+
+                            <?php if (!empty($p['keterangan'])): ?>
+                                <div class="p-2 bg-light rounded-3 small text-muted mb-3" style="font-size: 0.78rem;">
+                                    <?= esc($p['keterangan']) ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Tombol Aksi Mobile Touch-Friendly -->
+                            <div class="d-flex align-items-center gap-2 pt-2 border-top">
+                                <?php if ((int)$p['is_aktif'] !== 1): ?>
+                                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2.5 py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.78rem;"
+                                            title="Tetapkan Aktif" onclick="konfirmasiSetAktif(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>')">
+                                        <i class="bi bi-check-circle"></i>
+                                        <span>Aktifkan</span>
+                                    </button>
+                                <?php endif; ?>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
+                                        onclick="bukaModalEditPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', '<?= esc($p['tahun_ajaran'], 'js') ?>', '<?= esc($p['semester'], 'js') ?>', '<?= esc($p['tanggal_mulai'], 'js') ?>', '<?= esc($p['tanggal_selesai'], 'js') ?>', <?= (int)$p['is_aktif'] ?>, '<?= esc($p['keterangan'] ?? '', 'js') ?>')">
+                                    <i class="bi bi-pencil-square"></i>
+                                    <span>Edit</span>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
+                                        onclick="konfirmasiHapusPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', <?= $jml ?>, <?= (int)$p['is_aktif'] ?>)">
+                                    <i class="bi bi-trash"></i>
+                                    <span>Hapus</span>
+                                </button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 2. DESKTOP VIEW: Complete Master Table (>= 768px) -->
+            <!-- ============================================== -->
+            <div class="d-none d-md-block table-responsive">
+                <table class="table table-custom align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 50px;">No</th>
+                            <th style="width: 260px;">Nama Periode &amp; Status</th>
+                            <th style="width: 150px;">Tahun Ajaran</th>
+                            <th style="width: 220px;">Rentang Waktu &amp; Timeline</th>
+                            <th class="text-center" style="width: 150px;">Mahasiswa</th>
+                            <th>Keterangan</th>
+                            <th class="text-center" style="width: 140px;">Aksi</th>
                         </tr>
-                    <?php else: ?>
+                    </thead>
+                    <tbody>
                         <?php $no = 1; foreach ($periode_list as $p): ?>
                             <tr>
                                 <td class="text-center text-muted fw-semibold"><?= $no++ ?></td>
@@ -374,10 +458,10 @@
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -392,7 +476,7 @@
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/periode/tambah') ?>" method="POST">
+            <form action="<?= base_url('admin/periode/tambah') ?>" method="POST" id="formTambahPeriode">
                 <?= csrf_field() ?>
                 <div class="modal-body text-start p-4">
                     <div class="mb-3">
@@ -442,7 +526,7 @@
                 </div>
                 <div class="modal-footer border-0 bg-light py-2 px-4">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4">
+                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitTambahPeriode">
                         <i class="bi bi-plus-circle me-1"></i> Tambah Periode
                     </button>
                 </div>
@@ -462,7 +546,7 @@
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/periode/edit') ?>" method="POST">
+            <form action="<?= base_url('admin/periode/edit') ?>" method="POST" id="formEditPeriode">
                 <?= csrf_field() ?>
                 <input type="hidden" name="id" id="editPeriodeId">
                 <div class="modal-body text-start p-4">
@@ -513,7 +597,7 @@
                 </div>
                 <div class="modal-footer border-0 bg-light py-2 px-4">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4">
+                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitEditPeriode">
                         <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
                     </button>
                 </div>
@@ -535,6 +619,30 @@
 </form>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const formTambah = document.getElementById('formTambahPeriode');
+        if (formTambah) {
+            formTambah.addEventListener('submit', function () {
+                const btn = document.getElementById('btnSubmitTambahPeriode');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Menyimpan...';
+                }
+            });
+        }
+
+        const formEdit = document.getElementById('formEditPeriode');
+        if (formEdit) {
+            formEdit.addEventListener('submit', function () {
+                const btn = document.getElementById('btnSubmitEditPeriode');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Menyimpan...';
+                }
+            });
+        }
+    });
+
     function bukaModalEditPeriode(id, nama, tahun, semester, mulai, selesai, isAktif, keterangan) {
         document.getElementById('editPeriodeId').value = id;
         document.getElementById('editNamaPeriode').value = nama;

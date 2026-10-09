@@ -88,6 +88,19 @@
         padding: 0.35rem 0.65rem;
         letter-spacing: 0.5px;
     }
+
+    /* Mobile Universitas Card */
+    .universitas-item-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.875rem;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .universitas-item-card:active {
+        transform: scale(0.99);
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -194,33 +207,95 @@
             </form>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover table-custom align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th class="text-center" style="width: 50px;">No</th>
-                        <th style="width: 140px;">Kode Kampus</th>
-                        <th>Nama Universitas &amp; Alamat</th>
-                        <th style="width: 160px;">Kontak / Telp</th>
-                        <th class="text-center" style="width: 180px;">Mahasiswa Terdaftar</th>
-                        <th class="text-center" style="width: 130px;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($universitas_list)): ?>
-                        <tr>
-                            <td colspan="6" class="text-center py-5">
-                                <div class="py-4">
-                                    <i class="bi bi-buildings text-muted opacity-50" style="font-size: 3rem;"></i>
-                                    <h6 class="fw-semibold text-muted mt-3 mb-1">Tidak Ada Data Universitas</h6>
-                                    <p class="text-muted small mb-3">Tidak ditemukan data universitas yang sesuai dengan kriteria pencarian.</p>
-                                    <a href="<?= base_url('admin/universitas') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3">
-                                        <i class="bi bi-arrow-clockwise me-1"></i>Muat Ulang Data
-                                    </a>
+        <?php if (empty($universitas_list)): ?>
+            <div class="text-center py-5">
+                <div class="py-4">
+                    <i class="bi bi-buildings text-muted opacity-50" style="font-size: 3rem;"></i>
+                    <h6 class="fw-semibold text-muted mt-3 mb-1">Tidak Ada Data Universitas</h6>
+                    <p class="text-muted small mb-3">Tidak ditemukan data universitas yang sesuai dengan kriteria pencarian.</p>
+                    <a href="<?= base_url('admin/universitas') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Muat Ulang Data
+                    </a>
+                </div>
+            </div>
+        <?php else: ?>
+            <!-- ============================================== -->
+            <!-- 1. MOBILE VIEW: Interactive Universitas Cards (< 768px) -->
+            <!-- ============================================== -->
+            <div class="d-block d-md-none p-3">
+                <div class="d-flex flex-column gap-3">
+                    <?php $noMobile = 1; foreach ($universitas_list as $u): ?>
+                        <?php $jml = (int) ($u['total_mahasiswa'] ?? 0); ?>
+                        <div class="universitas-item-card">
+                            <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                <div>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill badge-kode mb-1">
+                                        <?= esc($u['kode_universitas']) ?>
+                                    </span>
+                                    <div class="fw-bold text-dark mt-1" style="font-size: 0.95rem;"><?= esc($u['nama_universitas']) ?></div>
                                 </div>
-                            </td>
+                                <div class="text-end">
+                                    <?php if ($jml > 0): ?>
+                                        <a href="<?= base_url('admin/pengguna?universitas=' . urlencode($u['nama_universitas'])) ?>" class="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 text-decoration-none shadow-xs d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;" title="Lihat Mahasiswa">
+                                            <i class="bi bi-mortarboard text-success"></i>
+                                            <strong><?= $jml ?></strong> Mhs
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="badge bg-light text-muted border rounded-pill px-2 py-1" style="font-size: 0.72rem;">0 Mhs</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="bg-light p-2.5 rounded-3 small mb-3" style="font-size: 0.8rem;">
+                                <?php if (!empty($u['alamat'])): ?>
+                                    <div class="text-muted mb-1">
+                                        <i class="bi bi-geo-alt me-1 text-success"></i><?= esc($u['alamat']) ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (!empty($u['telepon'])): ?>
+                                    <div class="text-dark fw-medium">
+                                        <i class="bi bi-telephone me-1 text-primary"></i><?= esc($u['telepon']) ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (empty($u['alamat']) && empty($u['telepon'])): ?>
+                                    <span class="text-muted fst-italic">Belum ada data alamat/telepon.</span>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Tombol Aksi Mobile Touch-Friendly -->
+                            <div class="d-flex align-items-center gap-2 pt-1 border-top">
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
+                                        onclick="bukaModalEditUniversitas(<?= (int) $u['id'] ?>, '<?= esc($u['kode_universitas'], 'js') ?>', '<?= esc($u['nama_universitas'], 'js') ?>', '<?= esc($u['alamat'] ?? '', 'js') ?>', '<?= esc($u['telepon'] ?? '', 'js') ?>')">
+                                    <i class="bi bi-pencil-square"></i>
+                                    <span>Edit</span>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
+                                        onclick="konfirmasiHapusUniversitas(<?= (int) $u['id'] ?>, '<?= esc($u['nama_universitas'], 'js') ?>', <?= $jml ?>)">
+                                    <i class="bi bi-trash"></i>
+                                    <span>Hapus</span>
+                                </button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 2. DESKTOP VIEW: Full Data Table (>= 768px)    -->
+            <!-- ============================================== -->
+            <div class="table-responsive d-none d-md-block">
+                <table class="table table-hover table-custom align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 50px;">No</th>
+                            <th style="width: 140px;">Kode Kampus</th>
+                            <th>Nama Universitas &amp; Alamat</th>
+                            <th style="width: 160px;">Kontak / Telp</th>
+                            <th class="text-center" style="width: 180px;">Mahasiswa Terdaftar</th>
+                            <th class="text-center" style="width: 130px;">Aksi</th>
                         </tr>
-                    <?php else: ?>
+                    </thead>
+                    <tbody>
                         <?php $no = 1; foreach ($universitas_list as $u): ?>
                             <tr>
                                 <td class="text-center text-muted fw-semibold"><?= $no++ ?></td>
@@ -276,10 +351,10 @@
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -294,7 +369,7 @@
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/universitas/tambah') ?>" method="POST">
+            <form action="<?= base_url('admin/universitas/tambah') ?>" method="POST" id="formTambahUniversitas">
                 <?= csrf_field() ?>
                 <div class="modal-body text-start p-4">
                     <div class="mb-3">
@@ -317,7 +392,7 @@
                 </div>
                 <div class="modal-footer border-0 bg-light py-2 px-4">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4">
+                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitTambahUniversitas">
                         <i class="bi bi-plus-circle me-1"></i> Tambah Universitas
                     </button>
                 </div>
@@ -337,7 +412,7 @@
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/universitas/edit') ?>" method="POST">
+            <form action="<?= base_url('admin/universitas/edit') ?>" method="POST" id="formEditUniversitas">
                 <?= csrf_field() ?>
                 <input type="hidden" name="id" id="editUniversitasId">
                 <div class="modal-body text-start p-4">
@@ -361,7 +436,7 @@
                 </div>
                 <div class="modal-footer border-0 bg-light py-2 px-4">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4">
+                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitEditUniversitas">
                         <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
                     </button>
                 </div>
@@ -377,6 +452,22 @@
 </form>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bindSubmitSpinner = function(formId, btnId, loadingText) {
+            const form = document.getElementById(formId);
+            const btn = document.getElementById(btnId);
+            if (form && btn) {
+                form.addEventListener('submit', function() {
+                    btn.disabled = true;
+                    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> ${loadingText}`;
+                });
+            }
+        };
+
+        bindSubmitSpinner('formTambahUniversitas', 'btnSubmitTambahUniversitas', 'Menyimpan...');
+        bindSubmitSpinner('formEditUniversitas', 'btnSubmitEditUniversitas', 'Menyimpan...');
+    });
+
     function bukaModalEditUniversitas(id, kode, nama, alamat, telepon) {
         document.getElementById('editUniversitasId').value = id;
         document.getElementById('editKodeUniversitas').value = kode;
