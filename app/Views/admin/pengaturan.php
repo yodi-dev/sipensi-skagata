@@ -25,6 +25,15 @@
         z-index: 1;
     }
 
+    @media (max-width: 576px) {
+        #map {
+            height: 290px;
+        }
+        .card-header-custom {
+            padding: 1rem;
+        }
+    }
+
     .form-section-title {
         font-size: 0.85rem;
         font-weight: 700;
@@ -50,13 +59,13 @@
             <p class="text-muted small mt-1 mb-0">Kalibrasi koordinat GPS radius sekolah dan kebijakan waktu presensi SMKN 3 Yogyakarta</p>
         </div>
         <div class="d-flex flex-wrap gap-2">
-            <a href="<?= base_url('admin') ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                <i class="bi bi-arrow-left me-1"></i> Data Pengguna
+            <a href="<?= base_url('admin') ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-xs">
+                <i class="bi bi-arrow-left me-1"></i> Dashboard Admin
             </a>
         </div>
     </div>
 
-    <form action="<?= base_url('admin/pengaturan/simpan') ?>" method="POST">
+    <form action="<?= base_url('admin/pengaturan/simpan') ?>" method="POST" id="formPengaturan">
         <?= csrf_field() ?>
 
         <div class="row g-4">
@@ -64,12 +73,12 @@
             <!-- Kolom Kiri: Peta Interaktif Leaflet -->
             <div class="col-12 col-lg-7">
                 <div class="card settings-card h-100">
-                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                    <div class="card-header-custom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
                         <div>
                             <h6 class="mb-0 fw-bold text-dark">Peta Geofencing Perimeter Skagata</h6>
                             <small class="text-muted">Geser pin marker atau klik pada peta untuk menentukan titik pusat</small>
                         </div>
-                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-sm" onclick="deteksiLokasiSaya()">
+                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-xs" onclick="deteksiLokasiSaya()">
                             <i class="bi bi-crosshair me-1"></i> Lokasi Saya
                         </button>
                     </div>
@@ -152,7 +161,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-skagata w-100 py-2 fw-semibold rounded-pill shadow-sm">
+                        <button type="submit" class="btn btn-skagata w-100 py-2 fw-semibold rounded-pill shadow-sm" id="btnSubmitPengaturan">
                             <i class="bi bi-save me-1"></i> Simpan Konfigurasi
                         </button>
 
@@ -278,5 +287,28 @@
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
     }
+
+    // Invalidate map size to prevent gray tiles on mobile and window resize
+    setTimeout(function() {
+        map.invalidateSize();
+    }, 250);
+
+    window.addEventListener('resize', function() {
+        map.invalidateSize();
+    });
+
+    // Submit spinner handling
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('formPengaturan');
+        if (form) {
+            form.addEventListener('submit', function () {
+                const btn = document.getElementById('btnSubmitPengaturan');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Menyimpan...';
+                }
+            });
+        }
+    });
 </script>
 <?= $this->endSection() ?>
