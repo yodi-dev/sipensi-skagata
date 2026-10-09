@@ -104,6 +104,14 @@
         transform: translateX(3px);
         color: inherit;
     }
+
+    /* Mobile Snapshot Item Card */
+    .snapshot-item-card {
+        border-radius: 0.85rem;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -122,6 +130,27 @@ function getInitials($name)
     }
     return $initials ?: 'U';
 }
+
+// Format Tanggal Indonesia Formal
+$namaHariIndo = [
+    'Sunday'    => 'Minggu',
+    'Monday'    => 'Senin',
+    'Tuesday'   => 'Selasa',
+    'Wednesday' => 'Rabu',
+    'Thursday'  => 'Kamis',
+    'Friday'    => 'Jumat',
+    'Saturday'  => 'Sabtu'
+];
+$namaBulanIndo = [
+    '01' => 'Januari',   '02' => 'Februari', '03' => 'Maret',
+    '04' => 'April',     '05' => 'Mei',      '06' => 'Juni',
+    '07' => 'Juli',      '08' => 'Agustus',  '09' => 'September',
+    '10' => 'Oktober',   '11' => 'November', '12' => 'Desember'
+];
+$hariIni = $namaHariIndo[date('l')] ?? date('l');
+$bulanIni = $namaBulanIndo[date('m')] ?? date('F');
+$tanggalIndo = $hariIni . ', ' . date('d') . ' ' . $bulanIni . ' ' . date('Y');
+$tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
 ?>
 
 <div class="container-fluid px-4 py-4">
@@ -139,7 +168,7 @@ function getInitials($name)
             <div class="d-flex align-items-center gap-2">
                 <span class="badge bg-light text-dark border px-3 py-2 rounded-pill small">
                     <i class="bi bi-calendar-event me-1 text-success"></i>
-                    <?= date('l, d F Y') ?>
+                    <?= esc($tanggalIndo) ?>
                 </span>
             </div>
         </div>
@@ -259,36 +288,101 @@ function getInitials($name)
                             <i class="bi bi-activity text-success"></i>
                             <span>Snapshot Presensi Hari Ini</span>
                         </h6>
-                        <small class="text-muted">Aktivitas kehadiran praktikan per <?= date('d M Y') ?></small>
+                        <small class="text-muted">Aktivitas kehadiran praktikan per <?= esc($tanggalRingkasIndo) ?></small>
                     </div>
                     <span class="badge bg-success rounded-pill px-3 py-1 font-monospace" style="font-size: 0.75rem;">
                         <?= count($presensiHariIni) ?> Tercatat
                     </span>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover table-custom align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>Mahasiswa</th>
-                                <th>Jurusan</th>
-                                <th>Jam Datang</th>
-                                <th>Status</th>
-                                <th>Jam Pulang</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($presensiHariIni)): ?>
-                                <tr>
-                                    <td colspan="5" class="text-center py-5">
-                                        <div class="py-4">
-                                            <i class="bi bi-cup-hot text-muted opacity-50" style="font-size: 2.5rem;"></i>
-                                            <h6 class="fw-semibold text-muted mt-3 mb-1">Belum Ada Presensi Masuk</h6>
-                                            <p class="text-muted small mb-0">Belum ada praktikan yang melakukan presensi hari ini.</p>
+                <?php if (empty($presensiHariIni)): ?>
+                    <div class="text-center py-5">
+                        <div class="py-4">
+                            <i class="bi bi-cup-hot text-muted opacity-50" style="font-size: 2.5rem;"></i>
+                            <h6 class="fw-semibold text-muted mt-3 mb-1">Belum Ada Presensi Masuk</h6>
+                            <p class="text-muted small mb-0">Belum ada praktikan yang melakukan presensi hari ini.</p>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <!-- ============================================== -->
+                    <!-- 1. MOBILE VIEW: Responsive Cards (< 768px)     -->
+                    <!-- ============================================== -->
+                    <div class="d-block d-md-none p-3 bg-light bg-opacity-50">
+                        <div class="d-flex flex-column gap-3">
+                            <?php foreach (array_slice($presensiHariIni, 0, 8) as $p): ?>
+                                <div class="card snapshot-item-card p-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2 pb-2 border-bottom">
+                                        <div class="d-flex align-items-center gap-2 overflow-hidden pe-2">
+                                            <div class="avatar-initial" style="width: 32px; height: 32px; font-size: 0.75rem;">
+                                                <?= esc(getInitials($p['nama'])) ?>
+                                            </div>
+                                            <div class="overflow-hidden">
+                                                <div class="fw-bold text-dark text-truncate" style="font-size: 0.875rem; max-width: 170px;">
+                                                    <?= esc($p['nama']) ?>
+                                                </div>
+                                                <span class="badge bg-light text-dark border rounded-pill px-2 py-0.5 mt-0.5" style="font-size: 0.68rem;">
+                                                    <?= esc($p['jurusan'] ?? '-') ?>
+                                                </span>
+                                            </div>
                                         </div>
-                                    </td>
+                                        <div class="flex-shrink-0 text-end">
+                                            <?php if ($p['status'] === 'hadir'): ?>
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1" style="font-size: 0.72rem;">
+                                                    <i class="bi bi-check-circle me-1"></i>Hadir
+                                                </span>
+                                            <?php elseif ($p['status'] === 'terlambat'): ?>
+                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1" style="font-size: 0.72rem;">
+                                                    <i class="bi bi-clock me-1"></i>Terlambat
+                                                </span>
+                                            <?php elseif (in_array($p['status'], ['izin', 'sakit'], true)): ?>
+                                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-2 py-1" style="font-size: 0.72rem;">
+                                                    <i class="bi bi-info-circle me-1"></i><?= ucfirst(esc($p['status'])) ?>
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="badge bg-secondary rounded-pill px-2 py-1" style="font-size: 0.72rem;"><?= esc($p['status']) ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <!-- Jam Datang & Pulang Mini Chips -->
+                                    <div class="row g-2 text-center small">
+                                        <div class="col-6">
+                                            <div class="p-2 rounded bg-light border">
+                                                <div class="text-muted" style="font-size: 0.7rem;"><i class="bi bi-box-arrow-in-right text-success me-1"></i>Datang</div>
+                                                <div class="fw-bold text-dark mt-0.5 font-monospace" style="font-size: 0.85rem;">
+                                                    <?= !empty($p['jam_masuk']) ? esc(substr($p['jam_masuk'], 0, 5)) . ' WIB' : '--:--' ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="p-2 rounded bg-light border">
+                                                <div class="text-muted" style="font-size: 0.7rem;"><i class="bi bi-box-arrow-right text-warning me-1"></i>Pulang</div>
+                                                <div class="fw-bold text-dark mt-0.5 font-monospace" style="font-size: 0.85rem;">
+                                                    <?= !empty($p['jam_keluar']) ? esc(substr($p['jam_keluar'], 0, 5)) . ' WIB' : '--:--' ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <!-- ============================================== -->
+                    <!-- 2. DESKTOP VIEW: Full Data Table (>= 768px)    -->
+                    <!-- ============================================== -->
+                    <div class="table-responsive d-none d-md-block">
+                        <table class="table table-hover table-custom align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Mahasiswa</th>
+                                    <th>Jurusan</th>
+                                    <th>Jam Datang</th>
+                                    <th>Status</th>
+                                    <th>Jam Pulang</th>
                                 </tr>
-                            <?php else: ?>
+                            </thead>
+                            <tbody>
                                 <?php foreach (array_slice($presensiHariIni, 0, 8) as $p): ?>
                                     <tr>
                                         <td>
@@ -331,10 +425,10 @@ function getInitials($name)
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
 
                 <?php if (count($presensiHariIni) > 8): ?>
                     <div class="card-footer bg-light border-0 py-2 px-3 text-center">
@@ -424,7 +518,7 @@ function getInitials($name)
 
 <!-- Modal Tambah Pengguna Cepat dari Dashboard -->
 <div class="modal fade" id="modalTambahUser" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-success text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
@@ -433,7 +527,7 @@ function getInitials($name)
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/tambah-user') ?>" method="POST">
+            <form action="<?= base_url('admin/tambah-user') ?>" method="POST" id="formTambahUserDash">
                 <?= csrf_field() ?>
                 <div class="modal-body text-start p-4">
                     <div class="mb-3">
@@ -504,7 +598,7 @@ function getInitials($name)
                 </div>
                 <div class="modal-footer border-0 bg-light py-2 px-4">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4">
+                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitTambahUserDash">
                         <i class="bi bi-plus-circle me-1"></i> Tambah Pengguna
                     </button>
                 </div>
@@ -517,6 +611,17 @@ function getInitials($name)
 
 <?= $this->section('scripts') ?>
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formTambahUserDash = document.getElementById('formTambahUserDash');
+        const btnSubmitTambahUserDash = document.getElementById('btnSubmitTambahUserDash');
+        if (formTambahUserDash && btnSubmitTambahUserDash) {
+            formTambahUserDash.addEventListener('submit', function() {
+                btnSubmitTambahUserDash.disabled = true;
+                btnSubmitTambahUserDash.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Menyimpan...';
+            });
+        }
+    });
+
     function toggleJurusanField(roleSelectId, jurusanWrapperId, universitasWrapperId, periodeWrapperId) {
         const role = document.getElementById(roleSelectId).value;
         const jWrapper = document.getElementById(jurusanWrapperId);
