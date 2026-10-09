@@ -111,6 +111,19 @@
         background-color: #ecfdf5;
         box-shadow: 0 0 0 1px #0f5132;
     }
+
+    /* Mobile Pamong Card */
+    .pamong-item-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.875rem;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .pamong-item-card:active {
+        transform: scale(0.99);
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -142,27 +155,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Alert Notifikasi -->
-    <?php if (session()->getFlashdata('pesan')): ?>
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4 d-flex align-items-center gap-3 mb-4" role="alert">
-            <i class="bi bi-check-circle-fill fs-4 text-success"></i>
-            <div>
-                <strong>Berhasil!</strong> <?= session()->getFlashdata('pesan') ?>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif; ?>
-
-    <?php if (session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-4 d-flex align-items-center gap-3 mb-4" role="alert">
-            <i class="bi bi-exclamation-triangle-fill fs-4 text-danger"></i>
-            <div>
-                <strong>Perhatian!</strong> <?= session()->getFlashdata('error') ?>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif; ?>
 
     <!-- 4 Stat Cards Modern -->
     <div class="row g-3 mb-4">
@@ -279,33 +271,126 @@
             </div>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover table-custom align-middle mb-0" id="tabelGuruPamong">
-                <thead>
-                    <tr>
-                        <th class="text-center" style="width: 50px;">No</th>
-                        <th>Guru Pamong</th>
-                        <th>Jurusan Bimbingan</th>
-                        <th class="text-center" style="width: 140px;">Mahasiswa</th>
-                        <th>Catatan / Keterangan</th>
-                        <th class="text-center" style="width: 160px;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($guru_list)): ?>
-                        <tr>
-                            <td colspan="6" class="text-center py-5">
-                                <div class="py-4">
-                                    <i class="bi bi-people text-muted opacity-50" style="font-size: 3rem;"></i>
-                                    <h6 class="fw-semibold text-muted mt-3 mb-1">Belum Ada Akun Guru Pamong</h6>
-                                    <p class="text-muted small mb-3">Tambahkan akun pengguna dengan role Guru Pamong terlebih dahulu di halaman Data Pengguna.</p>
-                                    <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-sm btn-skagata rounded-pill px-3">
-                                        <i class="bi bi-person-plus me-1"></i>Kelola Pengguna
-                                    </a>
+        <?php if (empty($guru_list)): ?>
+            <div class="text-center py-5">
+                <div class="py-4">
+                    <i class="bi bi-people text-muted opacity-50" style="font-size: 3rem;"></i>
+                    <h6 class="fw-semibold text-muted mt-3 mb-1">Belum Ada Akun Guru Pamong</h6>
+                    <p class="text-muted small mb-3">Tambahkan akun pengguna dengan role Guru Pamong terlebih dahulu di halaman Data Pengguna.</p>
+                    <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-sm btn-skagata rounded-pill px-3">
+                        <i class="bi bi-person-plus me-1"></i>Kelola Pengguna
+                    </a>
+                </div>
+            </div>
+        <?php else: ?>
+            <!-- ============================================== -->
+            <!-- 1. MOBILE VIEW: Interactive Pamong Cards (< 768px) -->
+            <!-- ============================================== -->
+            <div class="d-block d-md-none p-3">
+                <div class="d-flex flex-column gap-3">
+                    <?php foreach ($guru_list as $g): ?>
+                        <?php
+                        $isMapped = !empty($g['jurusan_list']);
+                        $jurusanJson = htmlspecialchars(json_encode($g['jurusan_list']), ENT_QUOTES, 'UTF-8');
+                        $keteranganSafe = htmlspecialchars($g['keterangan'] ?? '', ENT_QUOTES, 'UTF-8');
+                        ?>
+                        <div class="pamong-item-card kartu-guru-mobile" data-status="<?= $isMapped ? 'terpetakan' : 'belum' ?>" data-search="<?= esc(strtolower($g['nama'] . ' ' . $g['username'] . ' ' . $g['jurusan_label'])) ?>">
+                            <!-- Top: Avatar, Nama, Username, dan Status Badge -->
+                            <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-initial">
+                                        <?= esc(mb_strtoupper(mb_substr($g['nama'], 0, 1))) ?>
+                                    </div>
+                                    <div class="lh-sm">
+                                        <div class="fw-bold text-dark" style="font-size: 0.92rem;"><?= esc($g['nama']) ?></div>
+                                        <small class="text-muted font-monospace" style="font-size: 0.78rem;">@<?= esc($g['username']) ?></small>
+                                    </div>
                                 </div>
-                            </td>
+                                <div>
+                                    <?php if ($isMapped): ?>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1" style="font-size: 0.72rem;">
+                                            <i class="bi bi-shield-check me-1"></i>Terpetakan
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1" style="font-size: 0.72rem;">
+                                            <i class="bi bi-exclamation-circle me-1"></i>Belum Dipetakan
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <!-- Detail: Jurusan Binaan & Mahasiswa -->
+                            <div class="bg-light p-2.5 rounded-3 mb-3" style="font-size: 0.82rem;">
+                                <div class="mb-2">
+                                    <span class="text-muted d-block small mb-1">Jurusan Binaan:</span>
+                                    <?php if ($isMapped): ?>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            <?php foreach ($g['jurusan_list'] as $j): ?>
+                                                <span class="badge bg-white text-success border border-success-subtle rounded-pill px-2 py-1">
+                                                    <i class="bi bi-journal-check me-1"></i><?= esc($j) ?>
+                                                </span>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <span class="text-muted small fst-italic">Belum ada jurusan yang dipetakan</span>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="d-flex align-items-center justify-content-between pt-1 border-top">
+                                    <span class="text-muted small">Mahasiswa Binaan:</span>
+                                    <?php if ($g['total_mahasiswa'] > 0): ?>
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill">
+                                            <i class="bi bi-mortarboard me-1"></i><?= (int) $g['total_mahasiswa'] ?> Praktikan
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border rounded-pill">0 Praktikan</span>
+                                    <?php endif; ?>
+                                </div>
+
+                                <?php if (!empty($g['keterangan'])): ?>
+                                    <div class="pt-1 mt-1 border-top small text-muted">
+                                        <i class="bi bi-info-circle me-1 text-secondary"></i><?= esc($g['keterangan']) ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Tombol Aksi Mobile Touch-Friendly -->
+                            <div class="d-flex align-items-center gap-2 pt-1 border-top">
+                                <button type="button" class="btn btn-sm btn-outline-success rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
+                                        onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>')">
+                                    <i class="bi bi-diagram-3-fill"></i>
+                                    <span><?= $isMapped ? 'Ubah Pemetaan' : 'Atur Pemetaan' ?></span>
+                                </button>
+                                <?php if ($isMapped): ?>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
+                                            title="Reset Pemetaan"
+                                            onclick="konfirmasiReset(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>')">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                        <span>Reset</span>
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 2. DESKTOP VIEW: Full Data Table (>= 768px)    -->
+            <!-- ============================================== -->
+            <div class="table-responsive d-none d-md-block">
+                <table class="table table-hover table-custom align-middle mb-0" id="tabelGuruPamong">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 50px;">No</th>
+                            <th>Guru Pamong</th>
+                            <th>Jurusan Bimbingan</th>
+                            <th class="text-center" style="width: 140px;">Mahasiswa</th>
+                            <th>Catatan / Keterangan</th>
+                            <th class="text-center" style="width: 160px;">Aksi</th>
                         </tr>
-                    <?php else: ?>
+                    </thead>
+                    <tbody>
                         <?php $no = 1; foreach ($guru_list as $g): ?>
                             <?php
                             $isMapped = !empty($g['jurusan_list']);
@@ -380,10 +465,10 @@
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     </div>
 
 </div>
@@ -460,7 +545,7 @@
 
                 <div class="modal-footer border-0 bg-light py-2 px-4">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4">
+                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitPemetaan">
                         <i class="bi bi-check2-circle me-1"></i> Simpan Pemetaan
                     </button>
                 </div>
@@ -478,6 +563,17 @@
 
 <?= $this->section('scripts') ?>
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formPemetaan = document.getElementById('formPemetaan');
+        const btnSubmitPemetaan = document.getElementById('btnSubmitPemetaan');
+        if (formPemetaan && btnSubmitPemetaan) {
+            formPemetaan.addEventListener('submit', function() {
+                btnSubmitPemetaan.disabled = true;
+                btnSubmitPemetaan.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Menyimpan...';
+            });
+        }
+    });
+
     function updateCardCheckStyle(checkbox, cardId) {
         const card = document.getElementById(cardId);
         if (!card) return;
@@ -578,20 +674,20 @@
         const keyword = document.getElementById('inputCariGuru').value.toLowerCase().trim();
         const status = document.getElementById('filterStatusPemetaan').value;
         const rows = document.querySelectorAll('#tabelGuruPamong tbody tr.baris-guru');
+        const cards = document.querySelectorAll('.kartu-guru-mobile');
 
-        rows.forEach((row) => {
-            const rowSearch = row.getAttribute('data-search') || '';
-            const rowStatus = row.getAttribute('data-status') || '';
+        const applyFilter = (el) => {
+            const rowSearch = el.getAttribute('data-search') || '';
+            const rowStatus = el.getAttribute('data-status') || '';
 
             const matchKeyword = keyword === '' || rowSearch.includes(keyword);
             const matchStatus = status === '' || rowStatus === status;
 
-            if (matchKeyword && matchStatus) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
+            el.style.display = (matchKeyword && matchStatus) ? '' : 'none';
+        };
+
+        rows.forEach(applyFilter);
+        cards.forEach(applyFilter);
     }
 </script>
 <?= $this->endSection() ?>
