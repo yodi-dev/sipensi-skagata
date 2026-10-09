@@ -424,6 +424,24 @@
             } else {
                 $pageTitleDesktop = 'Presensi Harian';
             }
+        } elseif ($role === 'admin') {
+            if (strpos($currentUri, 'admin/pengguna') !== false) {
+                $pageTitleDesktop = 'Manajemen Pengguna';
+            } elseif (strpos($currentUri, 'admin/guru-pamong') !== false) {
+                $pageTitleDesktop = 'Pemetaan Guru Pamong';
+            } elseif (strpos($currentUri, 'admin/jurusan') !== false) {
+                $pageTitleDesktop = 'Master Data Jurusan';
+            } elseif (strpos($currentUri, 'admin/universitas') !== false) {
+                $pageTitleDesktop = 'Master Data Universitas';
+            } elseif (strpos($currentUri, 'admin/periode') !== false) {
+                $pageTitleDesktop = 'Master Data Periode';
+            } elseif (strpos($currentUri, 'admin/pengaturan') !== false) {
+                $pageTitleDesktop = 'Pengaturan Geofencing & Jam';
+            } elseif (strpos($currentUri, 'ubah_password') !== false) {
+                $pageTitleDesktop = 'Ubah Kata Sandi';
+            } else {
+                $pageTitleDesktop = 'Dashboard Administrator';
+            }
         }
         ?>
 
@@ -610,21 +628,38 @@
 
                     <?php else: ?>
                         <!-- ============================================== -->
-                        <!-- TOPBAR ADMIN                                   -->
+                        <!-- TOPBAR ADMIN: STREAMLINED & CONTEXTUAL         -->
                         <!-- ============================================== -->
+                        <!-- Sisi Kiri Admin: Toggle Sidebar & Konteks Halaman Aktif -->
                         <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-sm btn-light border text-success rounded-circle p-0 d-flex align-items-center justify-content-center shadow-xs" onclick="toggleAdminSidebar()" title="Buka Menu" style="width: 42px; height: 42px; flex-shrink: 0;" aria-label="Buka Menu Navigasi">
+                            <button type="button" class="btn btn-sm btn-light border text-success rounded-circle p-0 d-flex align-items-center justify-content-center shadow-xs" onclick="toggleAdminSidebar()" title="Toggle Menu Sidebar" style="width: 40px; height: 40px; flex-shrink: 0;" aria-label="Buka/Tutup Menu">
                                 <i class="bi bi-list fs-4"></i>
                             </button>
-                            <span class="fw-semibold text-dark ms-2 d-none d-lg-inline" style="font-size: 0.95rem;">
-                                Panel Administrator SIPENSI
-                            </span>
+                            <!-- Teks Mobile: Logo & SIPENSI SKAGATA -->
+                            <a href="<?= base_url('admin') ?>" class="d-flex align-items-center gap-2 text-decoration-none text-dark d-md-none ms-1">
+                                <img src="<?= base_url('logo-skagata.png') ?>" alt="Logo Skagata" style="width: 30px; height: 30px; object-fit: contain;">
+                                <span class="fw-bold text-success tracking-wide" style="font-size: 1rem;">SIPENSI</span>
+                            </a>
+                            <!-- Teks Desktop: Judul Halaman Dinamis -->
+                            <div class="d-none d-md-flex align-items-center gap-2 ms-2">
+                                <span class="fw-bold text-dark fs-6 mb-0" style="letter-spacing: -0.2px;"><?= esc($pageTitleDesktop) ?></span>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small px-2 py-0.5" style="font-size: 0.7rem;">
+                                    Admin
+                                </span>
+                            </div>
                         </div>
 
+                        <!-- Sisi Kanan Admin: Sapaan Waktu & Dropdown Akun Pengguna -->
                         <div class="d-flex align-items-center gap-2 gap-sm-3">
-                            <span class="badge badge-role d-none d-md-inline-block bg-success text-white border-0">
-                                <?= esc($roleLabel) ?>
-                            </span>
+                            <!-- Sapaan Personal Desktop (Sama dengan Guru & Mahasiswa) -->
+                            <div class="d-none d-lg-flex align-items-center gap-2 bg-light px-3 py-1.5 rounded-pill border shadow-xs" style="font-size: 0.85rem;">
+                                <span class="avatar-initial-sm" style="width: 26px; height: 26px; font-size: 0.7rem; background-color: var(--skagata-primary);">
+                                    <?= esc(mb_strtoupper(mb_substr($namaUser, 0, 1))) ?>
+                                </span>
+                                <span class="text-secondary">
+                                    <?= $greetingTemplate ?>, <strong class="text-dark"><?= esc(explode(' ', trim($namaUser))[0]) ?></strong>
+                                </span>
+                            </div>
 
                             <!-- Dropdown Akun Pengguna Admin -->
                             <div class="dropdown">
@@ -738,7 +773,7 @@
                 <?php endif; ?>
 
                 <!-- Footer Skagata: Tampilan Mobile Cukup Satu Baris (Desktop Kredit di Sidebar Footer) -->
-                <footer class="footer-skagata py-3 text-center <?= in_array($role, ['mahasiswa', 'guru', 'guru_pamong', 'gtt'], true) ? 'd-md-none' : '' ?>">
+                <footer class="footer-skagata py-3 text-center d-md-none">
                     <div class="container-fluid px-3">
                         <div class="small text-muted" style="font-size: 0.75rem;">
                             Persembahan PPL - PPG UNY Angkatan 1 Tahun 2026 &bull; Supported by <a href="https://awanbeo.my.id" target="_blank" class="fw-semibold text-success text-decoration-none">awanbeo.my.id</a>
