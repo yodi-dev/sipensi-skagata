@@ -575,205 +575,199 @@ function getInitials($name)
 <!-- Modal Tambah Pengguna Modern -->
 <div class="modal fade" id="modalTambahUser" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-header bg-success text-white py-3">
+        <form action="<?= base_url('admin/tambah-user') ?>" method="POST" id="formTambahUserPengguna" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <?= csrf_field() ?>
+            <div class="modal-header bg-success text-white py-3 flex-shrink-0">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
                     <i class="bi bi-person-plus"></i>
                     <span>Tambah Pengguna Baru</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/tambah-user') ?>" method="POST" id="formTambahUserPengguna">
-                <?= csrf_field() ?>
-                <div class="modal-body text-start p-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Nama Lengkap</label>
-                        <input type="text" name="nama" class="form-control" placeholder="Contoh: Ahmad Fauzi, S.Pd." required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Username</label>
-                        <input type="text" name="username" class="form-control" placeholder="Contoh: ahmad123" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
-                        <select name="role" class="form-select" id="tambahRoleSelect" onchange="toggleJurusanField('tambahRoleSelect', 'tambahJurusanWrapper', 'tambahUniversitasWrapper', 'tambahPeriodeWrapper')" required>
-                            <option value="mahasiswa" selected>Mahasiswa Praktikan (PPL/PK)</option>
-                            <option value="guru">Guru Pamong / GTT</option>
-                        </select>
-                    </div>
-                    <div class="mb-3" id="tambahJurusanWrapper">
-                        <label class="form-label fw-semibold small text-dark">Jurusan Mahasiswa</label>
-                        <select name="jurusan" class="form-select">
-                            <option value="">-- Pilih Jurusan Mahasiswa --</option>
-                            <?php if (!empty($daftar_jurusan)): ?>
-                                <?php foreach ($daftar_jurusan as $jrs): ?>
-                                    <option value="<?= esc($jrs) ?>"><?= esc($jrs) ?></option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3" id="tambahUniversitasWrapper">
-                        <label class="form-label fw-semibold small text-dark">Asal Universitas / Kampus</label>
-                        <select name="universitas" class="form-select">
-                            <option value="">-- Pilih Asal Universitas --</option>
-                            <?php if (!empty($daftar_universitas)): ?>
-                                <?php foreach ($daftar_universitas as $univ): ?>
-                                    <option value="<?= esc($univ) ?>"><?= esc($univ) ?></option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3" id="tambahPeriodeWrapper">
-                        <label class="form-label fw-semibold small text-dark">Periode PPL / PK</label>
-                        <select name="periode_id" class="form-select">
-                            <option value="">-- Pilih Periode PPL / PK --</option>
-                            <?php if (!empty($daftar_periode)): ?>
-                                <?php foreach ($daftar_periode as $prd): ?>
-                                    <option value="<?= $prd['id'] ?>" <?= ((int)$prd['is_aktif'] === 1) ? 'selected' : '' ?>>
-                                        <?= esc($prd['nama_periode']) ?><?= ((int)$prd['is_aktif'] === 1) ? ' (Aktif)' : '' ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Password Awal</label>
-                        <div class="input-group">
-                            <input type="password" name="password" id="inputTambahPassword" class="form-control border-end-0" placeholder="Minimal 6 karakter" required>
-                            <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibility('inputTambahPassword', 'iconToggleTambah')">
-                                <i class="bi bi-eye" id="iconToggleTambah"></i>
-                            </button>
-                        </div>
+            <div class="modal-body text-start p-4">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Nama Lengkap</label>
+                    <input type="text" name="nama" class="form-control" placeholder="Contoh: Ahmad Fauzi, S.Pd." required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Username</label>
+                    <input type="text" name="username" class="form-control" placeholder="Contoh: ahmad123" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
+                    <select name="role" class="form-select" id="tambahRoleSelect" onchange="toggleJurusanField('tambahRoleSelect', 'tambahJurusanWrapper', 'tambahUniversitasWrapper', 'tambahPeriodeWrapper')" required>
+                        <option value="mahasiswa" selected>Mahasiswa Praktikan (PPL/PK)</option>
+                        <option value="guru">Guru Pamong / GTT</option>
+                    </select>
+                </div>
+                <div class="mb-3" id="tambahJurusanWrapper">
+                    <label class="form-label fw-semibold small text-dark">Jurusan Mahasiswa</label>
+                    <select name="jurusan" class="form-select">
+                        <option value="">-- Pilih Jurusan Mahasiswa --</option>
+                        <?php if (!empty($daftar_jurusan)): ?>
+                            <?php foreach ($daftar_jurusan as $jrs): ?>
+                                <option value="<?= esc($jrs) ?>"><?= esc($jrs) ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <div class="mb-3" id="tambahUniversitasWrapper">
+                    <label class="form-label fw-semibold small text-dark">Asal Universitas / Kampus</label>
+                    <select name="universitas" class="form-select">
+                        <option value="">-- Pilih Asal Universitas --</option>
+                        <?php if (!empty($daftar_universitas)): ?>
+                            <?php foreach ($daftar_universitas as $univ): ?>
+                                <option value="<?= esc($univ) ?>"><?= esc($univ) ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <div class="mb-3" id="tambahPeriodeWrapper">
+                    <label class="form-label fw-semibold small text-dark">Periode PPL / PK</label>
+                    <select name="periode_id" class="form-select">
+                        <option value="">-- Pilih Periode PPL / PK --</option>
+                        <?php if (!empty($daftar_periode)): ?>
+                            <?php foreach ($daftar_periode as $prd): ?>
+                                <option value="<?= $prd['id'] ?>" <?= ((int)$prd['is_aktif'] === 1) ? 'selected' : '' ?>>
+                                    <?= esc($prd['nama_periode']) ?><?= ((int)$prd['is_aktif'] === 1) ? ' (Aktif)' : '' ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Password Awal</label>
+                    <div class="input-group">
+                        <input type="password" name="password" id="inputTambahPassword" class="form-control border-end-0" placeholder="Minimal 6 karakter" required>
+                        <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibility('inputTambahPassword', 'iconToggleTambah')">
+                            <i class="bi bi-eye" id="iconToggleTambah"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="modal-footer border-0 bg-light py-2 px-4">
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitTambahUserPengguna">
-                        <i class="bi bi-plus-circle me-1"></i> Tambah Pengguna
-                    </button>
-                </div>
-            </form>
-        </div>
+            </div>
+            <div class="modal-footer border-0 bg-light py-2 px-4 flex-shrink-0">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitTambahUserPengguna">
+                    <i class="bi bi-plus-circle me-1"></i> Tambah Pengguna
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 <!-- Modal Edit Pengguna Modern -->
 <div class="modal fade" id="modalEditUser" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-header bg-success text-white py-3">
+        <form action="<?= base_url('admin/edit-user') ?>" method="POST" id="formEditUserPengguna" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <?= csrf_field() ?>
+            <input type="hidden" name="id" id="editUserId">
+            <div class="modal-header bg-success text-white py-3 flex-shrink-0">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
                     <i class="bi bi-pencil-square"></i>
                     <span>Edit Data Pengguna</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/edit-user') ?>" method="POST" id="formEditUserPengguna">
-                <?= csrf_field() ?>
-                <input type="hidden" name="id" id="editUserId">
-                <div class="modal-body text-start p-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Nama Lengkap</label>
-                        <input type="text" name="nama" id="editNama" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Username</label>
-                        <input type="text" name="username" id="editUsername" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
-                        <select name="role" id="editRole" class="form-select" onchange="toggleJurusanField('editRole', 'editJurusanWrapper', 'editUniversitasWrapper', 'editPeriodeWrapper')" required>
-                            <option value="mahasiswa">Mahasiswa Praktikan (PPL/PK)</option>
-                            <option value="guru">Guru Pamong / GTT</option>
-                        </select>
-                    </div>
-                    <div class="mb-3" id="editJurusanWrapper">
-                        <label class="form-label fw-semibold small text-dark">Jurusan Mahasiswa</label>
-                        <select name="jurusan" id="editJurusan" class="form-select">
-                            <option value="">-- Pilih Jurusan Mahasiswa --</option>
-                            <?php if (!empty($daftar_jurusan)): ?>
-                                <?php foreach ($daftar_jurusan as $jrs): ?>
-                                    <option value="<?= esc($jrs) ?>"><?= esc($jrs) ?></option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3" id="editUniversitasWrapper">
-                        <label class="form-label fw-semibold small text-dark">Asal Universitas / Kampus</label>
-                        <select name="universitas" id="editUniversitas" class="form-select">
-                            <option value="">-- Pilih Asal Universitas --</option>
-                            <?php if (!empty($daftar_universitas)): ?>
-                                <?php foreach ($daftar_universitas as $univ): ?>
-                                    <option value="<?= esc($univ) ?>"><?= esc($univ) ?></option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3" id="editPeriodeWrapper">
-                        <label class="form-label fw-semibold small text-dark">Periode PPL / PK</label>
-                        <select name="periode_id" id="editPeriodeSelect" class="form-select">
-                            <option value="">-- Pilih Periode PPL / PK --</option>
-                            <?php if (!empty($daftar_periode)): ?>
-                                <?php foreach ($daftar_periode as $prd): ?>
-                                    <option value="<?= $prd['id'] ?>">
-                                        <?= esc($prd['nama_periode']) ?><?= ((int)$prd['is_aktif'] === 1) ? ' (Aktif)' : '' ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
+            <div class="modal-body text-start p-4">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Nama Lengkap</label>
+                    <input type="text" name="nama" id="editNama" class="form-control" required>
                 </div>
-                <div class="modal-footer border-0 bg-light py-2 px-4">
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitEditUserPengguna">
-                        <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
-                    </button>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Username</label>
+                    <input type="text" name="username" id="editUsername" class="form-control" required>
                 </div>
-            </form>
-        </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
+                    <select name="role" id="editRole" class="form-select" onchange="toggleJurusanField('editRole', 'editJurusanWrapper', 'editUniversitasWrapper', 'editPeriodeWrapper')" required>
+                        <option value="mahasiswa">Mahasiswa Praktikan (PPL/PK)</option>
+                        <option value="guru">Guru Pamong / GTT</option>
+                    </select>
+                </div>
+                <div class="mb-3" id="editJurusanWrapper">
+                    <label class="form-label fw-semibold small text-dark">Jurusan Mahasiswa</label>
+                    <select name="jurusan" id="editJurusan" class="form-select">
+                        <option value="">-- Pilih Jurusan Mahasiswa --</option>
+                        <?php if (!empty($daftar_jurusan)): ?>
+                            <?php foreach ($daftar_jurusan as $jrs): ?>
+                                <option value="<?= esc($jrs) ?>"><?= esc($jrs) ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <div class="mb-3" id="editUniversitasWrapper">
+                    <label class="form-label fw-semibold small text-dark">Asal Universitas / Kampus</label>
+                    <select name="universitas" id="editUniversitas" class="form-select">
+                        <option value="">-- Pilih Asal Universitas --</option>
+                        <?php if (!empty($daftar_universitas)): ?>
+                            <?php foreach ($daftar_universitas as $univ): ?>
+                                <option value="<?= esc($univ) ?>"><?= esc($univ) ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <div class="mb-3" id="editPeriodeWrapper">
+                    <label class="form-label fw-semibold small text-dark">Periode PPL / PK</label>
+                    <select name="periode_id" id="editPeriodeSelect" class="form-select">
+                        <option value="">-- Pilih Periode PPL / PK --</option>
+                        <?php if (!empty($daftar_periode)): ?>
+                            <?php foreach ($daftar_periode as $prd): ?>
+                                <option value="<?= $prd['id'] ?>">
+                                    <?= esc($prd['nama_periode']) ?><?= ((int)$prd['is_aktif'] === 1) ? ' (Aktif)' : '' ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light py-2 px-4 flex-shrink-0">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitEditUserPengguna">
+                    <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 <!-- Modal Reset Password Modern -->
 <div class="modal fade" id="modalResetPassword" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-header bg-warning text-dark py-3">
+        <form action="<?= base_url('admin/reset-password') ?>" method="POST" id="formResetPassPengguna" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <?= csrf_field() ?>
+            <input type="hidden" name="user_id" id="resetUserId">
+            <div class="modal-header bg-warning text-dark py-3 flex-shrink-0">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
                     <i class="bi bi-key"></i>
                     <span>Reset Password Pengguna</span>
                 </h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/reset-password') ?>" method="POST" id="formResetPassPengguna">
-                <?= csrf_field() ?>
-                <input type="hidden" name="user_id" id="resetUserId">
-                <div class="modal-body text-start p-4">
-                    <div class="alert alert-light border d-flex align-items-center gap-2 py-2 px-3 rounded-3 mb-3">
-                        <i class="bi bi-person-check text-warning fs-5"></i>
-                        <div class="small">
-                            Reset password akun: <strong id="resetUserNama" class="text-dark"></strong>
-                        </div>
+            <div class="modal-body text-start p-4">
+                <div class="alert alert-light border d-flex align-items-center gap-2 py-2 px-3 rounded-3 mb-3">
+                    <i class="bi bi-person-check text-warning fs-5"></i>
+                    <div class="small">
+                        Reset password akun: <strong id="resetUserNama" class="text-dark"></strong>
                     </div>
+                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Password Baru</label>
-                        <div class="input-group">
-                            <input type="password" name="new_password" id="inputResetPassword" class="form-control border-end-0" placeholder="Minimal 6 karakter" required>
-                            <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibility('inputResetPassword', 'iconToggleReset')">
-                                <i class="bi bi-eye" id="iconToggleReset"></i>
-                            </button>
-                        </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Password Baru</label>
+                    <div class="input-group">
+                        <input type="password" name="new_password" id="inputResetPassword" class="form-control border-end-0" placeholder="Minimal 6 karakter" required>
+                        <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibility('inputResetPassword', 'iconToggleReset')">
+                            <i class="bi bi-eye" id="iconToggleReset"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="modal-footer border-0 bg-light py-2 px-4">
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-warning rounded-pill px-4" id="btnSubmitResetPassPengguna">
-                        <i class="bi bi-arrow-repeat me-1"></i> Reset Password
-                    </button>
-                </div>
-            </form>
-        </div>
+            </div>
+            <div class="modal-footer border-0 bg-light py-2 px-4 flex-shrink-0">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-sm btn-warning rounded-pill px-4" id="btnSubmitResetPassPengguna">
+                    <i class="bi bi-arrow-repeat me-1"></i> Reset Password
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -791,10 +785,24 @@ function getInitials($name)
             const form = document.getElementById(formId);
             const btn = document.getElementById(btnId);
             if (form && btn) {
+                const originalHtml = btn.innerHTML;
                 form.addEventListener('submit', function() {
-                    btn.disabled = true;
-                    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> ${loadingText}`;
+                    if (!form.checkValidity()) {
+                        return;
+                    }
+                    setTimeout(function() {
+                        btn.disabled = true;
+                        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> ${loadingText}`;
+                    }, 0);
                 });
+
+                const modalEl = form.closest('.modal');
+                if (modalEl) {
+                    modalEl.addEventListener('hidden.bs.modal', function() {
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    });
+                }
             }
         };
 
