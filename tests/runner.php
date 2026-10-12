@@ -677,14 +677,17 @@ $runner->it("Manajemen pengguna harus mendukung pagination Bootstrap 5 dan templ
 
 $runner->describe("16. Pengujian Master Data Jurusan (Konsentrasi Keahlian)");
 
-$runner->it("JurusanModel harus memiliki validasi kode_jurusan, nama_jurusan, dan method getDaftarNama", function() use ($runner) {
+$runner->it("JurusanModel harus memiliki validasi kode_jurusan, nama_jurusan, universitas_id, dan helper methods", function() use ($runner) {
     $model = new \App\Models\JurusanModel();
     $runner->assertEquals('jurusan', $model->getTable(), "Tabel JurusanModel harus 'jurusan'");
+    $runner->assertTrue(in_array('universitas_id', $model->allowedFields, true), "JurusanModel harus memuat field universitas_id");
     $rules = $model->getValidationRules();
     $runner->assertTrue(isset($rules['kode_jurusan']), "Rule kode_jurusan harus ada");
     $runner->assertTrue(isset($rules['nama_jurusan']), "Rule nama_jurusan harus ada");
     $runner->assertTrue(method_exists($model, 'getDaftarNama'), "Method getDaftarNama harus ada");
     $runner->assertTrue(method_exists($model, 'getJurusanWithUserCount'), "Method getJurusanWithUserCount harus ada");
+    $runner->assertTrue(method_exists($model, 'getJurusanByUniversitas'), "Method getJurusanByUniversitas harus ada");
+    $runner->assertTrue(method_exists($model, 'getJurusanMappingByUniversitas'), "Method getJurusanMappingByUniversitas harus ada");
     $runner->assertTrue(method_exists($model, 'countPenggunaByJurusan'), "Method countPenggunaByJurusan harus ada");
 });
 
@@ -719,9 +722,10 @@ $runner->it("View admin/jurusan harus memuat stat-card, tabel interaktif, dan mo
     $runner->assertTrue(strpos($content, 'modalEditJurusan') !== false, "Harus memuat modalEditJurusan");
     $runner->assertTrue(strpos($content, 'konfirmasiHapusJurusan') !== false, "Harus memuat konfirmasiHapusJurusan");
     $runner->assertTrue(strpos($content, 'Swal.fire') !== false, "Harus memuat integrasi SweetAlert2");
+    $runner->assertTrue(strpos($content, 'nama_universitas') !== false, "Harus menampilkan identitas nama_universitas mitra");
 });
 
-$runner->it("Layout template dan form pengguna harus terintegrasi dengan Master Data Jurusan", function() use ($runner) {
+$runner->it("Layout template dan form pengguna harus terintegrasi dengan Master Data Jurusan dan dependent dropdown", function() use ($runner) {
     $templateFile = APPPATH . 'Views/layout/template.php';
     $runner->assertTrue(file_exists($templateFile));
     $content = file_get_contents($templateFile);
@@ -732,6 +736,11 @@ $runner->it("Layout template dan form pengguna harus terintegrasi dengan Master 
     $runner->assertTrue(strpos($adminIndex, '$daftar_jurusan') !== false, "Admin index harus mendukung daftar_jurusan");
     $guruIndex = file_get_contents(APPPATH . 'Views/guru/index.php');
     $runner->assertTrue(strpos($guruIndex, '$daftar_jurusan') !== false, "Guru index harus mendukung daftar_jurusan");
+
+    // Pastikan admin/pengguna memiliki fungsi dependent dropdown
+    $penggunaView = file_get_contents(APPPATH . 'Views/admin/pengguna.php');
+    $runner->assertTrue(strpos($penggunaView, 'updateJurusanOptions') !== false, "Form pengguna harus memiliki updateJurusanOptions");
+    $runner->assertTrue(strpos($penggunaView, 'universitasJurusanMap') !== false, "Form pengguna harus memuat data mapping universitasJurusanMap");
 });
 
 $runner->describe("17. Pengujian Master Data Universitas (Mitra Kampus PPL/PK)");

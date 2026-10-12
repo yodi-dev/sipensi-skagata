@@ -11,15 +11,16 @@ class JurusanModel extends Model
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $allowedFields    = ['kode_jurusan', 'nama_jurusan', 'deskripsi', 'created_at', 'updated_at'];
+    protected $allowedFields    = ['universitas_id', 'kode_jurusan', 'nama_jurusan', 'deskripsi', 'created_at', 'updated_at'];
     protected $useTimestamps    = true;
     protected $dateFormat       = 'datetime';
     protected $createdField     = 'created_at';
     protected $updatedField     = 'updated_at';
 
     protected $validationRules = [
-        'kode_jurusan' => 'required|min_length[2]|max_length[20]|is_unique[jurusan.kode_jurusan,id,{id}]',
-        'nama_jurusan' => 'required|min_length[3]|max_length[100]',
+        'universitas_id' => 'permit_empty|is_natural_no_zero',
+        'kode_jurusan'   => 'required|min_length[2]|max_length[20]|is_unique[jurusan.kode_jurusan,id,{id}]',
+        'nama_jurusan'   => 'required|min_length[3]|max_length[100]',
     ];
 
     protected $validationMessages = [
@@ -37,21 +38,29 @@ class JurusanModel extends Model
     ];
 
     /**
-     * Ambil data jurusan beserta total mahasiswa yang terdaftar pada jurusan tersebut.
+     * Ambil data jurusan beserta total mahasiswa yang terdaftar pada jurusan tersebut dan nama universitas.
      */
-    public function getJurusanWithUserCount(?string $keyword = null): array
+    public function getJurusanWithUserCount(?string $keyword = null, ?int $universitasId = null): array
     {
         $builder = $this->db->table($this->table . ' j')
-            ->select('j.*, COUNT(u.id) AS total_mahasiswa')
+            ->select('j.*, COUNT(u.id) AS total_mahasiswa, univ.nama_universitas, univ.kode_universitas')
+            ->join('universitas univ', 'univ.id = j.universitas_id', 'left')
             ->join('users u', "(u.jurusan = j.nama_jurusan OR u.jurusan = j.kode_jurusan) AND u.role = 'mahasiswa'", 'left')
             ->groupBy('j.id')
+            ->orderBy('univ.nama_universitas', 'ASC')
             ->orderBy('j.nama_jurusan', 'ASC');
+
+        if (!empty($universitasId)) {
+            $builder->where('j.universitas_id', $universitasId);
+        }
 
         if (!empty($keyword)) {
             $builder->groupStart()
                 ->like('j.nama_jurusan', $keyword)
                 ->orLike('j.kode_jurusan', $keyword)
                 ->orLike('j.deskripsi', $keyword)
+                ->orLike('univ.nama_universitas', $keyword)
+                ->orLike('univ.kode_universitas', $keyword)
                 ->groupEnd();
         }
 
@@ -86,5 +95,41 @@ class JurusanModel extends Model
             ->findAll();
 
         return array_column($rows, 'nama_jurusan');
+    }
+
+    /**
+     * Ambil daftar jurusan di bawah universitas tertentu.
+     */
+    public function getJurusanByUniversitas(int $universitasId): array
+    {
+        return $this->where('universitas_id', $universitasId)
+            ->orderBy('nama_jurusan', 'ASC')
+            ->findAll();
+    }
+
+    /**
+     * Ambil pemetaan nama universitas ke daftar nama jurusan untuk form dependent dropdown.
+     */
+    public function getJurusanMappingByUniversitas(): array
+    {
+        $rows = $this->db->table($this->table . ' j')
+            ->select('j.nama_jurusan, univ.nama_universitas')
+            ->join('universitas univ', 'univ.id = j.universitas_id', 'left')
+            ->orderBy('j.nama_jurusan', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $mapping = [];
+        foreach ($rows as $r) {
+            $univName = $r['nama_universitas'] ?? '';
+            if ($univName) {
+                if (!isset($mapping[$univName])) {
+                    $mapping[$univName] = [];
+                }
+                $mapping[$univName][] = $r['nama_jurusan'];
+            }
+        }
+
+        return $mapping;
     }
 }

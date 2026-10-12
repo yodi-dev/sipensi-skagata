@@ -199,6 +199,7 @@ class Admin extends BaseController
             'periode_pilih'      => $periodeFilter,
             'daftar_jurusan'     => $daftarJurusan,
             'daftar_universitas' => $daftarUniversitas,
+            'jurusan_univ_map'   => $this->jurusanModel->getJurusanMappingByUniversitas(),
             'daftar_periode'     => $daftarPeriode,
             'periode_aktif'      => $periodeAktif,
             'title'              => 'Manajemen Pengguna - SIPENSI SKAGATA'
@@ -518,22 +519,27 @@ class Admin extends BaseController
     public function jurusan()
     {
         $keyword = trim((string) $this->request->getGet('keyword'));
-        $jurusanList = $this->jurusanModel->getJurusanWithUserCount($keyword);
+        $univFilter = $this->request->getGet('universitas_id');
+        $univId = (!empty($univFilter) && is_numeric($univFilter)) ? (int) $univFilter : null;
+        $jurusanList = $this->jurusanModel->getJurusanWithUserCount($keyword, $univId);
 
         // Statistik
         $totalJurusan = $this->jurusanModel->countAllResults();
         $db = Database::connect();
         $totalMahasiswa = $db->table('users')->where('role', 'mahasiswa')->where('jurusan IS NOT NULL')->where('jurusan !=', '')->countAllResults();
 
+        $daftarUniversitas = $this->universitasModel->orderBy('nama_universitas', 'ASC')->findAll();
         $currentAdmin = $this->userModel->find(session()->get('id_user'));
 
         $data = [
-            'title'           => 'Master Data Jurusan - SIPENSI SKAGATA',
-            'current_admin'   => $currentAdmin,
-            'jurusan_list'    => $jurusanList,
-            'total_jurusan'   => $totalJurusan,
-            'total_mahasiswa' => $totalMahasiswa,
-            'keyword'         => $keyword,
+            'title'              => 'Master Data Jurusan - SIPENSI SKAGATA',
+            'current_admin'      => $currentAdmin,
+            'jurusan_list'       => $jurusanList,
+            'total_jurusan'      => $totalJurusan,
+            'total_mahasiswa'    => $totalMahasiswa,
+            'daftar_universitas' => $daftarUniversitas,
+            'universitas_filter' => $univId,
+            'keyword'            => $keyword,
         ];
 
         return view('admin/jurusan', $data);
@@ -554,11 +560,14 @@ class Admin extends BaseController
         $kode = strtoupper(trim((string) $this->request->getPost('kode_jurusan')));
         $nama = trim(strip_tags((string) $this->request->getPost('nama_jurusan')));
         $deskripsi = trim(strip_tags((string) $this->request->getPost('deskripsi')));
+        $universitasId = $this->request->getPost('universitas_id');
+        $universitasId = (!empty($universitasId) && is_numeric($universitasId)) ? (int) $universitasId : null;
 
         $this->jurusanModel->insert([
-            'kode_jurusan' => $kode,
-            'nama_jurusan' => $nama,
-            'deskripsi'    => !empty($deskripsi) ? $deskripsi : null,
+            'universitas_id' => $universitasId,
+            'kode_jurusan'   => $kode,
+            'nama_jurusan'   => $nama,
+            'deskripsi'      => !empty($deskripsi) ? $deskripsi : null,
         ]);
 
         return redirect()->to('/admin/jurusan')->with('pesan', "Jurusan {$nama} ({$kode}) berhasil ditambahkan!");
@@ -589,11 +598,14 @@ class Admin extends BaseController
         $kode = strtoupper(trim((string) $this->request->getPost('kode_jurusan')));
         $nama = trim(strip_tags((string) $this->request->getPost('nama_jurusan')));
         $deskripsi = trim(strip_tags((string) $this->request->getPost('deskripsi')));
+        $universitasId = $this->request->getPost('universitas_id');
+        $universitasId = (!empty($universitasId) && is_numeric($universitasId)) ? (int) $universitasId : null;
 
         $this->jurusanModel->update($id, [
-            'kode_jurusan' => $kode,
-            'nama_jurusan' => $nama,
-            'deskripsi'    => !empty($deskripsi) ? $deskripsi : null,
+            'universitas_id' => $universitasId,
+            'kode_jurusan'   => $kode,
+            'nama_jurusan'   => $nama,
+            'deskripsi'      => !empty($deskripsi) ? $deskripsi : null,
         ]);
 
         // Jika nama jurusan diubah, perbarui nilai pada pengguna dan pemetaan guru pamong terkait secara transaksional

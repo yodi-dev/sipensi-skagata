@@ -42,8 +42,9 @@ class UniversitasModel extends Model
     public function getUniversitasWithUserCount(?string $keyword = null): array
     {
         $builder = $this->db->table($this->table . ' u')
-            ->select('u.*, COUNT(usr.id) AS total_mahasiswa')
+            ->select('u.*, COUNT(DISTINCT usr.id) AS total_mahasiswa, COUNT(DISTINCT j.id) AS total_jurusan')
             ->join('users usr', "(usr.universitas = u.nama_universitas OR usr.universitas = u.kode_universitas) AND usr.role = 'mahasiswa'", 'left')
+            ->join('jurusan j', 'j.universitas_id = u.id', 'left')
             ->groupBy('u.id')
             ->orderBy('u.nama_universitas', 'ASC');
 

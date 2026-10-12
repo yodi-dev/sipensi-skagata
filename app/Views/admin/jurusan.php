@@ -185,17 +185,29 @@
                     <i class="bi bi-list-check text-success"></i>
                     <span>Daftar Jurusan Terdaftar</span>
                 </h6>
-                <small class="text-muted">Total: <?= count($jurusan_list) ?> bidang kejuruan ditemukan</small>
+                <small class="text-muted">Total: <?= count($jurusan_list) ?> bidang kejuruan / prodi ditemukan</small>
             </div>
 
-            <!-- Toolbar Pencarian -->
-            <form action="<?= base_url('admin/jurusan') ?>" method="GET" class="filter-wrapper d-flex align-items-center gap-2 m-0 shadow-xs">
+            <!-- Toolbar Pencarian & Filter Universitas -->
+            <form action="<?= base_url('admin/jurusan') ?>" method="GET" class="filter-wrapper d-flex flex-wrap align-items-center gap-2 m-0 shadow-xs">
+                <?php if (!empty($daftar_universitas)): ?>
+                    <select name="universitas_id" class="form-select form-select-sm border-0 bg-transparent fw-medium" style="min-width: 175px;" onchange="this.form.submit()">
+                        <option value="">-- Semua Universitas --</option>
+                        <?php foreach ($daftar_universitas as $univ): ?>
+                            <option value="<?= $univ['id'] ?>" <?= ((string)($universitas_filter ?? '') === (string)$univ['id']) ? 'selected' : '' ?>>
+                                <?= esc($univ['nama_universitas']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="vr opacity-25 d-none d-sm-block"></div>
+                <?php endif; ?>
+
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-white border-0 text-muted ps-2 pe-1"><i class="bi bi-search text-success"></i></span>
-                    <input type="text" name="keyword" class="form-control border-0 bg-transparent fw-medium" placeholder="Cari nama / kode jurusan..." value="<?= esc($keyword ?? '') ?>" style="min-width: 200px;">
+                    <input type="text" name="keyword" class="form-control border-0 bg-transparent fw-medium" placeholder="Cari nama / kode jurusan..." value="<?= esc($keyword ?? '') ?>" style="min-width: 180px;">
                 </div>
 
-                <?php if (!empty($keyword)): ?>
+                <?php if (!empty($keyword) || !empty($universitas_filter)): ?>
                     <a href="<?= base_url('admin/jurusan') ?>" class="btn btn-sm btn-link text-muted p-1" title="Reset Pencarian">
                         <i class="bi bi-x-circle-fill"></i>
                     </a>
@@ -233,6 +245,13 @@
                                         <?= esc($j['kode_jurusan']) ?>
                                     </span>
                                     <div class="fw-bold text-dark mt-1" style="font-size: 0.95rem;"><?= esc($j['nama_jurusan']) ?></div>
+                                    <?php if (!empty($j['nama_universitas'])): ?>
+                                        <div class="mt-1">
+                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
+                                                <i class="bi bi-buildings text-success me-1"></i><?= esc($j['nama_universitas']) ?>
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="text-end">
                                     <?php if ($jml > 0): ?>
@@ -257,7 +276,7 @@
                             <!-- Tombol Aksi Mobile Touch-Friendly -->
                             <div class="d-flex align-items-center gap-2 pt-1 border-top">
                                 <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
-                                        onclick="bukaModalEditJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['kode_jurusan'], 'js') ?>', '<?= esc($j['nama_jurusan'], 'js') ?>', '<?= esc($j['deskripsi'] ?? '', 'js') ?>')">
+                                        onclick="bukaModalEditJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['kode_jurusan'], 'js') ?>', '<?= esc($j['nama_jurusan'], 'js') ?>', '<?= esc($j['deskripsi'] ?? '', 'js') ?>', '<?= esc($j['universitas_id'] ?? '', 'js') ?>')">
                                     <i class="bi bi-pencil-square"></i>
                                     <span>Edit</span>
                                 </button>
@@ -280,10 +299,11 @@
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 50px;">No</th>
-                            <th style="width: 140px;">Kode Jurusan</th>
+                            <th style="width: 120px;">Kode Jurusan</th>
                             <th>Nama Jurusan &amp; Keterangan</th>
-                            <th class="text-center" style="width: 180px;">Mahasiswa Terdaftar</th>
-                            <th class="text-center" style="width: 140px;">Aksi</th>
+                            <th style="width: 220px;">Asal Universitas Mitra</th>
+                            <th class="text-center" style="width: 170px;">Mahasiswa Terdaftar</th>
+                            <th class="text-center" style="width: 120px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -298,11 +318,21 @@
                                 <td>
                                     <div class="fw-bold text-dark"><?= esc($j['nama_jurusan']) ?></div>
                                     <?php if (!empty($j['deskripsi'])): ?>
-                                        <div class="small text-muted text-truncate mt-1" style="max-width: 520px;" title="<?= esc($j['deskripsi']) ?>">
+                                        <div class="small text-muted text-truncate mt-1" style="max-width: 450px;" title="<?= esc($j['deskripsi']) ?>">
                                             <?= esc($j['deskripsi']) ?>
                                         </div>
                                     <?php else: ?>
                                         <small class="text-muted fst-italic">Belum ada deskripsi.</small>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if (!empty($j['nama_universitas'])): ?>
+                                        <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 shadow-xs d-inline-flex align-items-center gap-1" style="font-size: 0.8rem;">
+                                            <i class="bi bi-buildings text-success"></i>
+                                            <span class="text-truncate" style="max-width: 160px;" title="<?= esc($j['nama_universitas']) ?>"><?= esc($j['nama_universitas']) ?></span>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-light text-muted border rounded-pill px-2.5 py-1" style="font-size: 0.75rem;">Umum / Belum Ditautkan</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
@@ -321,7 +351,7 @@
                                 <td class="text-center">
                                     <div class="d-inline-flex align-items-center gap-1">
                                         <!-- Tombol Edit -->
-                                        <button type="button" class="btn btn-sm btn-light border text-primary rounded-circle p-1" style="width: 32px; height: 32px;" title="Edit Jurusan" onclick="bukaModalEditJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['kode_jurusan'], 'js') ?>', '<?= esc($j['nama_jurusan'], 'js') ?>', '<?= esc($j['deskripsi'] ?? '', 'js') ?>')">
+                                        <button type="button" class="btn btn-sm btn-light border text-primary rounded-circle p-1" style="width: 32px; height: 32px;" title="Edit Jurusan" onclick="bukaModalEditJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['kode_jurusan'], 'js') ?>', '<?= esc($j['nama_jurusan'], 'js') ?>', '<?= esc($j['deskripsi'] ?? '', 'js') ?>', '<?= esc($j['universitas_id'] ?? '', 'js') ?>')">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
 
@@ -343,79 +373,103 @@
 <!-- Modal Tambah Jurusan Modern -->
 <div class="modal fade" id="modalTambahJurusan" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-header bg-success text-white py-3">
+        <form action="<?= base_url('admin/jurusan/tambah') ?>" method="POST" id="formTambahJurusan" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <?= csrf_field() ?>
+            <div class="modal-header bg-success text-white py-3 flex-shrink-0">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
                     <i class="bi bi-journal-plus"></i>
                     <span>Tambah Jurusan Baru</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/jurusan/tambah') ?>" method="POST" id="formTambahJurusan">
-                <?= csrf_field() ?>
-                <div class="modal-body text-start p-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Kode Jurusan <span class="text-danger">*</span></label>
-                        <input type="text" name="kode_jurusan" class="form-control text-uppercase" placeholder="Contoh: TKJ, RPL, TL, TO" maxlength="20" required>
-                        <small class="text-muted" style="font-size: 0.75rem;">Singkatan unik pengenal jurusan (2-20 karakter).</small>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Nama Lengkap Jurusan <span class="text-danger">*</span></label>
-                        <input type="text" name="nama_jurusan" class="form-control" placeholder="Contoh: Teknik Komputer dan Jaringan" maxlength="100" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Deskripsi / Keterangan (Opsional)</label>
-                        <textarea name="deskripsi" class="form-control" rows="3" placeholder="Deskripsi konsentrasi keahlian atau catatan bidang kerja sama..."></textarea>
-                    </div>
+            <div class="modal-body text-start p-4">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Asal Universitas Mitra <span class="text-danger">*</span></label>
+                    <select name="universitas_id" id="tambahUniversitasId" class="form-select" required>
+                        <option value="">-- Pilih Universitas Mitra --</option>
+                        <?php if (!empty($daftar_universitas)): ?>
+                            <?php foreach ($daftar_universitas as $univ): ?>
+                                <option value="<?= $univ['id'] ?>">
+                                    <?= esc($univ['nama_universitas']) ?> (<?= esc($univ['kode_universitas']) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                    <small class="text-muted" style="font-size: 0.75rem;">Kampus mitra yang membuka program studi ini.</small>
                 </div>
-                <div class="modal-footer border-0 bg-light py-2 px-4">
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitTambahJurusan">
-                        <i class="bi bi-plus-circle me-1"></i> Tambah Jurusan
-                    </button>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Kode Jurusan <span class="text-danger">*</span></label>
+                    <input type="text" name="kode_jurusan" class="form-control text-uppercase" placeholder="Contoh: TKJ, RPL, TL, TO" maxlength="20" required>
+                    <small class="text-muted" style="font-size: 0.75rem;">Singkatan unik pengenal jurusan (2-20 karakter).</small>
                 </div>
-            </form>
-        </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Nama Lengkap Jurusan <span class="text-danger">*</span></label>
+                    <input type="text" name="nama_jurusan" class="form-control" placeholder="Contoh: Pendidikan Teknik Informatika" maxlength="100" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Deskripsi / Keterangan (Opsional)</label>
+                    <textarea name="deskripsi" class="form-control" rows="3" placeholder="Deskripsi program studi atau catatan bidang kerja sama..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light py-2 px-4 flex-shrink-0">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitTambahJurusan">
+                    <i class="bi bi-plus-circle me-1"></i> Tambah Jurusan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 <!-- Modal Edit Jurusan Modern -->
 <div class="modal fade" id="modalEditJurusan" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-header bg-primary text-white py-3">
+        <form action="<?= base_url('admin/jurusan/edit') ?>" method="POST" id="formEditJurusan" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <?= csrf_field() ?>
+            <input type="hidden" name="id" id="editJurusanId">
+            <div class="modal-header bg-success text-white py-3 flex-shrink-0">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
                     <i class="bi bi-pencil-square"></i>
                     <span>Edit Data Jurusan</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/jurusan/edit') ?>" method="POST" id="formEditJurusan">
-                <?= csrf_field() ?>
-                <input type="hidden" name="id" id="editJurusanId">
-                <div class="modal-body text-start p-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Kode Jurusan <span class="text-danger">*</span></label>
-                        <input type="text" name="kode_jurusan" id="editKodeJurusan" class="form-control text-uppercase" maxlength="20" required>
-                        <small class="text-muted" style="font-size: 0.75rem;">Singkatan unik pengenal jurusan.</small>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Nama Lengkap Jurusan <span class="text-danger">*</span></label>
-                        <input type="text" name="nama_jurusan" id="editNamaJurusan" class="form-control" maxlength="100" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Deskripsi / Keterangan (Opsional)</label>
-                        <textarea name="deskripsi" id="editDeskripsiJurusan" class="form-control" rows="3"></textarea>
-                    </div>
+            <div class="modal-body text-start p-4">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Asal Universitas Mitra <span class="text-danger">*</span></label>
+                    <select name="universitas_id" id="editUniversitasId" class="form-select" required>
+                        <option value="">-- Pilih Universitas Mitra --</option>
+                        <?php if (!empty($daftar_universitas)): ?>
+                            <?php foreach ($daftar_universitas as $univ): ?>
+                                <option value="<?= $univ['id'] ?>">
+                                    <?= esc($univ['nama_universitas']) ?> (<?= esc($univ['kode_universitas']) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                    <small class="text-muted" style="font-size: 0.75rem;">Kampus mitra yang membuka program studi ini.</small>
                 </div>
-                <div class="modal-footer border-0 bg-light py-2 px-4">
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitEditJurusan">
-                        <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
-                    </button>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Kode Jurusan <span class="text-danger">*</span></label>
+                    <input type="text" name="kode_jurusan" id="editKodeJurusan" class="form-control text-uppercase" maxlength="20" required>
+                    <small class="text-muted" style="font-size: 0.75rem;">Singkatan unik pengenal jurusan.</small>
                 </div>
-            </form>
-        </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Nama Lengkap Jurusan <span class="text-danger">*</span></label>
+                    <input type="text" name="nama_jurusan" id="editNamaJurusan" class="form-control" maxlength="100" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Deskripsi / Keterangan (Opsional)</label>
+                    <textarea name="deskripsi" id="editDeskripsiJurusan" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light py-2 px-4 flex-shrink-0">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitEditJurusan">
+                    <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -431,10 +485,24 @@
             const form = document.getElementById(formId);
             const btn = document.getElementById(btnId);
             if (form && btn) {
+                const originalHtml = btn.innerHTML;
                 form.addEventListener('submit', function() {
-                    btn.disabled = true;
-                    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> ${loadingText}`;
+                    if (!form.checkValidity()) {
+                        return;
+                    }
+                    setTimeout(function() {
+                        btn.disabled = true;
+                        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> ${loadingText}`;
+                    }, 0);
                 });
+
+                const modalEl = form.closest('.modal');
+                if (modalEl) {
+                    modalEl.addEventListener('hidden.bs.modal', function() {
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    });
+                }
             }
         };
 
@@ -442,11 +510,14 @@
         bindSubmitSpinner('formEditJurusan', 'btnSubmitEditJurusan', 'Menyimpan...');
     });
 
-    function bukaModalEditJurusan(id, kode, nama, deskripsi) {
+    function bukaModalEditJurusan(id, kode, nama, deskripsi, universitasId) {
         document.getElementById('editJurusanId').value = id;
         document.getElementById('editKodeJurusan').value = kode;
         document.getElementById('editNamaJurusan').value = nama;
         document.getElementById('editDeskripsiJurusan').value = deskripsi || '';
+        if (document.getElementById('editUniversitasId')) {
+            document.getElementById('editUniversitasId').value = universitasId || '';
+        }
         var modal = new bootstrap.Modal(document.getElementById('modalEditJurusan'));
         modal.show();
     }

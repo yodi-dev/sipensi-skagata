@@ -233,6 +233,11 @@
                                         <?= esc($u['kode_universitas']) ?>
                                     </span>
                                     <div class="fw-bold text-dark mt-1" style="font-size: 0.95rem;"><?= esc($u['nama_universitas']) ?></div>
+                                    <?php $totalJur = (int) ($u['total_jurusan'] ?? 0); ?>
+                                    <a href="<?= base_url('admin/jurusan?universitas_id=' . $u['id']) ?>" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0.5 text-decoration-none mt-1 d-inline-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                                        <i class="bi bi-journal-bookmark"></i>
+                                        <strong><?= $totalJur ?></strong> Jurusan/Prodi
+                                    </a>
                                 </div>
                                 <div class="text-end">
                                     <?php if ($jml > 0): ?>
@@ -306,6 +311,13 @@
                                 </td>
                                 <td>
                                     <div class="fw-bold text-dark"><?= esc($u['nama_universitas']) ?></div>
+                                    <div class="d-flex align-items-center gap-2 mt-1">
+                                        <?php $totalJur = (int) ($u['total_jurusan'] ?? 0); ?>
+                                        <a href="<?= base_url('admin/jurusan?universitas_id=' . $u['id']) ?>" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0.5 text-decoration-none shadow-xs d-inline-flex align-items-center gap-1" style="font-size: 0.72rem;" title="Lihat Program Studi / Jurusan">
+                                            <i class="bi bi-journal-bookmark"></i>
+                                            <strong><?= $totalJur ?></strong> Jurusan/Prodi
+                                        </a>
+                                    </div>
                                     <?php if (!empty($u['alamat'])): ?>
                                         <div class="small text-muted text-truncate mt-1" style="max-width: 480px;" title="<?= esc($u['alamat']) ?>">
                                             <i class="bi bi-geo-alt me-1 text-success"></i><?= esc($u['alamat']) ?>

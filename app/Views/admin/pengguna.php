@@ -595,25 +595,14 @@ function getInitials($name)
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
-                    <select name="role" class="form-select" id="tambahRoleSelect" onchange="toggleJurusanField('tambahRoleSelect', 'tambahJurusanWrapper', 'tambahUniversitasWrapper', 'tambahPeriodeWrapper')" required>
+                    <select name="role" class="form-select" id="tambahRoleSelect" onchange="toggleJurusanField('tambahRoleSelect', 'tambahJurusanWrapper', 'tambahUniversitasWrapper', 'tambahPeriodeWrapper', 'tambahUniversitas', 'tambahJurusan')" required>
                         <option value="mahasiswa" selected>Mahasiswa Praktikan (PPL/PK)</option>
                         <option value="guru">Guru Pamong / GTT</option>
                     </select>
                 </div>
-                <div class="mb-3" id="tambahJurusanWrapper">
-                    <label class="form-label fw-semibold small text-dark">Jurusan Mahasiswa</label>
-                    <select name="jurusan" class="form-select">
-                        <option value="">-- Pilih Jurusan Mahasiswa --</option>
-                        <?php if (!empty($daftar_jurusan)): ?>
-                            <?php foreach ($daftar_jurusan as $jrs): ?>
-                                <option value="<?= esc($jrs) ?>"><?= esc($jrs) ?></option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
-                </div>
                 <div class="mb-3" id="tambahUniversitasWrapper">
                     <label class="form-label fw-semibold small text-dark">Asal Universitas / Kampus</label>
-                    <select name="universitas" class="form-select">
+                    <select name="universitas" id="tambahUniversitas" class="form-select" onchange="updateJurusanOptions('tambahUniversitas', 'tambahJurusan')">
                         <option value="">-- Pilih Asal Universitas --</option>
                         <?php if (!empty($daftar_universitas)): ?>
                             <?php foreach ($daftar_universitas as $univ): ?>
@@ -621,6 +610,19 @@ function getInitials($name)
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </select>
+                    <small class="text-muted" style="font-size: 0.75rem;">Pilih kampus pengirim terlebih dahulu untuk memfilter jurusan/prodi.</small>
+                </div>
+                <div class="mb-3" id="tambahJurusanWrapper">
+                    <label class="form-label fw-semibold small text-dark">Jurusan Mahasiswa</label>
+                    <select name="jurusan" id="tambahJurusan" class="form-select">
+                        <option value="">-- Pilih Universitas Terlebih Dahulu --</option>
+                        <?php if (!empty($daftar_jurusan)): ?>
+                            <?php foreach ($daftar_jurusan as $jrs): ?>
+                                <option value="<?= esc($jrs) ?>"><?= esc($jrs) ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                    <small class="text-muted" style="font-size: 0.75rem;" id="tambahJurusanHelp">Program studi yang dibuka oleh kampus mitra terkait.</small>
                 </div>
                 <div class="mb-3" id="tambahPeriodeWrapper">
                     <label class="form-label fw-semibold small text-dark">Periode PPL / PK</label>
@@ -679,10 +681,22 @@ function getInitials($name)
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
-                    <select name="role" id="editRole" class="form-select" onchange="toggleJurusanField('editRole', 'editJurusanWrapper', 'editUniversitasWrapper', 'editPeriodeWrapper')" required>
+                    <select name="role" id="editRole" class="form-select" onchange="toggleJurusanField('editRole', 'editJurusanWrapper', 'editUniversitasWrapper', 'editPeriodeWrapper', 'editUniversitas', 'editJurusan')" required>
                         <option value="mahasiswa">Mahasiswa Praktikan (PPL/PK)</option>
                         <option value="guru">Guru Pamong / GTT</option>
                     </select>
+                </div>
+                <div class="mb-3" id="editUniversitasWrapper">
+                    <label class="form-label fw-semibold small text-dark">Asal Universitas / Kampus</label>
+                    <select name="universitas" id="editUniversitas" class="form-select" onchange="updateJurusanOptions('editUniversitas', 'editJurusan')">
+                        <option value="">-- Pilih Asal Universitas --</option>
+                        <?php if (!empty($daftar_universitas)): ?>
+                            <?php foreach ($daftar_universitas as $univ): ?>
+                                <option value="<?= esc($univ) ?>"><?= esc($univ) ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                    <small class="text-muted" style="font-size: 0.75rem;">Pilih kampus pengirim untuk memfilter jurusan/prodi.</small>
                 </div>
                 <div class="mb-3" id="editJurusanWrapper">
                     <label class="form-label fw-semibold small text-dark">Jurusan Mahasiswa</label>
@@ -694,17 +708,7 @@ function getInitials($name)
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </select>
-                </div>
-                <div class="mb-3" id="editUniversitasWrapper">
-                    <label class="form-label fw-semibold small text-dark">Asal Universitas / Kampus</label>
-                    <select name="universitas" id="editUniversitas" class="form-select">
-                        <option value="">-- Pilih Asal Universitas --</option>
-                        <?php if (!empty($daftar_universitas)): ?>
-                            <?php foreach ($daftar_universitas as $univ): ?>
-                                <option value="<?= esc($univ) ?>"><?= esc($univ) ?></option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
+                    <small class="text-muted" style="font-size: 0.75rem;" id="editJurusanHelp">Program studi yang dibuka oleh kampus mitra terkait.</small>
                 </div>
                 <div class="mb-3" id="editPeriodeWrapper">
                     <label class="form-label fw-semibold small text-dark">Periode PPL / PK</label>
@@ -809,25 +813,105 @@ function getInitials($name)
         bindSubmitSpinner('formTambahUserPengguna', 'btnSubmitTambahUserPengguna', 'Menyimpan...');
         bindSubmitSpinner('formEditUserPengguna', 'btnSubmitEditUserPengguna', 'Menyimpan...');
         bindSubmitSpinner('formResetPassPengguna', 'btnSubmitResetPassPengguna', 'Memproses...');
+
+        // Inisialisasi awal dropdown jurusan pada modal tambah
+        if (document.getElementById('tambahUniversitas') && document.getElementById('tambahJurusan')) {
+            updateJurusanOptions('tambahUniversitas', 'tambahJurusan');
+        }
     });
 
-    function toggleJurusanField(roleSelectId, jurusanWrapperId, universitasWrapperId, periodeWrapperId) {
+    const universitasJurusanMap = <?= json_encode($jurusan_univ_map ?? []) ?>;
+    const allJurusans = <?= json_encode($daftar_jurusan ?? []) ?>;
+
+    function updateJurusanOptions(univSelectId, jurusanSelectId, selectedJurusanVal = '') {
+        const univSelect = document.getElementById(univSelectId);
+        const jurusanSelect = document.getElementById(jurusanSelectId);
+        if (!univSelect || !jurusanSelect) return;
+
+        const selectedUniv = univSelect.value;
+        const currentVal = selectedJurusanVal || jurusanSelect.value;
+
+        jurusanSelect.innerHTML = '';
+
+        if (!selectedUniv) {
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = '';
+            defaultOpt.textContent = '-- Pilih Universitas Terlebih Dahulu --';
+            jurusanSelect.appendChild(defaultOpt);
+            return;
+        }
+
+        const availableJurusans = universitasJurusanMap[selectedUniv] || [];
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.textContent = availableJurusans.length > 0 ? '-- Pilih Jurusan / Prodi --' : '-- Belum Ada Jurusan Khusus Terdaftar --';
+        jurusanSelect.appendChild(defaultOpt);
+
+        if (availableJurusans.length > 0) {
+            availableJurusans.forEach(jrs => {
+                const opt = document.createElement('option');
+                opt.value = jrs;
+                opt.textContent = jrs;
+                if (jrs === currentVal) opt.selected = true;
+                jurusanSelect.appendChild(opt);
+            });
+        } else {
+            // Fallback ke seluruh jurusan jika universitas belum dipetakan
+            allJurusans.forEach(jrs => {
+                const opt = document.createElement('option');
+                opt.value = jrs;
+                opt.textContent = jrs;
+                if (jrs === currentVal) opt.selected = true;
+                jurusanSelect.appendChild(opt);
+            });
+        }
+
+        // Pertahankan nilai jika ada data tersimpan yang belum terdaftar di mapping
+        if (currentVal && !Array.from(jurusanSelect.options).some(o => o.value === currentVal)) {
+            const opt = document.createElement('option');
+            opt.value = currentVal;
+            opt.textContent = currentVal;
+            opt.selected = true;
+            jurusanSelect.appendChild(opt);
+        }
+    }
+
+    function toggleJurusanField(roleSelectId, jurusanWrapperId, universitasWrapperId, periodeWrapperId, univSelectId, jurusanSelectId) {
         const role = document.getElementById(roleSelectId).value;
         const jWrapper = document.getElementById(jurusanWrapperId);
         const uWrapper = universitasWrapperId ? document.getElementById(universitasWrapperId) : null;
         const pWrapper = periodeWrapperId ? document.getElementById(periodeWrapperId) : null;
         const jLabel = jWrapper ? jWrapper.querySelector('label') : null;
+        const jSelect = jurusanSelectId ? document.getElementById(jurusanSelectId) : (jWrapper ? jWrapper.querySelector('select') : null);
 
         if (role === 'mahasiswa') {
             if (jWrapper) jWrapper.style.display = 'block';
             if (jLabel) jLabel.textContent = 'Jurusan Mahasiswa';
             if (uWrapper) uWrapper.style.display = 'block';
             if (pWrapper) pWrapper.style.display = 'block';
+
+            if (univSelectId && jurusanSelectId) {
+                const currentJurVal = jSelect ? jSelect.value : '';
+                updateJurusanOptions(univSelectId, jurusanSelectId, currentJurVal);
+            }
         } else if (role === 'guru') {
             if (jWrapper) jWrapper.style.display = 'block';
             if (jLabel) jLabel.textContent = 'Jurusan Bimbingan / Pamong';
             if (uWrapper) uWrapper.style.display = 'none';
             if (pWrapper) pWrapper.style.display = 'none';
+
+            // Untuk pamong, tampilkan seluruh jurusan tanpa tergantung universitas
+            if (jSelect) {
+                const currentVal = jSelect.value;
+                jSelect.innerHTML = '<option value="">-- Pilih Jurusan Bimbingan / Pamong --</option>';
+                allJurusans.forEach(jrs => {
+                    const opt = document.createElement('option');
+                    opt.value = jrs;
+                    opt.textContent = jrs;
+                    if (jrs === currentVal) opt.selected = true;
+                    jSelect.appendChild(opt);
+                });
+            }
         } else {
             if (jWrapper) jWrapper.style.display = 'none';
             if (uWrapper) uWrapper.style.display = 'none';
@@ -854,14 +938,20 @@ function getInitials($name)
         document.getElementById('editUsername').value = username;
         document.getElementById('editNama').value = nama;
         document.getElementById('editRole').value = role;
-        document.getElementById('editJurusan').value = jurusan || '';
         if (document.getElementById('editUniversitas')) {
             document.getElementById('editUniversitas').value = universitas || '';
         }
         if (document.getElementById('editPeriodeSelect')) {
             document.getElementById('editPeriodeSelect').value = periodeId || '';
         }
-        toggleJurusanField('editRole', 'editJurusanWrapper', 'editUniversitasWrapper', 'editPeriodeWrapper');
+
+        toggleJurusanField('editRole', 'editJurusanWrapper', 'editUniversitasWrapper', 'editPeriodeWrapper', 'editUniversitas', 'editJurusan');
+
+        if (role === 'mahasiswa' && universitas) {
+            updateJurusanOptions('editUniversitas', 'editJurusan', jurusan || '');
+        } else if (document.getElementById('editJurusan')) {
+            document.getElementById('editJurusan').value = jurusan || '';
+        }
 
         const modal = new bootstrap.Modal(document.getElementById('modalEditUser'));
         modal.show();
