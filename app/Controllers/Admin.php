@@ -308,6 +308,20 @@ class Admin extends BaseController
     public function guruPamong()
     {
         $guruList = $this->guruPamongModel->getGuruWithJurusan();
+        $jurusanMitraList = $this->jurusanModel->getJurusanWithUniversitas();
+
+        // Kelompokkan jurusan berdasarkan Universitas Mitra untuk modal checkbox
+        $jurusanGrouped = [];
+        foreach ($jurusanMitraList as $jm) {
+            $univName = !empty($jm['nama_universitas']) ? $jm['nama_universitas'] : 'Umum / Lainnya';
+            $univCode = !empty($jm['kode_universitas']) ? $jm['kode_universitas'] : '';
+            $groupKey = !empty($univCode) ? "{$univName} ({$univCode})" : $univName;
+            if (!isset($jurusanGrouped[$groupKey])) {
+                $jurusanGrouped[$groupKey] = [];
+            }
+            $jurusanGrouped[$groupKey][] = $jm;
+        }
+
         $masterJurusan = $this->jurusanModel->getDaftarNama();
         $db = Database::connect();
         $userJurusanRaw = $db->table('users')->select('jurusan')->where('jurusan IS NOT NULL')->where('jurusan !=', '')->groupBy('jurusan')->get()->getResultArray();
@@ -335,6 +349,8 @@ class Admin extends BaseController
             'current_admin'              => $currentAdmin,
             'guru_list'                  => $guruList,
             'daftar_jurusan'             => $daftarJurusan,
+            'daftar_jurusan_mitra'       => $jurusanMitraList,
+            'jurusan_grouped'            => $jurusanGrouped,
             'total_guru'                 => $totalGuru,
             'guru_terpetakan'            => $guruTerpetakan,
             'guru_belum'                 => $guruBelum,

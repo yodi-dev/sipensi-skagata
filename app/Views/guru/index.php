@@ -115,7 +115,17 @@ $tanggalFormatIndo = $hariTerpilih . ', ' . date('d', $tsTanggal) . ' ' . $bulan
             <!-- Auto-Filter Form ala Sibenka (Tanpa Tombol Cari Manual) -->
             <form action="<?= base_url('guru') ?>" method="GET" class="d-flex flex-column flex-md-row gap-2 align-items-md-center m-0">
 
-                <?php if (!empty($daftar_jurusan) && count($daftar_jurusan) > 1): ?>
+                <?php if (!empty($filter_options) && count($filter_options) > 1): ?>
+                    <div class="filter-wrapper d-flex align-items-center gap-2">
+                        <label for="jurusan" class="fw-semibold text-muted small mb-0 text-nowrap"><i class="bi bi-funnel"></i> Jurusan / Kampus:</label>
+                        <select name="jurusan" id="jurusan" class="form-select form-select-sm border-0 bg-transparent shadow-none" onchange="this.form.submit()">
+                            <option value="">-- Semua Mahasiswa Binaan --</option>
+                            <?php foreach ($filter_options as $fVal => $fLabel): ?>
+                                <option value="<?= esc($fVal) ?>" <?= ((string)$jurusan_terpilih === (string)$fVal || (string)$jurusan_terpilih === (string)$fLabel) ? 'selected' : '' ?>><?= esc($fLabel) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                <?php elseif (!empty($daftar_jurusan) && count($daftar_jurusan) > 1): ?>
                     <div class="filter-wrapper d-flex align-items-center gap-2">
                         <label for="jurusan" class="fw-semibold text-muted small mb-0 text-nowrap"><i class="bi bi-funnel"></i> Jurusan:</label>
                         <select name="jurusan" id="jurusan" class="form-select form-select-sm border-0 bg-transparent shadow-none" onchange="this.form.submit()">
@@ -159,7 +169,13 @@ $tanggalFormatIndo = $hariTerpilih . ', ' . date('d', $tsTanggal) . ' ' . $bulan
                             <div class="d-flex justify-content-between align-items-start mb-2 pb-2 border-bottom">
                                 <div class="overflow-hidden pe-2">
                                     <span class="fw-bold text-dark d-block text-truncate" style="max-width: 190px;"><?= esc($row['nama']) ?></span>
-                                    <small class="text-muted" style="font-size: 0.72rem;">#<?= esc($key + 1) ?></small>
+                                    <div class="d-flex align-items-center gap-1 text-muted" style="font-size: 0.72rem;">
+                                        <span>#<?= esc($key + 1) ?></span>
+                                        <?php if (!empty($row['universitas'])): ?>
+                                            <span>•</span>
+                                            <span class="badge bg-light text-secondary border py-0 px-1"><?= esc($row['universitas']) ?></span>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                                 <div class="flex-shrink-0">
                                     <?php if ($row['status'] === 'hadir'): ?>
@@ -258,7 +274,17 @@ $tanggalFormatIndo = $hariTerpilih . ', ' . date('d', $tsTanggal) . ' ' . $bulan
                         <?php foreach ($presensi as $key => $row): ?>
                             <tr>
                                 <td><span class="text-muted fw-semibold"><?= esc($key + 1) ?></span></td>
-                                <td class="text-start fw-bold text-dark"><?= esc($row['nama']) ?></td>
+                                <td class="text-start">
+                                    <div class="fw-bold text-dark"><?= esc($row['nama']) ?></div>
+                                    <?php if (!empty($row['universitas']) || !empty($row['jurusan'])): ?>
+                                        <div class="small text-muted mt-0.5" style="font-size: 0.75rem;">
+                                            <span><?= esc($row['jurusan'] ?? '') ?></span>
+                                            <?php if (!empty($row['universitas'])): ?>
+                                                <span class="badge bg-light text-secondary border ms-1 py-0 px-1"><?= esc($row['universitas']) ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
 
                                 <td>
                                     <?php if ($row['status'] === 'hadir'): ?>

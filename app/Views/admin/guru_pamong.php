@@ -292,6 +292,7 @@
                         <?php
                         $isMapped = !empty($g['jurusan_list']);
                         $jurusanJson = htmlspecialchars(json_encode($g['jurusan_list']), ENT_QUOTES, 'UTF-8');
+                        $jurusanIdsJson = htmlspecialchars(json_encode($g['jurusan_ids'] ?? []), ENT_QUOTES, 'UTF-8');
                         $keteranganSafe = htmlspecialchars($g['keterangan'] ?? '', ENT_QUOTES, 'UTF-8');
                         ?>
                         <div class="pamong-item-card kartu-guru-mobile" data-status="<?= $isMapped ? 'terpetakan' : 'belum' ?>" data-search="<?= esc(strtolower($g['nama'] . ' ' . $g['username'] . ' ' . $g['jurusan_label'])) ?>">
@@ -325,11 +326,22 @@
                                     <span class="text-muted d-block small mb-1">Jurusan Binaan:</span>
                                     <?php if ($isMapped): ?>
                                         <div class="d-flex flex-wrap gap-1">
-                                            <?php foreach ($g['jurusan_list'] as $j): ?>
-                                                <span class="badge bg-white text-success border border-success-subtle rounded-pill px-2 py-1">
-                                                    <i class="bi bi-journal-check me-1"></i><?= esc($j) ?>
-                                                </span>
-                                            <?php endforeach; ?>
+                                            <?php if (!empty($g['assignments'])): ?>
+                                                <?php foreach ($g['assignments'] as $a): ?>
+                                                    <span class="badge bg-white text-success border border-success-subtle rounded-pill px-2 py-1">
+                                                        <i class="bi bi-journal-check me-1"></i><?= esc($a['nama_jurusan']) ?>
+                                                        <?php if (!empty($a['kode_universitas'])): ?>
+                                                            <span class="badge bg-light text-dark border ms-1" style="font-size: 0.68rem;"><?= esc($a['kode_universitas']) ?></span>
+                                                        <?php endif; ?>
+                                                    </span>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <?php foreach ($g['jurusan_list'] as $j): ?>
+                                                    <span class="badge bg-white text-success border border-success-subtle rounded-pill px-2 py-1">
+                                                        <i class="bi bi-journal-check me-1"></i><?= esc($j) ?>
+                                                    </span>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
                                         </div>
                                     <?php else: ?>
                                         <span class="text-muted small fst-italic">Belum ada jurusan yang dipetakan</span>
@@ -357,7 +369,7 @@
                             <!-- Tombol Aksi Mobile Touch-Friendly -->
                             <div class="d-flex align-items-center gap-2 pt-1 border-top">
                                 <button type="button" class="btn btn-sm btn-outline-success rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
-                                        onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>')">
+                                        onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanIdsJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>', <?= $jurusanJson ?>)">
                                     <i class="bi bi-diagram-3-fill"></i>
                                     <span><?= $isMapped ? 'Ubah Pemetaan' : 'Atur Pemetaan' ?></span>
                                 </button>
@@ -395,6 +407,7 @@
                             <?php
                             $isMapped = !empty($g['jurusan_list']);
                             $jurusanJson = htmlspecialchars(json_encode($g['jurusan_list']), ENT_QUOTES, 'UTF-8');
+                            $jurusanIdsJson = htmlspecialchars(json_encode($g['jurusan_ids'] ?? []), ENT_QUOTES, 'UTF-8');
                             $keteranganSafe = htmlspecialchars($g['keterangan'] ?? '', ENT_QUOTES, 'UTF-8');
                             ?>
                             <tr class="baris-guru" data-status="<?= $isMapped ? 'terpetakan' : 'belum' ?>" data-search="<?= esc(strtolower($g['nama'] . ' ' . $g['username'] . ' ' . $g['jurusan_label'])) ?>">
@@ -413,11 +426,22 @@
                                 <td>
                                     <?php if ($isMapped): ?>
                                         <div class="d-flex flex-wrap gap-1">
-                                            <?php foreach ($g['jurusan_list'] as $j): ?>
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
-                                                    <i class="bi bi-journal-check me-1"></i><?= esc($j) ?>
-                                                </span>
-                                            <?php endforeach; ?>
+                                            <?php if (!empty($g['assignments'])): ?>
+                                                <?php foreach ($g['assignments'] as $a): ?>
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
+                                                        <i class="bi bi-journal-check me-1"></i><?= esc($a['nama_jurusan']) ?>
+                                                        <?php if (!empty($a['kode_universitas'])): ?>
+                                                            <span class="badge bg-white text-dark border ms-1" style="font-size: 0.72rem;"><?= esc($a['kode_universitas']) ?></span>
+                                                        <?php endif; ?>
+                                                    </span>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <?php foreach ($g['jurusan_list'] as $j): ?>
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
+                                                        <i class="bi bi-journal-check me-1"></i><?= esc($j) ?>
+                                                    </span>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
                                         </div>
                                     <?php else: ?>
                                         <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1">
@@ -448,7 +472,7 @@
                                         <!-- Tombol Petakan / Edit Pemetaan -->
                                         <button type="button" class="btn btn-sm btn-light border text-success rounded-pill px-2 py-1 shadow-xs d-inline-flex align-items-center gap-1"
                                                 title="Petakan Jurusan"
-                                                onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>')">
+                                                onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanIdsJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>', <?= $jurusanJson ?>)">
                                             <i class="bi bi-diagram-3-fill"></i>
                                             <span><?= $isMapped ? 'Ubah' : 'Petakan' ?></span>
                                         </button>
@@ -515,22 +539,50 @@
                         </div>
                         <p class="text-muted small mb-3">Guru ini hanya akan dapat mengelola dan memvalidasi presensi mahasiswa dari jurusan yang dipilih di bawah ini:</p>
 
-                        <div class="row g-2">
-                            <?php if (!empty($daftar_jurusan)): ?>
-                                <?php foreach ($daftar_jurusan as $idx => $jrs): ?>
-                                    <div class="col-12 col-md-6">
-                                        <label class="jurusan-check-card" id="cardJurusan_<?= $idx ?>">
-                                            <input class="form-check-input mt-0 check-jurusan" type="checkbox" name="jurusan[]" value="<?= esc($jrs) ?>" id="chk_<?= $idx ?>" onchange="updateCardCheckStyle(this, 'cardJurusan_<?= $idx ?>')">
-                                            <span class="small fw-semibold text-dark flex-grow-1"><?= esc($jrs) ?></span>
-                                            <i class="bi bi-check2 text-success fs-5 check-indicator d-none"></i>
-                                        </label>
-                                    </div>
-                                <?php endforeach; ?>
+                        <div class="jurusan-checkbox-container">
+                            <?php if (!empty($jurusan_grouped)): ?>
+                                <div class="d-flex flex-column gap-3">
+                                    <?php foreach ($jurusan_grouped as $univGroup => $jurusans): ?>
+                                        <div class="p-3 rounded-3 border bg-light bg-opacity-50">
+                                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                                <span class="fw-bold small text-dark d-flex align-items-center gap-2">
+                                                    <i class="bi bi-building text-success"></i>
+                                                    <span><?= esc($univGroup) ?></span>
+                                                </span>
+                                                <span class="badge bg-white text-muted border" style="font-size: 0.72rem;"><?= count($jurusans) ?> Jurusan</span>
+                                            </div>
+                                            <div class="row g-2">
+                                                <?php foreach ($jurusans as $jrs): ?>
+                                                    <div class="col-12 col-md-6">
+                                                        <label class="jurusan-check-card" id="cardJurusan_<?= (int) $jrs['id'] ?>">
+                                                            <input class="form-check-input mt-0 check-jurusan" type="checkbox" name="jurusan[]" value="<?= (int) $jrs['id'] ?>" data-nama="<?= esc($jrs['nama_jurusan']) ?>" id="chk_<?= (int) $jrs['id'] ?>" onchange="updateCardCheckStyle(this, 'cardJurusan_<?= (int) $jrs['id'] ?>')">
+                                                            <span class="small fw-semibold text-dark flex-grow-1"><?= esc($jrs['nama_jurusan']) ?></span>
+                                                            <?php if (!empty($jrs['kode_universitas'])): ?>
+                                                                <span class="badge bg-white text-secondary border me-1" style="font-size: 0.68rem;"><?= esc($jrs['kode_universitas']) ?></span>
+                                                            <?php endif; ?>
+                                                            <i class="bi bi-check2 text-success fs-5 check-indicator d-none"></i>
+                                                        </label>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php elseif (!empty($daftar_jurusan)): ?>
+                                <div class="row g-2">
+                                    <?php foreach ($daftar_jurusan as $idx => $jrs): ?>
+                                        <div class="col-12 col-md-6">
+                                            <label class="jurusan-check-card" id="cardJurusan_<?= $idx ?>">
+                                                <input class="form-check-input mt-0 check-jurusan" type="checkbox" name="jurusan[]" value="<?= esc($jrs) ?>" data-nama="<?= esc($jrs) ?>" id="chk_<?= $idx ?>" onchange="updateCardCheckStyle(this, 'cardJurusan_<?= $idx ?>')">
+                                                <span class="small fw-semibold text-dark flex-grow-1"><?= esc($jrs) ?></span>
+                                                <i class="bi bi-check2 text-success fs-5 check-indicator d-none"></i>
+                                            </label>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
                             <?php else: ?>
-                                <div class="col-12">
-                                    <div class="alert alert-warning small mb-0">
-                                        Belum ada data jurusan yang terdaftar. Tambahkan jurusan terlebih dahulu di Master Data Jurusan.
-                                    </div>
+                                <div class="alert alert-warning small mb-0">
+                                    Belum ada data jurusan yang terdaftar. Tambahkan jurusan terlebih dahulu di Master Data Jurusan.
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -588,7 +640,7 @@
         }
     }
 
-    function bukaModalPemetaan(guruId, nama, username, jurusanList, keterangan) {
+    function bukaModalPemetaan(guruId, nama, username, jurusanIds, keterangan, jurusanNames) {
         document.getElementById('pemetaanGuruId').value = guruId;
         document.getElementById('modalGuruNama').innerText = nama;
         document.getElementById('modalGuruUsername').innerText = '@' + username;
@@ -607,20 +659,26 @@
             }
         });
 
-        // Check matched jurusans
-        if (Array.isArray(jurusanList)) {
-            checkboxes.forEach((cb) => {
-                if (jurusanList.includes(cb.value)) {
-                    cb.checked = true;
-                    const parentCard = cb.closest('.jurusan-check-card');
-                    if (parentCard) {
-                        parentCard.classList.add('checked');
-                        const ind = parentCard.querySelector('.check-indicator');
-                        if (ind) ind.classList.remove('d-none');
-                    }
+        // Check matched jurusans by ID or name
+        const idList = Array.isArray(jurusanIds) ? jurusanIds.map(String) : [];
+        const nameList = Array.isArray(jurusanNames) ? jurusanNames.map(String) : (Array.isArray(jurusanIds) ? jurusanIds.map(String) : []);
+
+        checkboxes.forEach((cb) => {
+            const cbVal = String(cb.value);
+            const cbNama = cb.getAttribute('data-nama') || '';
+            const matchById = idList.length > 0 && idList.includes(cbVal);
+            const matchByName = (idList.length === 0 || !matchById) && nameList.includes(cbNama);
+
+            if (matchById || matchByName) {
+                cb.checked = true;
+                const parentCard = cb.closest('.jurusan-check-card');
+                if (parentCard) {
+                    parentCard.classList.add('checked');
+                    const ind = parentCard.querySelector('.check-indicator');
+                    if (ind) ind.classList.remove('d-none');
                 }
-            });
-        }
+            }
+        });
 
         const modal = new bootstrap.Modal(document.getElementById('modalPemetaan'));
         modal.show();

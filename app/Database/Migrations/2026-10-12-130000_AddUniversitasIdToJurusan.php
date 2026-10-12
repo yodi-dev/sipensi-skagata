@@ -50,3 +50,4 @@ class AddUniversitasIdToJurusan extends Migration
         $this->forge->dropColumn('jurusan', 'universitas_id');
     }
 }
+

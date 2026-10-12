@@ -45,7 +45,7 @@ class JurusanModel extends Model
         $builder = $this->db->table($this->table . ' j')
             ->select('j.*, COUNT(u.id) AS total_mahasiswa, univ.nama_universitas, univ.kode_universitas')
             ->join('universitas univ', 'univ.id = j.universitas_id', 'left')
-            ->join('users u', "(u.jurusan = j.nama_jurusan OR u.jurusan = j.kode_jurusan) AND u.role = 'mahasiswa'", 'left')
+            ->join('users u', "(u.jurusan = j.nama_jurusan OR u.jurusan = j.kode_jurusan) AND (u.universitas = univ.nama_universitas OR u.universitas = univ.kode_universitas OR j.universitas_id IS NULL) AND u.role = 'mahasiswa'", 'left')
             ->groupBy('j.id')
             ->orderBy('univ.nama_universitas', 'ASC')
             ->orderBy('j.nama_jurusan', 'ASC');
@@ -77,12 +77,46 @@ class JurusanModel extends Model
             return 0;
         }
 
-        return $this->db->table('users')
+        $builder = $this->db->table('users')
             ->groupStart()
                 ->where('jurusan', $jurusan['nama_jurusan'])
                 ->orWhere('jurusan', $jurusan['kode_jurusan'])
-            ->groupEnd()
-            ->countAllResults();
+            ->groupEnd();
+
+        if (!empty($jurusan['universitas_id'])) {
+            $univ = $this->db->table('universitas')->where('id', $jurusan['universitas_id'])->get()->getRowArray();
+            if ($univ) {
+                $builder->groupStart()
+                    ->where('universitas', $univ['nama_universitas'])
+                    ->orWhere('universitas', $univ['kode_universitas'])
+                    ->orWhere('universitas IS NULL')
+                    ->groupEnd();
+            }
+        }
+
+        return $builder->countAllResults();
+    }
+
+    /**
+     * Ambil seluruh master jurusan dengan relasi universitas mitra dan label kampus pembeda.
+     */
+    public function getJurusanWithUniversitas(): array
+    {
+        $rows = $this->db->table($this->table . ' j')
+            ->select('j.*, univ.nama_universitas, univ.kode_universitas')
+            ->join('universitas univ', 'univ.id = j.universitas_id', 'left')
+            ->orderBy('univ.nama_universitas', 'ASC')
+            ->orderBy('j.nama_jurusan', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        foreach ($rows as &$r) {
+            $univBadge = !empty($r['kode_universitas']) ? $r['kode_universitas'] : (!empty($r['nama_universitas']) ? $r['nama_universitas'] : '');
+            $r['display_label'] = !empty($univBadge) ? "{$r['nama_jurusan']} ({$univBadge})" : $r['nama_jurusan'];
+        }
+        unset($r);
+
+        return $rows;
     }
 
     /**

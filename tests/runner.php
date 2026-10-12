@@ -948,6 +948,92 @@ $runner->it("Verifikasi isolasi pengawasan mahasiswa berdasarkan pemetaan jurusa
     $model->assignJurusanToGuru($guruId, ['Informatika'], 'SK Pengawasan 2026');
 });
 
+$runner->it("Verifikasi isolasi multi-kampus: guru berbeda untuk jurusan sama dan guru sama untuk multi-kampus", function() use ($runner) {
+    $pamongModel = new \App\Models\GuruPamongModel();
+    $jurusanModel = new \App\Models\JurusanModel();
+    $db = \Config\Database::connect('default');
+
+    // 1. Verifikasi JurusanModel::getJurusanWithUniversitas
+    $jurusanWithUniv = $jurusanModel->getJurusanWithUniversitas();
+    $runner->assertTrue(!empty($jurusanWithUniv), "getJurusanWithUniversitas harus mengembalikan data");
+    $firstJM = $jurusanWithUniv[0];
+    $runner->assertTrue(isset($firstJM['display_label']), "Harus memiliki display_label pembeda kampus");
+
+    // 2. Ambil data universitas mitra UNY dan UAD
+    $univUNY = $db->table('universitas')->where('kode_universitas', 'UNY')->get()->getRowArray();
+    $univUAD = $db->table('universitas')->where('kode_universitas', 'UAD')->get()->getRowArray();
+    $runner->assertTrue(!empty($univUNY) && !empty($univUAD), "Harus ada data UNY dan UAD");
+
+    // Pastikan jurusan Informatika UNY ada
+    $jrsUNY = $db->table('jurusan')->where('nama_jurusan', 'Informatika')->where('universitas_id', $univUNY['id'])->get()->getRowArray();
+    $runner->assertTrue(!empty($jrsUNY), "Jurusan Informatika UNY harus ada");
+
+    // Cari atau buat jurusan Informatika UAD untuk pengujian isolasi multi-kampus
+    $jrsUAD = $db->table('jurusan')->where('nama_jurusan', 'Informatika')->where('universitas_id', $univUAD['id'])->get()->getRowArray();
+    $createdTestJrsUAD = false;
+    if (!$jrsUAD) {
+        $db->table('jurusan')->insert([
+            'universitas_id' => $univUAD['id'],
+            'kode_jurusan'   => 'TEST-INF-UAD',
+            'nama_jurusan'   => 'Informatika',
+            'deskripsi'      => 'Jurusan test multi-kampus'
+        ]);
+        $jrsUADId = (int) $db->insertID();
+        $jrsUAD = $db->table('jurusan')->where('id', $jrsUADId)->get()->getRowArray();
+        $createdTestJrsUAD = true;
+    }
+
+    // Ambil mahasiswa UNY Informatika
+    $mhsUNY = $db->table('users')->where('role', 'mahasiswa')->where('jurusan', 'Informatika')->where('universitas', $univUNY['nama_universitas'])->get()->getRowArray();
+    $runner->assertTrue(!empty($mhsUNY), "Mahasiswa Informatika UNY harus ada");
+
+    // Ambil atau buat akun mahasiswa UAD Informatika
+    $testMhsUAD = $db->table('users')->where('username', 'test_mhs_uad')->get()->getRowArray();
+    if (!$testMhsUAD) {
+        $db->table('users')->insert([
+            'username'    => 'test_mhs_uad',
+            'nama'        => 'Mahasiswa UAD Test',
+            'password'    => password_hash('password123', PASSWORD_BCRYPT),
+            'role'        => 'mahasiswa',
+            'jurusan'     => 'Informatika',
+            'universitas' => $univUAD['nama_universitas']
+        ]);
+        $testMhsUADId = (int) $db->insertID();
+        $testMhsUAD = $db->table('users')->where('id', $testMhsUADId)->get()->getRowArray();
+    }
+
+    $gurus = $db->table('users')->where('role', 'guru')->get()->getResultArray();
+    $runner->assertTrue(count($gurus) >= 1);
+    $guruAId = (int) $gurus[0]['id'];
+
+    // SKENARIO 1: Guru A hanya membimbing Informatika UNY
+    $pamongModel->assignJurusanToGuru($guruAId, [(int) $jrsUNY['id']], 'SK Khusus UNY');
+    $runner->assertTrue($pamongModel->isMahasiswaSupervisedByGuru($guruAId, (int) $mhsUNY['id']), "Guru A harus membimbing mahasiswa UNY");
+    $runner->assertFalse($pamongModel->isMahasiswaSupervisedByGuru($guruAId, (int) $testMhsUAD['id']), "Guru A TIDAK boleh membimbing mahasiswa UAD");
+
+    // SKENARIO 2: Guru A hanya membimbing Informatika UAD
+    $pamongModel->assignJurusanToGuru($guruAId, [(int) $jrsUAD['id']], 'SK Khusus UAD');
+    $runner->assertFalse($pamongModel->isMahasiswaSupervisedByGuru($guruAId, (int) $mhsUNY['id']), "Guru A TIDAK boleh membimbing mahasiswa UNY saat hanya ditugaskan ke UAD");
+    $runner->assertTrue($pamongModel->isMahasiswaSupervisedByGuru($guruAId, (int) $testMhsUAD['id']), "Guru A harus membimbing mahasiswa UAD saat ditugaskan ke UAD");
+
+    // SKENARIO 3: Guru A membimbing Informatika UNY DAN Informatika UAD sekaligus (Multi-Kampus)
+    $pamongModel->assignJurusanToGuru($guruAId, [(int) $jrsUNY['id'], (int) $jrsUAD['id']], 'SK Multi Kampus UNY & UAD');
+    $runner->assertTrue($pamongModel->isMahasiswaSupervisedByGuru($guruAId, (int) $mhsUNY['id']), "Guru A harus membimbing mahasiswa UNY saat ditugaskan ke kedua kampus");
+    $runner->assertTrue($pamongModel->isMahasiswaSupervisedByGuru($guruAId, (int) $testMhsUAD['id']), "Guru A harus membimbing mahasiswa UAD saat ditugaskan ke kedua kampus");
+
+    // Bersihkan data dummy test
+    if ($createdTestJrsUAD && !empty($jrsUAD['id'])) {
+        $db->table('guru_pamong')->where('jurusan_id', $jrsUAD['id'])->delete();
+        $db->table('jurusan')->where('id', $jrsUAD['id'])->delete();
+    }
+    if (!empty($testMhsUAD['id'])) {
+        $db->table('users')->where('id', $testMhsUAD['id'])->delete();
+    }
+
+    // Kembalikan penugasan Guru A
+    $pamongModel->assignJurusanToGuru($guruAId, [(int) $jrsUNY['id']], 'SK Pengawasan 2026');
+});
+
 $runner->it("Route pemetaan guru pamong harus terdaftar di Config/Routes.php", function() use ($runner) {
     $routesFile = APPPATH . 'Config/Routes.php';
     $runner->assertTrue(file_exists($routesFile));

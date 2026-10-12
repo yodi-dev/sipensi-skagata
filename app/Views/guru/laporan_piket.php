@@ -127,7 +127,17 @@ if (!empty($tanggal)) {
             <!-- Auto-Filter Form ala Sibenka (Tanpa Tombol Cari Manual) -->
             <form action="<?= base_url('guru/laporan_piket') ?>" method="GET" class="d-flex flex-column flex-md-row gap-2 align-items-md-center m-0">
 
-                <?php if (!empty($daftar_jurusan) && count($daftar_jurusan) > 1): ?>
+                <?php if (!empty($filter_options) && count($filter_options) > 1): ?>
+                    <div class="filter-wrapper d-flex align-items-center gap-2">
+                        <label for="jurusan" class="fw-semibold text-muted small mb-0 text-nowrap"><i class="bi bi-funnel"></i> Jurusan / Kampus:</label>
+                        <select name="jurusan" id="jurusan" class="form-select form-select-sm border-0 bg-transparent shadow-none" onchange="this.form.submit()">
+                            <option value="">-- Semua Mahasiswa Binaan --</option>
+                            <?php foreach ($filter_options as $fVal => $fLabel): ?>
+                                <option value="<?= esc($fVal) ?>" <?= (((string)($jurusan_terpilih ?? '')) === (string)$fVal || ((string)($jurusan_terpilih ?? '')) === (string)$fLabel) ? 'selected' : '' ?>><?= esc($fLabel) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                <?php elseif (!empty($daftar_jurusan) && count($daftar_jurusan) > 1): ?>
                     <div class="filter-wrapper d-flex align-items-center gap-2">
                         <label for="jurusan" class="fw-semibold text-muted small mb-0 text-nowrap"><i class="bi bi-funnel"></i> Jurusan:</label>
                         <select name="jurusan" id="jurusan" class="form-select form-select-sm border-0 bg-transparent shadow-none" onchange="this.form.submit()">

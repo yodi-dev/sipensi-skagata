@@ -18,6 +18,52 @@ class Guru extends BaseController
         $this->guruPamongModel = new GuruPamongModel();
     }
 
+    /**
+     * Terapkan filter query isolasi multi-kampus untuk guru pamong.
+     */
+    private function applyAssignmentFilter($builder, array $assignments, ?string $filterInput = null): void
+    {
+        if (empty($assignments)) {
+            $builder->where('1 = 0');
+            return;
+        }
+
+        $targets = [];
+        if (!empty($filterInput)) {
+            foreach ($assignments as $a) {
+                if (is_numeric($filterInput) && (int) ($a['jurusan_id'] ?? 0) === (int) $filterInput) {
+                    $targets[] = $a;
+                } elseif (!empty($a['display_label']) && $a['display_label'] === $filterInput) {
+                    $targets[] = $a;
+                } elseif (!empty($a['nama_jurusan']) && $a['nama_jurusan'] === $filterInput) {
+                    $targets[] = $a;
+                }
+            }
+        }
+
+        if (empty($targets)) {
+            $targets = $assignments;
+        }
+
+        $builder->groupStart();
+        foreach ($targets as $a) {
+            $builder->orGroupStart();
+            $builder->where('users.jurusan', $a['nama_jurusan']);
+            if (!empty($a['nama_universitas'])) {
+                $builder->groupStart()
+                    ->where('users.universitas', $a['nama_universitas']);
+                if (!empty($a['kode_universitas'])) {
+                    $builder->orWhere('users.universitas', $a['kode_universitas']);
+                }
+                $builder->orWhere('users.universitas IS NULL')
+                    ->orWhere('users.universitas', '')
+                    ->groupEnd();
+            }
+            $builder->groupEnd();
+        }
+        $builder->groupEnd();
+    }
+
     public function index()
     {
         $db      = Database::connect();
@@ -26,6 +72,7 @@ class Guru extends BaseController
         $guruId = session()->get('id_user');
         $isTeacherSession = !empty($guruId) && session()->get('role') === 'guru';
         
+        $assignments = $isTeacherSession ? $this->guruPamongModel->getAssignmentsByGuru((int) $guruId) : [];
         if ($isTeacherSession) {
             $assignedJurusans = $this->guruPamongModel->getJurusanByGuru((int) $guruId);
         } else {
@@ -41,8 +88,8 @@ class Guru extends BaseController
             ? $tanggalFilter
             : date('Y-m-d');
 
-        // 1. Pilih kolom mahasiswa & presensi
-        $builder->select('users.id, users.nama, users.jurusan, presensi.id as presensi_id, presensi.status, presensi.jam_masuk, presensi.jam_keluar, presensi.keterangan, presensi.latitude, presensi.longitude, presensi.bukti_surat');
+        // 1. Pilih kolom mahasiswa & presensi dengan universitas
+        $builder->select('users.id, users.nama, users.jurusan, users.universitas, presensi.id as presensi_id, presensi.status, presensi.jam_masuk, presensi.jam_keluar, presensi.keterangan, presensi.latitude, presensi.longitude, presensi.bukti_surat');
 
         // 2. JOIN dengan tabel presensi dengan parameterized escaping (aman dari SQL Injection)
         $builder->join('presensi', 'presensi.user_id = users.id AND presensi.tanggal = ' . $db->escape($tanggalPilih), 'left');
@@ -50,17 +97,31 @@ class Guru extends BaseController
         // 3. Filter dasar: Hanya role mahasiswa
         $builder->where('users.role', 'mahasiswa');
 
-        // 4. ISOLASI GURU PAMONG: Batasi hanya pada mahasiswa jurusan bimbingannya
+        // 4. ISOLASI GURU PAMONG: Batasi hanya pada mahasiswa jurusan & kampus bimbingannya
         if ($isTeacherSession && empty($assignedJurusans)) {
             // Guru belum memiliki pemetaan jurusan: kembalikan list kosong demi proteksi privasi
             $presensiData = [];
         } else {
-            if (!empty($jurusan) && in_array($jurusan, $assignedJurusans, true)) {
-                $builder->where('users.jurusan', $jurusan);
-            } elseif (!empty($assignedJurusans)) {
-                $builder->whereIn('users.jurusan', $assignedJurusans);
+            if ($isTeacherSession && !empty($assignments)) {
+                $this->applyAssignmentFilter($builder, $assignments, $jurusan);
+            } else {
+                if (!empty($jurusan) && in_array($jurusan, $assignedJurusans, true)) {
+                    $builder->where('users.jurusan', $jurusan);
+                } elseif (!empty($assignedJurusans)) {
+                    $builder->whereIn('users.jurusan', $assignedJurusans);
+                }
             }
             $presensiData = $builder->orderBy('users.nama', 'ASC')->get()->getResultArray();
+        }
+
+        // Opsi filter multi-kampus
+        $filterOptions = [];
+        if (!empty($assignments)) {
+            foreach ($assignments as $a) {
+                $val = !empty($a['jurusan_id']) ? (string) $a['jurusan_id'] : $a['nama_jurusan'];
+                $label = !empty($a['display_label']) ? $a['display_label'] : $a['nama_jurusan'];
+                $filterOptions[$val] = $label;
+            }
         }
 
         $data = [
@@ -69,6 +130,7 @@ class Guru extends BaseController
             'jurusan_terpilih'  => $jurusan,
             'daftar_jurusan'    => $assignedJurusans,
             'assigned_jurusans' => $assignedJurusans,
+            'filter_options'    => $filterOptions,
             'title'             => 'Dashboard Guru Pamong - Presensi PPL'
         ];
 
@@ -133,6 +195,7 @@ class Guru extends BaseController
         $guruId = session()->get('id_user');
         $isTeacherSession = !empty($guruId) && session()->get('role') === 'guru';
 
+        $assignments = $isTeacherSession ? $this->guruPamongModel->getAssignmentsByGuru((int) $guruId) : [];
         if ($isTeacherSession) {
             $assignedJurusans = $this->guruPamongModel->getJurusanByGuru((int) $guruId);
         } else {
@@ -163,6 +226,7 @@ class Guru extends BaseController
                     users.id, 
                     users.nama,
                     users.jurusan,
+                    users.universitas,
                     SUM(CASE WHEN presensi.status = 'hadir' THEN 1 ELSE 0 END) as total_hadir,
                     SUM(CASE WHEN presensi.status = 'terlambat' THEN 1 ELSE 0 END) as total_terlambat,
                     SUM(CASE WHEN presensi.status = 'izin' THEN 1 ELSE 0 END) as total_izin,
@@ -172,7 +236,9 @@ class Guru extends BaseController
                 ->join('presensi', "presensi.user_id = users.id AND presensi.tanggal >= '{$startDate}' AND presensi.tanggal <= '{$endDate}'", 'left')
                 ->where('users.role', 'mahasiswa');
 
-            if (!empty($jurusanFilter)) {
+            if ($isTeacherSession && !empty($assignments)) {
+                $this->applyAssignmentFilter($builder, $assignments, $jurusanInput);
+            } elseif (!empty($jurusanFilter)) {
                 $builder->whereIn('users.jurusan', $jurusanFilter);
             }
 
@@ -187,12 +253,22 @@ class Guru extends BaseController
         $guruData  = !empty($guruId) ? $userModel->find($guruId) : null;
         $nipGuru   = $guruData['nomor_induk'] ?? null;
 
+        $filterOptions = [];
+        if (!empty($assignments)) {
+            foreach ($assignments as $a) {
+                $val = !empty($a['jurusan_id']) ? (string) $a['jurusan_id'] : $a['nama_jurusan'];
+                $label = !empty($a['display_label']) ? $a['display_label'] : $a['nama_jurusan'];
+                $filterOptions[$val] = $label;
+            }
+        }
+
         $data = [
             'laporan'           => $laporan,
             'bulan_pilih'       => $bulan,
             'tahun_pilih'       => $tahun,
             'assigned_jurusans' => $assignedJurusans,
             'daftar_jurusan'    => $assignedJurusans,
+            'filter_options'    => $filterOptions,
             'jurusan_terpilih'  => $jurusanInput,
             'nip_guru'          => $nipGuru,
             'title'             => 'Laporan Bulanan - Presensi PPL'
@@ -212,6 +288,7 @@ class Guru extends BaseController
         $guruId = session()->get('id_user');
         $isTeacherSession = !empty($guruId) && session()->get('role') === 'guru';
 
+        $assignments = $isTeacherSession ? $this->guruPamongModel->getAssignmentsByGuru((int) $guruId) : [];
         if ($isTeacherSession) {
             $assignedJurusans = $this->guruPamongModel->getJurusanByGuru((int) $guruId);
         } else {
@@ -242,6 +319,7 @@ class Guru extends BaseController
                     users.id, 
                     users.nama,
                     users.jurusan,
+                    users.universitas,
                     SUM(CASE WHEN presensi.status = 'hadir' THEN 1 ELSE 0 END) as total_hadir,
                     SUM(CASE WHEN presensi.status = 'terlambat' THEN 1 ELSE 0 END) as total_terlambat,
                     SUM(CASE WHEN presensi.status = 'izin' THEN 1 ELSE 0 END) as total_izin,
@@ -251,7 +329,9 @@ class Guru extends BaseController
                 ->join('presensi', "presensi.user_id = users.id AND presensi.tanggal >= '{$startDate}' AND presensi.tanggal <= '{$endDate}'", 'left')
                 ->where('users.role', 'mahasiswa');
 
-            if (!empty($jurusanFilter)) {
+            if ($isTeacherSession && !empty($assignments)) {
+                $this->applyAssignmentFilter($builder, $assignments, $jurusanInput);
+            } elseif (!empty($jurusanFilter)) {
                 $builder->whereIn('users.jurusan', $jurusanFilter);
             }
 
@@ -310,6 +390,9 @@ class Guru extends BaseController
                 $no = $idx + 1;
                 $nama = htmlspecialchars($row['nama'], ENT_QUOTES, 'UTF-8');
                 $jurusan = htmlspecialchars($row['jurusan'] ?? '-', ENT_QUOTES, 'UTF-8');
+                if (!empty($row['universitas'])) {
+                    $jurusan .= ' (' . htmlspecialchars($row['universitas'], ENT_QUOTES, 'UTF-8') . ')';
+                }
                 $total_masuk = $row['total_hadir'] + $row['total_terlambat'] + $row['total_izin'] + $row['total_sakit'] + $row['total_alpa'];
                 $total_hadir_efektif = $row['total_hadir'] + $row['total_terlambat'];
                 $persen = ($total_masuk > 0) ? round(($total_hadir_efektif / $total_masuk) * 100) : 0;
@@ -346,6 +429,7 @@ class Guru extends BaseController
         $guruId = session()->get('id_user');
         $isTeacherSession = !empty($guruId) && session()->get('role') === 'guru';
 
+        $assignments = $isTeacherSession ? $this->guruPamongModel->getAssignmentsByGuru((int) $guruId) : [];
         if ($isTeacherSession) {
             $assignedJurusans = $this->guruPamongModel->getJurusanByGuru((int) $guruId);
         } else {
@@ -355,9 +439,20 @@ class Guru extends BaseController
 
         $jurusanInput = $this->request->getGet('jurusan');
         $jurusanFilter = null;
-        if (!empty($jurusanInput) && in_array($jurusanInput, $assignedJurusans, true)) {
-            $jurusanFilter = [$jurusanInput];
-        } else {
+        if (!empty($jurusanInput)) {
+            $matched = false;
+            foreach ($assignments as $a) {
+                if (is_numeric($jurusanInput) && (int) ($a['jurusan_id'] ?? 0) === (int) $jurusanInput) {
+                    $jurusanFilter = [$a['nama_jurusan']];
+                    $matched = true;
+                    break;
+                }
+            }
+            if (!$matched && in_array($jurusanInput, $assignedJurusans, true)) {
+                $jurusanFilter = [$jurusanInput];
+            }
+        }
+        if ($jurusanFilter === null) {
             $jurusanFilter = $assignedJurusans;
         }
 
@@ -370,11 +465,21 @@ class Guru extends BaseController
             ? $piketModel->getPiketWithFilter($tanggalPilih, $jurusanFilter)
             : [];
 
+        $filterOptions = [];
+        if (!empty($assignments)) {
+            foreach ($assignments as $a) {
+                $val = !empty($a['jurusan_id']) ? (string) $a['jurusan_id'] : $a['nama_jurusan'];
+                $label = !empty($a['display_label']) ? $a['display_label'] : $a['nama_jurusan'];
+                $filterOptions[$val] = $label;
+            }
+        }
+
         $data = [
             'tanggal'           => $tanggalPilih,
             'dataPiket'         => $dataPiket,
             'assigned_jurusans' => $assignedJurusans,
             'daftar_jurusan'    => $assignedJurusans,
+            'filter_options'    => $filterOptions,
             'jurusan_terpilih'  => $jurusanInput,
             'title'             => 'Laporan Piket KBM - Presensi PPL'
         ];

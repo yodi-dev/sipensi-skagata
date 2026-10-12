@@ -210,7 +210,17 @@ $bulanPilihText = $namaBulan[$bulan_pilih] ?? $bulan_pilih;
                 <!-- Auto-Filter Form (Otomatis reload saat bulan / tahun / jurusan berubah) -->
                 <form action="<?= base_url('guru/laporan') ?>" method="GET" class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center m-0">
 
-                    <?php if (!empty($daftar_jurusan) && count($daftar_jurusan) > 1): ?>
+                    <?php if (!empty($filter_options) && count($filter_options) > 1): ?>
+                        <div class="filter-wrapper d-flex align-items-center gap-2">
+                            <label for="jurusan" class="fw-semibold text-muted small mb-0 text-nowrap"><i class="bi bi-funnel"></i> Jurusan / Kampus:</label>
+                            <select name="jurusan" id="jurusan" class="form-select form-select-sm border-0 bg-transparent shadow-none" onchange="this.form.submit()">
+                                <option value="">-- Semua Mahasiswa Binaan --</option>
+                                <?php foreach ($filter_options as $fVal => $fLabel): ?>
+                                    <option value="<?= esc($fVal) ?>" <?= (((string)($jurusan_terpilih ?? '')) === (string)$fVal || ((string)($jurusan_terpilih ?? '')) === (string)$fLabel) ? 'selected' : '' ?>><?= esc($fLabel) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    <?php elseif (!empty($daftar_jurusan) && count($daftar_jurusan) > 1): ?>
                         <div class="filter-wrapper d-flex align-items-center gap-2">
                             <label for="jurusan" class="fw-semibold text-muted small mb-0 text-nowrap"><i class="bi bi-funnel"></i> Jurusan:</label>
                             <select name="jurusan" id="jurusan" class="form-select form-select-sm border-0 bg-transparent shadow-none" onchange="this.form.submit()">
@@ -286,8 +296,13 @@ $bulanPilihText = $namaBulan[$bulan_pilih] ?? $bulan_pilih;
                                         <span class="fw-bold text-dark d-block text-truncate" style="max-width: 190px;"><?= esc($row['nama']) ?></span>
                                         <div class="d-flex align-items-center gap-1 mt-0.5">
                                             <small class="text-muted" style="font-size: 0.72rem;">#<?= esc($key + 1) ?></small>
-                                            <?php if (!empty($row['jurusan'])): ?>
-                                                <span class="badge bg-light text-muted border rounded-pill px-2 py-0.5" style="font-size: 0.68rem;"><?= esc($row['jurusan']) ?></span>
+                                            <?php if (!empty($row['jurusan']) || !empty($row['universitas'])): ?>
+                                                <span class="badge bg-light text-muted border rounded-pill px-2 py-0.5" style="font-size: 0.68rem;">
+                                                    <?= esc($row['jurusan'] ?? '') ?>
+                                                    <?php if (!empty($row['universitas'])): ?>
+                                                        (<?= esc($row['universitas']) ?>)
+                                                    <?php endif; ?>
+                                                </span>
                                             <?php endif; ?>
                                         </div>
                                     </div>
@@ -373,8 +388,13 @@ $bulanPilihText = $namaBulan[$bulan_pilih] ?? $bulan_pilih;
                                     <td><span class="text-muted"><?= esc($key + 1) ?></span></td>
                                     <td class="text-start fw-bold text-dark">
                                         <?= esc($row['nama']) ?>
-                                        <?php if (!empty($row['jurusan'])): ?>
-                                            <span class="badge bg-light text-muted border rounded-pill ms-1 fw-normal" style="font-size: 0.72rem;"><?= esc($row['jurusan']) ?></span>
+                                        <?php if (!empty($row['jurusan']) || !empty($row['universitas'])): ?>
+                                            <span class="badge bg-light text-muted border rounded-pill ms-1 fw-normal" style="font-size: 0.72rem;">
+                                                <?= esc($row['jurusan'] ?? '') ?>
+                                                <?php if (!empty($row['universitas'])): ?>
+                                                    (<?= esc($row['universitas']) ?>)
+                                                <?php endif; ?>
+                                            </span>
                                         <?php endif; ?>
                                     </td>
 
