@@ -198,6 +198,7 @@ class Admin extends BaseController
             'universitas_pilih'  => $universitasFilter,
             'periode_pilih'      => $periodeFilter,
             'daftar_jurusan'     => $daftarJurusan,
+            'daftar_jurusan_mitra' => $this->jurusanModel->getJurusanWithUniversitas(),
             'daftar_universitas' => $daftarUniversitas,
             'jurusan_univ_map'   => $this->jurusanModel->getJurusanMappingByUniversitas(),
             'daftar_periode'     => $daftarPeriode,
@@ -241,18 +242,36 @@ class Admin extends BaseController
             $periodeId = null;
         }
 
+        $primaryJurusanName = null;
+        $jurusanAssignment = [];
+        if ($role === 'guru' && !empty($jurusan)) {
+            if (is_numeric($jurusan)) {
+                $jRecord = $this->jurusanModel->find((int) $jurusan);
+                if ($jRecord) {
+                    $primaryJurusanName = $jRecord['nama_jurusan'];
+                    $jurusanAssignment = [(int) $jurusan];
+                } else {
+                    $primaryJurusanName = $jurusan;
+                    $jurusanAssignment = [$jurusan];
+                }
+            } else {
+                $primaryJurusanName = $jurusan;
+                $jurusanAssignment = [$jurusan];
+            }
+        }
+
         $newId = $this->userModel->insert([
             'username'    => $username,
             'nama'        => $nama,
             'role'        => $role,
-            'jurusan'     => !empty($jurusan) ? $jurusan : null,
+            'jurusan'     => ($role === 'guru') ? $primaryJurusanName : (!empty($jurusan) ? $jurusan : null),
             'universitas' => ($role === 'mahasiswa' && !empty($universitas)) ? $universitas : null,
             'periode_id'  => $periodeId,
             'password'    => password_hash($password, PASSWORD_BCRYPT)
         ]);
 
-        if ($role === 'guru' && !empty($jurusan) && $newId) {
-            $this->guruPamongModel->assignJurusanToGuru((int) $newId, [$jurusan]);
+        if ($role === 'guru' && !empty($jurusanAssignment) && $newId) {
+            $this->guruPamongModel->assignJurusanToGuru((int) $newId, $jurusanAssignment);
         }
 
         return redirect()->to('/admin/pengguna')->with('pesan', "Pengguna {$nama} ({$username}) berhasil ditambahkan!");
@@ -289,20 +308,90 @@ class Admin extends BaseController
         $periodeId   = $this->request->getPost('periode_id');
         $periodeVal  = ($role === 'mahasiswa' && !empty($periodeId)) ? (int) $periodeId : null;
 
+        $primaryJurusanName = null;
+        $jurusanAssignment = [];
+        if ($role === 'guru' && !empty($jurusan)) {
+            if (is_numeric($jurusan)) {
+                $jRecord = $this->jurusanModel->find((int) $jurusan);
+                if ($jRecord) {
+                    $primaryJurusanName = $jRecord['nama_jurusan'];
+                    $jurusanAssignment = [(int) $jurusan];
+                } else {
+                    $primaryJurusanName = $jurusan;
+                    $jurusanAssignment = [$jurusan];
+                }
+            } else {
+                $primaryJurusanName = $jurusan;
+                $jurusanAssignment = [$jurusan];
+            }
+        }
+
         $this->userModel->update($userId, [
             'username'    => $username,
             'nama'        => $nama,
             'role'        => $role,
-            'jurusan'     => !empty($jurusan) ? $jurusan : null,
+            'jurusan'     => ($role === 'guru') ? $primaryJurusanName : (!empty($jurusan) ? $jurusan : null),
             'universitas' => ($role === 'mahasiswa' && !empty($universitas)) ? $universitas : null,
             'periode_id'  => $periodeVal,
         ]);
 
         if ($role === 'guru') {
-            $this->guruPamongModel->assignJurusanToGuru((int) $userId, !empty($jurusan) ? [$jurusan] : []);
+            $this->guruPamongModel->assignJurusanToGuru((int) $userId, $jurusanAssignment);
         }
 
         return redirect()->to('/admin/pengguna')->with('pesan', "Data pengguna {$nama} berhasil diperbarui!");
+    }
+
+    public function tambahGuruPamong()
+    {
+        $rules = [
+            'username' => 'required|min_length[3]|max_length[50]|alpha_numeric|is_unique[users.username]',
+            'nama'     => 'required|min_length[2]|max_length[100]',
+            'password' => 'required|min_length[6]'
+        ];
+
+        if (!$this->validate($rules)) {
+            $errors = implode(' ', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('error', $errors);
+        }
+
+        $username   = trim((string) $this->request->getPost('username'));
+        $nama       = trim(strip_tags((string) $this->request->getPost('nama')));
+        $password   = (string) $this->request->getPost('password');
+        $jurusanIds = $this->request->getPost('jurusan');
+        $keterangan = trim(strip_tags((string) $this->request->getPost('keterangan')));
+
+        $jurusanList = is_array($jurusanIds) ? $jurusanIds : (!empty($jurusanIds) ? [$jurusanIds] : []);
+
+        // Tentukan jurusan primer untuk kolom users.jurusan
+        $primaryJurusan = null;
+        if (!empty($jurusanList)) {
+            $firstJId = reset($jurusanList);
+            if (is_numeric($firstJId)) {
+                $jRecord = $this->jurusanModel->find((int) $firstJId);
+                if ($jRecord) {
+                    $primaryJurusan = $jRecord['nama_jurusan'];
+                }
+            } else {
+                $primaryJurusan = (string) $firstJId;
+            }
+        }
+
+        $newId = $this->userModel->insert([
+            'username'    => $username,
+            'nama'        => $nama,
+            'role'        => 'guru',
+            'jurusan'     => $primaryJurusan,
+            'universitas' => null,
+            'periode_id'  => null,
+            'password'    => password_hash($password, PASSWORD_BCRYPT)
+        ]);
+
+        if ($newId && !empty($jurusanList)) {
+            $this->guruPamongModel->assignJurusanToGuru((int) $newId, $jurusanList, $keterangan);
+        }
+
+        return redirect()->to('/admin/guru-pamong')->with('pesan', "Guru Pamong {$nama} (@{$username}) berhasil ditambahkan!");
     }
 
     public function guruPamong()

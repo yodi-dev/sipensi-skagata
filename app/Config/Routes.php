@@ -40,6 +40,7 @@ $routes->group('admin', ['filter' => ['auth', 'role:admin']], static function ($
     $routes->get('/', 'Admin::index');
     $routes->get('pengguna', 'Admin::pengguna');
     $routes->get('guru-pamong', 'Admin::guruPamong');
+    $routes->post('guru-pamong/tambah', 'Admin::tambahGuruPamong');
     $routes->post('guru-pamong/simpan', 'Admin::simpanPemetaanGuru');
     $routes->post('guru-pamong/hapus', 'Admin::hapusPemetaanGuru');
     $routes->post('tambah-user', 'Admin::tambahUser');

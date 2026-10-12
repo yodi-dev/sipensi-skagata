@@ -1039,6 +1039,7 @@ $runner->it("Route pemetaan guru pamong harus terdaftar di Config/Routes.php", f
     $runner->assertTrue(file_exists($routesFile));
     $content = file_get_contents($routesFile);
     $runner->assertTrue(strpos($content, "'Admin::guruPamong'") !== false, "Route GET admin/guru-pamong harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::tambahGuruPamong'") !== false, "Route POST admin/guru-pamong/tambah harus terdaftar");
     $runner->assertTrue(strpos($content, "'Admin::simpanPemetaanGuru'") !== false, "Route POST admin/guru-pamong/simpan harus terdaftar");
     $runner->assertTrue(strpos($content, "'Admin::hapusPemetaanGuru'") !== false, "Route POST admin/guru-pamong/hapus harus terdaftar");
 });
@@ -1053,17 +1054,32 @@ $runner->it("Controller Guru harus menerapkan isolasi data di index, update_stat
     $runner->assertTrue(strpos($content, 'guruPamongModel') !== false, "Guru controller harus menginjeksi guruPamongModel");
 });
 
-$runner->it("View admin/guru_pamong harus memuat stat-card, modal pemetaan, dan isolasi feedback", function() use ($runner) {
+$runner->it("View admin/guru_pamong harus memuat stat-card, modal pemetaan, modal tambah guru, dan isolasi feedback", function() use ($runner) {
     $viewFile = APPPATH . 'Views/admin/guru_pamong.php';
     $runner->assertTrue(file_exists($viewFile), "File Views/admin/guru_pamong.php harus ada");
     $content = file_get_contents($viewFile);
 
     $runner->assertTrue(strpos($content, 'stat-card-modern') !== false, "Harus memuat stat-card-modern");
     $runner->assertTrue(strpos($content, 'modalPemetaan') !== false, "Harus memuat modalPemetaan");
+    $runner->assertTrue(strpos($content, 'modalTambahGuruPamong') !== false, "Harus memuat modalTambahGuruPamong");
+    $runner->assertTrue(strpos($content, 'formTambahGuruPamong') !== false, "Harus memuat formTambahGuruPamong");
     $runner->assertTrue(strpos($content, 'formResetPemetaan') !== false, "Harus memuat formResetPemetaan");
     $runner->assertTrue(strpos($content, 'tabelGuruPamong') !== false, "Harus memuat tabelGuruPamong");
     $runner->assertTrue(strpos($content, 'bukaModalPemetaan') !== false, "Harus memuat handler JS bukaModalPemetaan");
     $runner->assertTrue(strpos($content, 'Swal.fire') !== false, "Harus memuat integrasi SweetAlert2");
+});
+
+$runner->it("Controller Admin harus mendukung tambah data guru pamong dengan pemetaan jurusan mitra spesifik", function() use ($runner) {
+    $adminControllerFile = APPPATH . 'Controllers/Admin.php';
+    $runner->assertTrue(file_exists($adminControllerFile));
+    $content = file_get_contents($adminControllerFile);
+
+    $runner->assertTrue(strpos($content, 'function tambahGuruPamong') !== false, "Admin controller harus memiliki method tambahGuruPamong");
+    $runner->assertTrue(strpos($content, 'daftar_jurusan_mitra') !== false, "Admin::pengguna harus menyiapkan daftar_jurusan_mitra");
+    
+    // Verifikasi view pengguna memiliki daftarJurusanMitra
+    $penggunaView = file_get_contents(APPPATH . 'Views/admin/pengguna.php');
+    $runner->assertTrue(strpos($penggunaView, 'daftarJurusanMitra') !== false, "pengguna.php harus mengikat data daftarJurusanMitra ke JS");
 });
 
 $runner->it("Layout template dan manajemen pengguna harus terintegrasi dengan Pemetaan Guru Pamong", function() use ($runner) {

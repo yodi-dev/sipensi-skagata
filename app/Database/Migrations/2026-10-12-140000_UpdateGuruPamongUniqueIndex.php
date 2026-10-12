@@ -47,3 +47,4 @@ class UpdateGuruPamongUniqueIndex extends Migration
         }
     }
 }
+

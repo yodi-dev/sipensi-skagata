@@ -152,6 +152,10 @@
                     <i class="bi bi-people"></i>
                     <span>Data Pengguna</span>
                 </a>
+                <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahGuruPamong">
+                    <i class="bi bi-person-plus-fill"></i>
+                    <span>Tambah Guru Pamong</span>
+                </button>
             </div>
         </div>
     </div>
@@ -276,10 +280,15 @@
                 <div class="py-4">
                     <i class="bi bi-people text-muted opacity-50" style="font-size: 3rem;"></i>
                     <h6 class="fw-semibold text-muted mt-3 mb-1">Belum Ada Akun Guru Pamong</h6>
-                    <p class="text-muted small mb-3">Tambahkan akun pengguna dengan role Guru Pamong terlebih dahulu di halaman Data Pengguna.</p>
-                    <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-sm btn-skagata rounded-pill px-3">
-                        <i class="bi bi-person-plus me-1"></i>Kelola Pengguna
-                    </a>
+                    <p class="text-muted small mb-3">Tambahkan akun Guru Pamong baru dan langsung petakan jurusan binaannya di sini atau kelola di Data Pengguna.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-sm btn-skagata rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalTambahGuruPamong">
+                            <i class="bi bi-person-plus-fill me-1"></i>Tambah Guru Pamong
+                        </button>
+                        <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                            <i class="bi bi-people me-1"></i>Kelola Pengguna
+                        </a>
+                    </div>
                 </div>
             </div>
         <?php else: ?>
@@ -606,6 +615,119 @@
     </div>
 </div>
 
+<!-- Modal Tambah Guru Pamong Modern -->
+<div class="modal fade" id="modalTambahGuruPamong" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <form action="<?= base_url('admin/guru-pamong/tambah') ?>" method="POST" id="formTambahGuruPamong" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <?= csrf_field() ?>
+            <div class="modal-header bg-success text-white py-3 flex-shrink-0">
+                <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-person-plus-fill"></i>
+                    <span>Tambah Guru Pamong &amp; Atur Jurusan Binaan</span>
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start p-4">
+                <!-- Data Akun Guru -->
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small text-dark">Nama Lengkap Guru <span class="text-danger">*</span></label>
+                        <input type="text" name="nama" class="form-control" placeholder="Contoh: Dra. Sri Wahyuni, M.Pd." required>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small text-dark">Username <span class="text-danger">*</span></label>
+                        <input type="text" name="username" class="form-control" placeholder="Contoh: sri_wahyuni" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold small text-dark">Password Awal <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="password" name="password" id="inputTambahGuruPass" class="form-control border-end-0" placeholder="Minimal 6 karakter" required>
+                            <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibilityGuru('inputTambahGuruPass', 'iconToggleTambahGuru')">
+                                <i class="bi bi-eye" id="iconToggleTambahGuru"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pemetaan Jurusan Checkboxes -->
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <label class="form-label fw-bold small text-dark mb-0">
+                            Pilih Jurusan Binaan / Pembimbingan
+                        </label>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-link text-success p-0 text-decoration-none small fw-medium" onclick="pilihSemuaJurusanTambah()">Pilih Semua</button>
+                            <span class="text-muted small">|</span>
+                            <button type="button" class="btn btn-sm btn-link text-muted p-0 text-decoration-none small" onclick="kosongkanJurusanTambah()">Hapus Pilihan</button>
+                        </div>
+                    </div>
+                    <p class="text-muted small mb-3">Guru ini akan memiliki hak monitoring dan validasi mahasiswa praktikan sesuai program studi dan kampus mitra yang dicentang:</p>
+
+                    <div class="jurusan-checkbox-container">
+                        <?php if (!empty($jurusan_grouped)): ?>
+                            <div class="d-flex flex-column gap-3">
+                                <?php foreach ($jurusan_grouped as $univGroup => $jurusans): ?>
+                                    <div class="p-3 rounded-3 border bg-light bg-opacity-50">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <span class="fw-bold small text-dark d-flex align-items-center gap-2">
+                                                <i class="bi bi-building text-success"></i>
+                                                <span><?= esc($univGroup) ?></span>
+                                            </span>
+                                            <span class="badge bg-white text-muted border" style="font-size: 0.72rem;"><?= count($jurusans) ?> Jurusan</span>
+                                        </div>
+                                        <div class="row g-2">
+                                            <?php foreach ($jurusans as $jrs): ?>
+                                                <div class="col-12 col-md-6">
+                                                    <label class="jurusan-check-card" id="cardTambahJurusan_<?= (int) $jrs['id'] ?>">
+                                                        <input class="form-check-input mt-0 check-jurusan-tambah" type="checkbox" name="jurusan[]" value="<?= (int) $jrs['id'] ?>" data-nama="<?= esc($jrs['nama_jurusan']) ?>" id="chk_tambah_<?= (int) $jrs['id'] ?>" onchange="updateCardCheckStyle(this, 'cardTambahJurusan_<?= (int) $jrs['id'] ?>')">
+                                                        <span class="small fw-semibold text-dark flex-grow-1"><?= esc($jrs['nama_jurusan']) ?></span>
+                                                        <?php if (!empty($jrs['kode_universitas'])): ?>
+                                                            <span class="badge bg-white text-secondary border me-1" style="font-size: 0.68rem;"><?= esc($jrs['kode_universitas']) ?></span>
+                                                        <?php endif; ?>
+                                                        <i class="bi bi-check2 text-success fs-5 check-indicator d-none"></i>
+                                                    </label>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php elseif (!empty($daftar_jurusan)): ?>
+                            <div class="row g-2">
+                                <?php foreach ($daftar_jurusan as $idx => $jrs): ?>
+                                    <div class="col-12 col-md-6">
+                                        <label class="jurusan-check-card" id="cardTambahJurusan_<?= $idx ?>">
+                                            <input class="form-check-input mt-0 check-jurusan-tambah" type="checkbox" name="jurusan[]" value="<?= esc($jrs) ?>" data-nama="<?= esc($jrs) ?>" id="chk_tambah_<?= $idx ?>" onchange="updateCardCheckStyle(this, 'cardTambahJurusan_<?= $idx ?>')">
+                                            <span class="small fw-semibold text-dark flex-grow-1"><?= esc($jrs) ?></span>
+                                            <i class="bi bi-check2 text-success fs-5 check-indicator d-none"></i>
+                                        </label>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="alert alert-warning small mb-0">
+                                Belum ada data jurusan yang terdaftar.
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Keterangan / SK Catatan -->
+                <div class="mt-3">
+                    <label class="form-label fw-semibold small text-dark">Keterangan / Catatan Penugasan (Opsional)</label>
+                    <textarea name="keterangan" class="form-control" rows="2" placeholder="Contoh: SK Guru Pamong PPL Semester Genap 2026/2027"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light py-2 px-4 flex-shrink-0">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitTambahGuruPamong">
+                    <i class="bi bi-plus-circle me-1"></i> Simpan Guru Pamong
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Form Tersembunyi untuk Reset Pemetaan Guru via POST + CSRF -->
 <form id="formResetPemetaan" action="<?= base_url('admin/guru-pamong/hapus') ?>" method="POST" style="display: none;">
     <?= csrf_field() ?>
@@ -622,6 +744,17 @@
             formPemetaan.addEventListener('submit', function() {
                 btnSubmitPemetaan.disabled = true;
                 btnSubmitPemetaan.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Menyimpan...';
+            });
+        }
+
+        const formTambahGuruPamong = document.getElementById('formTambahGuruPamong');
+        const btnSubmitTambahGuru = document.getElementById('btnSubmitTambahGuruPamong');
+        if (formTambahGuruPamong && btnSubmitTambahGuru) {
+            formTambahGuruPamong.addEventListener('submit', function(e) {
+                if (formTambahGuruPamong.checkValidity()) {
+                    btnSubmitTambahGuru.disabled = true;
+                    btnSubmitTambahGuru.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Menyimpan...';
+                }
             });
         }
     });
@@ -746,6 +879,37 @@
 
         rows.forEach(applyFilter);
         cards.forEach(applyFilter);
+    }
+
+    function togglePasswordVisibilityGuru(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (!input || !icon) return;
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+
+    function pilihSemuaJurusanTambah() {
+        document.querySelectorAll('.check-jurusan-tambah').forEach(chk => {
+            chk.checked = true;
+            const cardId = chk.getAttribute('id').replace('chk_tambah_', 'cardTambahJurusan_');
+            updateCardCheckStyle(chk, cardId);
+        });
+    }
+
+    function kosongkanJurusanTambah() {
+        document.querySelectorAll('.check-jurusan-tambah').forEach(chk => {
+            chk.checked = false;
+            const cardId = chk.getAttribute('id').replace('chk_tambah_', 'cardTambahJurusan_');
+            updateCardCheckStyle(chk, cardId);
+        });
     }
 </script>
 <?= $this->endSection() ?>

@@ -822,6 +822,7 @@ function getInitials($name)
 
     const universitasJurusanMap = <?= json_encode($jurusan_univ_map ?? []) ?>;
     const allJurusans = <?= json_encode($daftar_jurusan ?? []) ?>;
+    const daftarJurusanMitra = <?= json_encode($daftar_jurusan_mitra ?? []) ?>;
 
     function updateJurusanOptions(univSelectId, jurusanSelectId, selectedJurusanVal = '') {
         const univSelect = document.getElementById(univSelectId);
@@ -882,11 +883,13 @@ function getInitials($name)
         const uWrapper = universitasWrapperId ? document.getElementById(universitasWrapperId) : null;
         const pWrapper = periodeWrapperId ? document.getElementById(periodeWrapperId) : null;
         const jLabel = jWrapper ? jWrapper.querySelector('label') : null;
+        const jHelp = jWrapper ? jWrapper.querySelector('small') : null;
         const jSelect = jurusanSelectId ? document.getElementById(jurusanSelectId) : (jWrapper ? jWrapper.querySelector('select') : null);
 
         if (role === 'mahasiswa') {
             if (jWrapper) jWrapper.style.display = 'block';
             if (jLabel) jLabel.textContent = 'Jurusan Mahasiswa';
+            if (jHelp) jHelp.textContent = 'Program studi yang dibuka oleh kampus mitra terkait.';
             if (uWrapper) uWrapper.style.display = 'block';
             if (pWrapper) pWrapper.style.display = 'block';
 
@@ -897,20 +900,46 @@ function getInitials($name)
         } else if (role === 'guru') {
             if (jWrapper) jWrapper.style.display = 'block';
             if (jLabel) jLabel.textContent = 'Jurusan Bimbingan / Pamong';
+            if (jHelp) jHelp.innerHTML = 'Pilih program studi mitra binaan. Untuk penugasan multi-kampus dapat diatur di <a href="<?= base_url('admin/guru-pamong') ?>" class="text-success fw-bold text-decoration-none">Pemetaan Pamong</a>.';
             if (uWrapper) uWrapper.style.display = 'none';
             if (pWrapper) pWrapper.style.display = 'none';
 
-            // Untuk pamong, tampilkan seluruh jurusan tanpa tergantung universitas
+            // Untuk pamong, tampilkan daftar jurusan mitra dengan label kampus pembeda
             if (jSelect) {
                 const currentVal = jSelect.value;
                 jSelect.innerHTML = '<option value="">-- Pilih Jurusan Bimbingan / Pamong --</option>';
-                allJurusans.forEach(jrs => {
-                    const opt = document.createElement('option');
-                    opt.value = jrs;
-                    opt.textContent = jrs;
-                    if (jrs === currentVal) opt.selected = true;
-                    jSelect.appendChild(opt);
-                });
+
+                if (daftarJurusanMitra && daftarJurusanMitra.length > 0) {
+                    const groups = {};
+                    daftarJurusanMitra.forEach(jm => {
+                        const grpName = jm.nama_universitas ? `${jm.nama_universitas} (${jm.kode_universitas || ''})` : 'Umum / Lainnya';
+                        if (!groups[grpName]) groups[grpName] = [];
+                        groups[grpName].push(jm);
+                    });
+
+                    for (const [grpName, items] of Object.entries(groups)) {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = grpName;
+                        items.forEach(item => {
+                            const opt = document.createElement('option');
+                            opt.value = item.id;
+                            opt.textContent = item.display_label || `${item.nama_jurusan} (${item.kode_universitas || ''})`;
+                            if (currentVal && (currentVal == item.id || currentVal === item.nama_jurusan || currentVal === item.display_label)) {
+                                opt.selected = true;
+                            }
+                            optgroup.appendChild(opt);
+                        });
+                        jSelect.appendChild(optgroup);
+                    }
+                } else {
+                    allJurusans.forEach(jrs => {
+                        const opt = document.createElement('option');
+                        opt.value = jrs;
+                        opt.textContent = jrs;
+                        if (jrs === currentVal) opt.selected = true;
+                        jSelect.appendChild(opt);
+                    });
+                }
             }
         } else {
             if (jWrapper) jWrapper.style.display = 'none';
@@ -947,10 +976,23 @@ function getInitials($name)
 
         toggleJurusanField('editRole', 'editJurusanWrapper', 'editUniversitasWrapper', 'editPeriodeWrapper', 'editUniversitas', 'editJurusan');
 
-        if (role === 'mahasiswa' && universitas) {
-            updateJurusanOptions('editUniversitas', 'editJurusan', jurusan || '');
-        } else if (document.getElementById('editJurusan')) {
-            document.getElementById('editJurusan').value = jurusan || '';
+        if (role === 'mahasiswa') {
+            if (universitas) {
+                updateJurusanOptions('editUniversitas', 'editJurusan', jurusan || '');
+            } else if (document.getElementById('editJurusan')) {
+                document.getElementById('editJurusan').value = jurusan || '';
+            }
+        } else if (role === 'guru') {
+            const jSelect = document.getElementById('editJurusan');
+            if (jSelect && jurusan) {
+                for (let i = 0; i < jSelect.options.length; i++) {
+                    const opt = jSelect.options[i];
+                    if (opt.value === jurusan || opt.text === jurusan || opt.text.startsWith(jurusan + ' ') || opt.text.includes(jurusan)) {
+                        opt.selected = true;
+                        break;
+                    }
+                }
+            }
         }
 
         const modal = new bootstrap.Modal(document.getElementById('modalEditUser'));
