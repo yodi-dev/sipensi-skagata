@@ -84,27 +84,6 @@
         flex-shrink: 0;
     }
 
-    /* Quick Action Button Card */
-    .quick-action-item {
-        display: flex;
-        align-items: center;
-        gap: 0.85rem;
-        padding: 0.85rem 1rem;
-        border-radius: 0.75rem;
-        border: 1px solid #f1f5f9;
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.2s ease;
-        background-color: #f8fafc;
-    }
-
-    .quick-action-item:hover {
-        background-color: #f1f5f9;
-        border-color: #e2e8f0;
-        transform: translateX(3px);
-        color: inherit;
-    }
-
     /* Mobile Snapshot Item Card */
     .snapshot-item-card {
         border-radius: 0.85rem;
@@ -155,15 +134,15 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
 
 <div class="container-fluid px-4 py-4">
 
-    <!-- Top Header: Dashboard Eksekutif -->
+    <!-- Header Halaman: Pemantauan Presensi & Operasional -->
     <div class="mb-4">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                    <i class="bi bi-grid-1x2-fill text-success"></i>
-                    <span>Dashboard Administrator</span>
+                    <i class="bi bi-speedometer2 text-success"></i>
+                    <span>Ringkasan Presensi &amp; Operasional</span>
                 </h4>
-                <p class="text-muted small mt-1 mb-0">Pusat kontrol monitoring kehadiran &amp; sistem operasional di <?= esc($school_name ?? 'SMK Negeri 3 Yogyakarta') ?></p>
+                <p class="text-muted small mt-1 mb-0">Pemantauan kehadiran mahasiswa praktikan dan status operasional di <?= esc($school_name ?? 'SMK Negeri 3 Yogyakarta') ?></p>
             </div>
             <div class="d-flex align-items-center gap-2">
                 <span class="badge bg-light text-dark border px-3 py-2 rounded-pill small">
@@ -174,10 +153,25 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
         </div>
     </div>
 
-    <!-- Quick Status Bar: Kebijakan Operasional Presensi -->
+    <!-- Quick Status Bar: Kebijakan Operasional Presensi & Periode Aktif -->
     <div class="operational-banner p-3 p-md-4 mb-4">
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
             <div class="d-flex flex-wrap align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small fw-medium">Periode Aktif:</span>
+                    <?php if (!empty($periode_aktif)): ?>
+                        <a href="<?= base_url('admin/periode') ?>" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 text-decoration-none" title="Kelola Periode (<?= count($daftar_periode ?? []) ?> gelombang terdaftar)">
+                            <i class="bi bi-calendar-check me-1"></i><?= esc($periode_aktif['nama_periode']) ?>
+                        </a>
+                    <?php else: ?>
+                        <a href="<?= base_url('admin/periode') ?>" class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1 text-decoration-none" title="Atur Periode (<?= count($daftar_periode ?? []) ?> gelombang)">
+                            <i class="bi bi-exclamation-circle me-1"></i>Belum Ada Periode Aktif
+                        </a>
+                    <?php endif; ?>
+                </div>
+
+                <div class="vr text-muted d-none d-sm-block my-1"></div>
+
                 <div class="d-flex align-items-center gap-2">
                     <span class="text-muted small fw-medium">Status Geofencing:</span>
                     <?php if (!empty($geofence_active)): ?>
@@ -194,18 +188,9 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                 <div class="vr text-muted d-none d-sm-block my-1"></div>
 
                 <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small fw-medium">Jam Masuk Maks.:</span>
+                    <span class="text-muted small fw-medium">Jam Presensi:</span>
                     <span class="badge bg-light text-dark border rounded-pill px-2 py-1 font-monospace">
-                        <i class="bi bi-alarm me-1 text-success"></i><?= esc(substr($jam_masuk_max ?? '07:15:00', 0, 5)) ?> WIB
-                    </span>
-                </div>
-
-                <div class="vr text-muted d-none d-sm-block my-1"></div>
-
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small fw-medium">Jam Pulang Min.:</span>
-                    <span class="badge bg-light text-dark border rounded-pill px-2 py-1 font-monospace">
-                        <i class="bi bi-box-arrow-right me-1 text-warning"></i><?= esc(substr($jam_pulang_min ?? '15:00:00', 0, 5)) ?> WIB
+                        <i class="bi bi-alarm me-1 text-success"></i><?= esc(substr($jam_masuk_max ?? '07:15:00', 0, 5)) ?> / <i class="bi bi-box-arrow-right me-1 text-warning"></i><?= esc(substr($jam_pulang_min ?? '15:00:00', 0, 5)) ?> WIB
                     </span>
                 </div>
             </div>
@@ -230,7 +215,9 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                     </div>
                 </div>
                 <h3 class="fw-bold text-dark mb-0"><?= $totalMahasiswa ?></h3>
-                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Praktikan aktif terdaftar</small>
+                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">
+                    Praktikan (<?= count($daftar_universitas ?? []) ?> universitas mitra)
+                </small>
             </div>
         </div>
 
@@ -243,7 +230,9 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                     </div>
                 </div>
                 <h3 class="fw-bold text-dark mb-0"><?= $totalGuru ?></h3>
-                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Pamong &amp; pembimbing</small>
+                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">
+                    Pamong (<?= count($daftar_jurusan ?? []) ?> jurusan bimbingan)
+                </small>
             </div>
         </div>
 
@@ -277,12 +266,11 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
         </div>
     </div>
 
-    <!-- Layout Dua Kolom: Live Snapshot Presensi & Quick Action Widgets -->
+    <!-- Live Snapshot Presensi Hari Ini (Full Width) -->
     <div class="row g-4 mb-4">
-        <!-- Kolom Kiri: Live Snapshot Presensi Hari Ini -->
-        <div class="col-lg-8">
-            <div class="card admin-card h-100">
-                <div class="card-header-custom d-flex justify-content-between align-items-center">
+        <div class="col-12">
+            <div class="card admin-card">
+                <div class="card-header-custom d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div>
                         <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
                             <i class="bi bi-activity text-success"></i>
@@ -290,9 +278,22 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                         </h6>
                         <small class="text-muted">Aktivitas kehadiran praktikan per <?= esc($tanggalRingkasIndo) ?></small>
                     </div>
-                    <span class="badge bg-success rounded-pill px-3 py-1 font-monospace" style="font-size: 0.75rem;">
-                        <?= count($presensiHariIni) ?> Tercatat
-                    </span>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <?php if (!empty($daftar_jurusan)): ?>
+                            <div class="d-flex align-items-center gap-1.5 py-1 px-2.5 bg-light rounded-pill border shadow-xs" style="font-size: 0.82rem;">
+                                <i class="bi bi-funnel text-success"></i>
+                                <select id="filterJurusanSnapshot" class="form-select form-select-sm border-0 bg-transparent py-0 shadow-none fw-medium" style="font-size: 0.82rem; cursor: pointer; min-width: 140px;" onchange="filterSnapshotByJurusan(this.value)">
+                                    <option value="">Semua Jurusan</option>
+                                    <?php foreach ($daftar_jurusan as $jrs): ?>
+                                        <option value="<?= esc($jrs) ?>"><?= esc($jrs) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        <?php endif; ?>
+                        <span class="badge bg-success rounded-pill px-3 py-1.5 font-monospace" style="font-size: 0.75rem;" id="badgeTotalPresensi">
+                            <?= count($presensiHariIni) ?> Tercatat
+                        </span>
+                    </div>
                 </div>
 
                 <?php if (empty($presensiHariIni)): ?>
@@ -308,9 +309,9 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                     <!-- 1. MOBILE VIEW: Responsive Cards (< 768px)     -->
                     <!-- ============================================== -->
                     <div class="d-block d-md-none p-3 bg-light bg-opacity-50">
-                        <div class="d-flex flex-column gap-3">
-                            <?php foreach (array_slice($presensiHariIni, 0, 8) as $p): ?>
-                                <div class="card snapshot-item-card p-3">
+                        <div class="d-flex flex-column gap-3 snapshot-mobile-cards">
+                            <?php foreach ($presensiHariIni as $p): ?>
+                                <div class="card snapshot-item-card p-3" data-jurusan="<?= esc(strtolower($p['jurusan'] ?? '')) ?>">
                                     <div class="d-flex justify-content-between align-items-start mb-2 pb-2 border-bottom">
                                         <div class="d-flex align-items-center gap-2 overflow-hidden pe-2">
                                             <div class="avatar-initial" style="width: 32px; height: 32px; font-size: 0.75rem;">
@@ -375,6 +376,7 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                         <table class="table table-hover table-custom align-middle mb-0">
                             <thead>
                                 <tr>
+                                    <th style="width: 50px;" class="text-center">No</th>
                                     <th>Mahasiswa</th>
                                     <th>Jurusan</th>
                                     <th>Jam Datang</th>
@@ -382,9 +384,10 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                                     <th>Jam Pulang</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php foreach (array_slice($presensiHariIni, 0, 8) as $p): ?>
-                                    <tr>
+                            <tbody id="snapshotTableBody">
+                                <?php $no = 1; foreach ($presensiHariIni as $p): ?>
+                                    <tr data-jurusan="<?= esc(strtolower($p['jurusan'] ?? '')) ?>">
+                                        <td class="text-center text-muted fw-semibold" style="font-size: 0.85rem;"><?= $no++ ?></td>
                                         <td>
                                             <div class="d-flex align-items-center gap-2">
                                                 <div class="avatar-initial" style="width: 32px; height: 32px; font-size: 0.75rem;">
@@ -396,7 +399,7 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                                            <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1" style="font-size: 0.75rem;">
                                                 <?= esc($p['jurusan'] ?? '-') ?>
                                             </span>
                                         </td>
@@ -405,19 +408,19 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                                         </td>
                                         <td>
                                             <?php if ($p['status'] === 'hadir'): ?>
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1">
                                                     <i class="bi bi-check-circle me-1"></i>Hadir
                                                 </span>
                                             <?php elseif ($p['status'] === 'terlambat'): ?>
-                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1">
+                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1">
                                                     <i class="bi bi-clock me-1"></i>Terlambat
                                                 </span>
                                             <?php elseif (in_array($p['status'], ['izin', 'sakit'], true)): ?>
-                                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-2 py-1">
+                                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-2.5 py-1">
                                                     <i class="bi bi-info-circle me-1"></i><?= ucfirst(esc($p['status'])) ?>
                                                 </span>
                                             <?php else: ?>
-                                                <span class="badge bg-secondary rounded-pill px-2 py-1"><?= esc($p['status']) ?></span>
+                                                <span class="badge bg-secondary rounded-pill px-2.5 py-1"><?= esc($p['status']) ?></span>
                                             <?php endif; ?>
                                         </td>
                                         <td class="font-monospace text-muted" style="font-size: 0.85rem;">
@@ -429,227 +432,45 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                         </table>
                     </div>
                 <?php endif; ?>
-
-                <?php if (count($presensiHariIni) > 8): ?>
-                    <div class="card-footer bg-light border-0 py-2 px-3 text-center">
-                        <small class="text-muted">Menampilkan 8 aktivitas terbaru dari total <?= count($presensiHariIni) ?> presensi hari ini.</small>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <!-- Kolom Kanan: Pintasan Akses Cepat & Status Admin -->
-        <div class="col-lg-4">
-            <div class="card admin-card mb-4">
-                <div class="card-header-custom">
-                    <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                        <i class="bi bi-lightning-charge-fill text-warning"></i>
-                        <span>Aksi Cepat Administrator</span>
-                    </h6>
-                </div>
-                <div class="p-3 d-flex flex-column gap-2">
-                    <a href="<?= base_url('admin/pengguna') ?>" class="quick-action-item">
-                        <div class="stat-icon-circle bg-success-subtle text-success" style="width: 38px; height: 38px; font-size: 1rem;">
-                            <i class="bi bi-people-fill"></i>
-                        </div>
-                        <div class="lh-sm">
-                            <span class="d-block fw-bold text-dark" style="font-size: 0.88rem;">Kelola Data Pengguna</span>
-                            <small class="text-muted" style="font-size: 0.75rem;">Edit, reset password, dan filter akun</small>
-                        </div>
-                    </a>
-
-                    <a href="#" class="quick-action-item" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
-                        <div class="stat-icon-circle" style="width: 38px; height: 38px; font-size: 1rem; background-color: #dbeafe; color: #1e40af;">
-                            <i class="bi bi-person-plus-fill"></i>
-                        </div>
-                        <div class="lh-sm">
-                            <span class="d-block fw-bold text-dark" style="font-size: 0.88rem;">Tambah Pengguna Baru</span>
-                            <small class="text-muted" style="font-size: 0.75rem;">Registrasi mahasiswa atau guru pamong</small>
-                        </div>
-                    </a>
-
-                    <a href="<?= base_url('admin/periode') ?>" class="quick-action-item">
-                        <div class="stat-icon-circle" style="width: 38px; height: 38px; font-size: 1rem; background-color: #d1fae5; color: #065f46;">
-                            <i class="bi bi-calendar-range-fill"></i>
-                        </div>
-                        <div class="lh-sm">
-                            <span class="d-block fw-bold text-dark" style="font-size: 0.88rem;">Periode PPL / PK</span>
-                            <small class="text-muted" style="font-size: 0.75rem;">Atur tahun ajaran &amp; gelombang aktif</small>
-                        </div>
-                    </a>
-
-                    <a href="<?= base_url('admin/pengaturan') ?>" class="quick-action-item">
-                        <div class="stat-icon-circle" style="width: 38px; height: 38px; font-size: 1rem; background-color: #fef3c7; color: #92400e;">
-                            <i class="bi bi-geo-alt-fill"></i>
-                        </div>
-                        <div class="lh-sm">
-                            <span class="d-block fw-bold text-dark" style="font-size: 0.88rem;">Pengaturan Geofencing</span>
-                            <small class="text-muted" style="font-size: 0.75rem;">Kalibrasi GPS &amp; batas jam kerja</small>
-                        </div>
-                    </a>
-
-                    <a href="#" class="quick-action-item" data-bs-toggle="modal" data-bs-target="#modalProfilAdmin">
-                        <div class="stat-icon-circle" style="width: 38px; height: 38px; font-size: 1rem; background-color: #f1f5f9; color: #334155;">
-                            <i class="bi bi-person-gear"></i>
-                        </div>
-                        <div class="lh-sm">
-                            <span class="d-block fw-bold text-dark" style="font-size: 0.88rem;">Kelola Profil Saya</span>
-                            <small class="text-muted" style="font-size: 0.75rem;">Ubah nama, username, &amp; kata sandi</small>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Card Ringkasan Sister App / Info Skagata -->
-            <div class="card admin-card p-3">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="<?= base_url('logo-skagata.png') ?>" alt="Logo Skagata" style="width: 44px; height: 44px; object-fit: contain;">
-                    <div class="lh-sm">
-                        <span class="d-block fw-bold text-dark" style="font-size: 0.9rem;">SIPENSI SKAGATA</span>
-                        <small class="text-muted d-block" style="font-size: 0.75rem;">SMK Negeri 3 Yogyakarta</small>
-                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill mt-1" style="font-size: 0.65rem;">Sistem Presensi PPL/PK</span>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 
 </div>
-
-<!-- Modal Tambah Pengguna Cepat dari Dashboard -->
-<div class="modal fade" id="modalTambahUser" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-header bg-success text-white py-3">
-                <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-person-plus"></i>
-                    <span>Tambah Pengguna Baru</span>
-                </h6>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="<?= base_url('admin/tambah-user') ?>" method="POST" id="formTambahUserDash">
-                <?= csrf_field() ?>
-                <div class="modal-body text-start p-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Nama Lengkap</label>
-                        <input type="text" name="nama" class="form-control" placeholder="Contoh: Ahmad Fauzi, S.Pd." required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Username</label>
-                        <input type="text" name="username" class="form-control" placeholder="Contoh: ahmad123" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
-                        <select name="role" class="form-select" id="tambahRoleSelectDash" onchange="toggleJurusanField('tambahRoleSelectDash', 'tambahJurusanWrapperDash', 'tambahUniversitasWrapperDash', 'tambahPeriodeWrapperDash')" required>
-                            <option value="mahasiswa" selected>Mahasiswa Praktikan (PPL/PK)</option>
-                            <option value="guru">Guru Pamong / GTT</option>
-                        </select>
-                    </div>
-                    <div class="mb-3" id="tambahJurusanWrapperDash">
-                        <label class="form-label fw-semibold small text-dark">Jurusan Mahasiswa</label>
-                        <select name="jurusan" class="form-select">
-                            <option value="">-- Pilih Jurusan Mahasiswa --</option>
-                            <?php if (!empty($daftar_jurusan)): ?>
-                                <?php foreach ($daftar_jurusan as $jrs): ?>
-                                    <option value="<?= esc($jrs) ?>"><?= esc($jrs) ?></option>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <option value="Informatika">Informatika</option>
-                                <option value="PJOK">PJOK</option>
-                                <option value="BK">BK</option>
-                                <option value="TL">TL</option>
-                                <option value="TO">TO</option>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3" id="tambahUniversitasWrapperDash">
-                        <label class="form-label fw-semibold small text-dark">Asal Universitas / Kampus</label>
-                        <select name="universitas" class="form-select">
-                            <option value="">-- Pilih Asal Universitas --</option>
-                            <?php if (!empty($daftar_universitas)): ?>
-                                <?php foreach ($daftar_universitas as $univ): ?>
-                                    <option value="<?= esc($univ) ?>"><?= esc($univ) ?></option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3" id="tambahPeriodeWrapperDash">
-                        <label class="form-label fw-semibold small text-dark">Periode PPL / PK</label>
-                        <select name="periode_id" class="form-select">
-                            <option value="">-- Pilih Periode PPL / PK --</option>
-                            <?php if (!empty($daftar_periode)): ?>
-                                <?php foreach ($daftar_periode as $prd): ?>
-                                    <option value="<?= $prd['id'] ?>" <?= ((int)$prd['is_aktif'] === 1) ? 'selected' : '' ?>>
-                                        <?= esc($prd['nama_periode']) ?><?= ((int)$prd['is_aktif'] === 1) ? ' (Aktif)' : '' ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">Password Awal</label>
-                        <div class="input-group">
-                            <input type="password" name="password" id="inputTambahPasswordDash" class="form-control border-end-0" placeholder="Minimal 6 karakter" required>
-                            <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibility('inputTambahPasswordDash', 'iconToggleTambahDash')">
-                                <i class="bi bi-eye" id="iconToggleTambahDash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 bg-light py-2 px-4">
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitTambahUserDash">
-                        <i class="bi bi-plus-circle me-1"></i> Tambah Pengguna
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const formTambahUserDash = document.getElementById('formTambahUserDash');
-        const btnSubmitTambahUserDash = document.getElementById('btnSubmitTambahUserDash');
-        if (formTambahUserDash && btnSubmitTambahUserDash) {
-            formTambahUserDash.addEventListener('submit', function() {
-                btnSubmitTambahUserDash.disabled = true;
-                btnSubmitTambahUserDash.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Menyimpan...';
-            });
-        }
-    });
+    function filterSnapshotByJurusan(jurusan) {
+        const selected = (jurusan || '').trim().toLowerCase();
+        let countVisible = 0;
 
-    function toggleJurusanField(roleSelectId, jurusanWrapperId, universitasWrapperId, periodeWrapperId) {
-        const role = document.getElementById(roleSelectId).value;
-        const jWrapper = document.getElementById(jurusanWrapperId);
-        const uWrapper = universitasWrapperId ? document.getElementById(universitasWrapperId) : null;
-        const pWrapper = periodeWrapperId ? document.getElementById(periodeWrapperId) : null;
-        if (jWrapper) {
-            jWrapper.style.display = (role === 'mahasiswa') ? 'block' : 'none';
-        }
-        if (uWrapper) {
-            uWrapper.style.display = (role === 'mahasiswa') ? 'block' : 'none';
-        }
-        if (pWrapper) {
-            pWrapper.style.display = (role === 'mahasiswa') ? 'block' : 'none';
-        }
-    }
+        // Filter tabel desktop
+        const rows = document.querySelectorAll('#snapshotTableBody tr');
+        rows.forEach(function(row) {
+            const rowJurusan = (row.getAttribute('data-jurusan') || '').trim().toLowerCase();
+            if (!selected || rowJurusan === selected) {
+                row.style.display = '';
+                countVisible++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
 
-    function togglePasswordVisibility(inputId, iconId) {
-        const input = document.getElementById(inputId);
-        const icon = document.getElementById(iconId);
-        if (!input || !icon) return;
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('bi-eye');
-            icon.classList.add('bi-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.remove('bi-eye-slash');
-            icon.classList.add('bi-eye');
+        // Filter kartu mobile
+        const cards = document.querySelectorAll('.snapshot-mobile-cards .snapshot-item-card');
+        cards.forEach(function(card) {
+            const cardJurusan = (card.getAttribute('data-jurusan') || '').trim().toLowerCase();
+            if (!selected || cardJurusan === selected) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        const badge = document.getElementById('badgeTotalPresensi');
+        if (badge) {
+            badge.textContent = countVisible + ' Tercatat';
         }
     }
 </script>

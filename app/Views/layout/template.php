@@ -440,7 +440,7 @@
             } elseif (strpos($currentUri, 'ubah_password') !== false) {
                 $pageTitleDesktop = 'Ubah Kata Sandi';
             } else {
-                $pageTitleDesktop = 'Dashboard Administrator';
+                $pageTitleDesktop = 'Dashboard';
             }
         }
         ?>
@@ -480,10 +480,11 @@
 
                 <div class="sidebar-menu">
                     <?php if ($role === 'admin'): ?>
+                        <?php $cleanUri = trim($currentUri, '/'); ?>
                         <div class="sidebar-section-label">Menu Utama</div>
-                        <a href="<?= base_url('admin') ?>" class="sidebar-nav-item <?= ($currentUri === 'admin' || $currentUri === 'admin/') ? 'active' : '' ?>">
+                        <a href="<?= base_url('admin') ?>" class="sidebar-nav-item <?= ($cleanUri === 'admin' || $cleanUri === 'admin/index') ? 'active' : '' ?>">
                             <i class="bi bi-grid-1x2-fill"></i>
-                            <span>Beranda Admin</span>
+                            <span>Dashboard</span>
                         </a>
 
                         <div class="sidebar-section-label">Manajemen Pengguna</div>
@@ -555,7 +556,7 @@
                     <?php if ($role === 'admin'): ?>
                         <a href="#" class="sidebar-nav-item" data-bs-toggle="modal" data-bs-target="#modalProfilAdmin">
                             <i class="bi bi-person-gear"></i>
-                            <span>Profil Administrator</span>
+                            <span>Profil Saya</span>
                         </a>
                     <?php endif; ?>
                     <a href="<?= base_url('ubah_password') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'ubah_password') !== false) ? 'active' : '' ?>">

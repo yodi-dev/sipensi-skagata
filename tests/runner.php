@@ -617,15 +617,15 @@ $runner->it("Controller Mahasiswa::riwayat harus menghitung persentase kehadiran
 
 $runner->describe("15. Pengujian Beranda Admin & Manajemen Pengguna");
 
-$runner->it("View admin/index harus memuat operational banner, avatar inisial, dan quick action", function() use ($runner) {
+$runner->it("View admin/index harus memuat operational banner, avatar inisial, dan snapshot presensi", function() use ($runner) {
     $viewFile = APPPATH . 'Views/admin/index.php';
     $runner->assertTrue(file_exists($viewFile));
     $content = file_get_contents($viewFile);
     $runner->assertTrue(strpos($content, 'operational-banner') !== false, "Harus memuat operational-banner status sistem");
     $runner->assertTrue(strpos($content, 'avatar-initial') !== false, "Harus memuat avatar inisial pengguna");
     $runner->assertTrue(strpos($content, 'stat-card-modern') !== false, "Harus memuat stat-card-modern tema Skagata");
-    $runner->assertTrue(strpos($content, 'quick-action-item') !== false, "Harus memuat quick-action-item");
-    $runner->assertTrue(strpos($content, 'modalTambahUser') !== false, "Harus memuat modalTambahUser");
+    $runner->assertTrue(strpos($content, 'snapshot-item-card') !== false, "Harus memuat snapshot presensi mobile");
+    $runner->assertTrue(strpos($content, 'table-custom') !== false, "Harus memuat tabel snapshot desktop");
 });
 
 $runner->it("View admin/pengguna harus memuat tabel pengguna, filter toolbar, dan modal CRUD", function() use ($runner) {
