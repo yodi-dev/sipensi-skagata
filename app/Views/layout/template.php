@@ -369,7 +369,8 @@
         <?php
         $role = session()->get('role');
         $namaUser = session()->get('nama') ?? 'Pengguna';
-        $currentUri = service('uri')->getPath();
+        $currentUri = trim(service('uri')->getPath(), '/');
+        $currentRoute = trim(uri_string(), '/');
 
         $roleLabels = [
             'admin'       => 'Administrator',
@@ -443,6 +444,17 @@
                 $pageTitleDesktop = 'Dashboard';
             }
         }
+
+        $isAdminDashboard = (
+            $role === 'admin' && (
+                $pageTitleDesktop === 'Dashboard' ||
+                (isset($title) && stripos($title, 'Dashboard') !== false) ||
+                $currentRoute === 'admin' ||
+                $currentRoute === 'admin/index' ||
+                $currentRoute === '' ||
+                (bool) preg_match('#(^|/)admin(/index)?$#i', $currentUri)
+            )
+        );
         ?>
 
         <!-- ============================================== -->
@@ -480,9 +492,8 @@
 
                 <div class="sidebar-menu">
                     <?php if ($role === 'admin'): ?>
-                        <?php $cleanUri = trim($currentUri, '/'); ?>
                         <div class="sidebar-section-label">Menu Utama</div>
-                        <a href="<?= base_url('admin') ?>" class="sidebar-nav-item <?= ($cleanUri === 'admin' || $cleanUri === 'admin/index') ? 'active' : '' ?>">
+                        <a href="<?= base_url('admin') ?>" class="sidebar-nav-item <?= $isAdminDashboard ? 'active' : '' ?>">
                             <i class="bi bi-grid-1x2-fill"></i>
                             <span>Dashboard</span>
                         </a>
@@ -644,31 +655,20 @@
                             <!-- Teks Desktop: Judul Halaman Dinamis -->
                             <div class="d-none d-md-flex align-items-center gap-2 ms-2">
                                 <span class="fw-bold text-dark fs-6 mb-0" style="letter-spacing: -0.2px;"><?= esc($pageTitleDesktop) ?></span>
-                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small px-2 py-0.5" style="font-size: 0.7rem;">
-                                    Admin
-                                </span>
                             </div>
                         </div>
 
-                        <!-- Sisi Kanan Admin: Sapaan Waktu & Dropdown Akun Pengguna -->
-                        <div class="d-flex align-items-center gap-2 gap-sm-3">
-                            <!-- Sapaan Personal Desktop (Sama dengan Guru & Mahasiswa) -->
-                            <div class="d-none d-lg-flex align-items-center gap-2 bg-light px-3 py-1.5 rounded-pill border shadow-xs" style="font-size: 0.85rem;">
-                                <span class="avatar-initial-sm" style="width: 26px; height: 26px; font-size: 0.7rem; background-color: var(--skagata-primary);">
-                                    <?= esc(mb_strtoupper(mb_substr($namaUser, 0, 1))) ?>
-                                </span>
-                                <span class="text-secondary">
-                                    <?= $greetingTemplate ?>, <strong class="text-dark"><?= esc(explode(' ', trim($namaUser))[0]) ?></strong>
-                                </span>
-                            </div>
-
-                            <!-- Dropdown Akun Pengguna Admin -->
+                        <!-- Sisi Kanan Admin: Dropdown Akun Pengguna Terpadu -->
+                        <div class="d-flex align-items-center gap-2">
                             <div class="dropdown">
-                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 px-sm-3 py-1 dropdown-toggle d-flex align-items-center gap-2" type="button" id="adminUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <div class="avatar-initial-sm">
+                                <button class="btn btn-sm btn-light border rounded-pill px-2.5 py-1.5 dropdown-toggle d-flex align-items-center gap-2 shadow-xs" type="button" id="adminUserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="avatar-initial-sm" style="background-color: var(--skagata-primary);">
                                         <?= esc(mb_strtoupper(mb_substr($namaUser, 0, 1))) ?>
                                     </div>
-                                    <span class="fw-semibold text-dark text-truncate d-none d-sm-inline" style="max-width: 130px;"><?= esc($namaUser) ?></span>
+                                    <div class="d-none d-sm-block text-start lh-1 me-1">
+                                        <span class="fw-semibold text-dark small d-block text-truncate" style="max-width: 140px;"><?= esc($namaUser) ?></span>
+                                        <small class="text-muted" style="font-size: 0.7rem;"><?= $greetingTemplate ?></small>
+                                    </div>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="adminUserDropdown" style="min-width: 210px;">
                                     <li class="px-3 py-2 text-muted small border-bottom">

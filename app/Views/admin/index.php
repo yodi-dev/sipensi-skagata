@@ -154,51 +154,76 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
     </div>
 
     <!-- Quick Status Bar: Kebijakan Operasional Presensi & Periode Aktif -->
-    <div class="operational-banner p-3 p-md-4 mb-4">
-        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-            <div class="d-flex flex-wrap align-items-center gap-3">
+    <div class="operational-banner p-3 p-md-3 mb-4">
+        <div class="row g-3 align-items-center">
+            <!-- 1. Periode PPL/PK Aktif -->
+            <div class="col-12 col-sm-6 col-xl-3">
                 <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small fw-medium">Periode Aktif:</span>
-                    <?php if (!empty($periode_aktif)): ?>
-                        <a href="<?= base_url('admin/periode') ?>" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 text-decoration-none" title="Kelola Periode (<?= count($daftar_periode ?? []) ?> gelombang terdaftar)">
-                            <i class="bi bi-calendar-check me-1"></i><?= esc($periode_aktif['nama_periode']) ?>
-                        </a>
-                    <?php else: ?>
-                        <a href="<?= base_url('admin/periode') ?>" class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1 text-decoration-none" title="Atur Periode (<?= count($daftar_periode ?? []) ?> gelombang)">
-                            <i class="bi bi-exclamation-circle me-1"></i>Belum Ada Periode Aktif
-                        </a>
-                    <?php endif; ?>
-                </div>
-
-                <div class="vr text-muted d-none d-sm-block my-1"></div>
-
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small fw-medium">Status Geofencing:</span>
-                    <?php if (!empty($geofence_active)): ?>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
-                            <i class="bi bi-geo-alt-fill me-1"></i>Radius <?= esc($school_radius) ?>m Aktif
-                        </span>
-                    <?php else: ?>
-                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1">
-                            <i class="bi bi-geo-alt me-1"></i>Bebas Radius (Toleransi Nonaktif)
-                        </span>
-                    <?php endif; ?>
-                </div>
-
-                <div class="vr text-muted d-none d-sm-block my-1"></div>
-
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small fw-medium">Jam Presensi:</span>
-                    <span class="badge bg-light text-dark border rounded-pill px-2 py-1 font-monospace">
-                        <i class="bi bi-alarm me-1 text-success"></i><?= esc(substr($jam_masuk_max ?? '07:15:00', 0, 5)) ?> / <i class="bi bi-box-arrow-right me-1 text-warning"></i><?= esc(substr($jam_pulang_min ?? '15:00:00', 0, 5)) ?> WIB
-                    </span>
+                    <div class="stat-icon-circle flex-shrink-0" style="width: 40px; height: 40px; background-color: #dcfce7; color: #166534; font-size: 1.1rem;">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <div class="lh-sm overflow-hidden">
+                        <small class="text-muted d-block" style="font-size: 0.72rem;">Periode Aktif</small>
+                        <?php if (!empty($periode_aktif)): ?>
+                            <a href="<?= base_url('admin/periode') ?>" class="fw-bold text-success text-truncate d-block text-decoration-none" style="font-size: 0.85rem;" title="Kelola Periode (<?= count($daftar_periode ?? []) ?> gelombang terdaftar)">
+                                <?= esc($periode_aktif['nama_periode']) ?>
+                            </a>
+                        <?php else: ?>
+                            <a href="<?= base_url('admin/periode') ?>" class="fw-bold text-warning-emphasis text-decoration-none small d-block" title="Atur Periode (<?= count($daftar_periode ?? []) ?> gelombang)">
+                                Belum Ditentukan
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <a href="<?= base_url('admin/pengaturan') ?>" class="text-decoration-none small fw-semibold text-success d-inline-flex align-items-center gap-1">
-                    <span>Ubah Konfigurasi GPS &amp; Jam</span>
-                    <i class="bi bi-arrow-right"></i>
+            <!-- 2. Radius Geofencing GPS -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="stat-icon-circle flex-shrink-0" style="width: 40px; height: 40px; background-color: <?= !empty($geofence_active) ? '#ccfbf1' : '#fef3c7' ?>; color: <?= !empty($geofence_active) ? '#0f766e' : '#92400e' ?>; font-size: 1.1rem;">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <div class="lh-sm">
+                        <small class="text-muted d-block" style="font-size: 0.72rem;">Geofencing GPS</small>
+                        <?php if (!empty($geofence_active)): ?>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0.5" style="font-size: 0.75rem;">
+                                Radius <?= esc($school_radius) ?>m Aktif
+                            </span>
+                        <?php else: ?>
+                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-0.5" style="font-size: 0.75rem;">
+                                Toleransi Nonaktif
+                            </span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Batas Jam Presensi Datang & Pulang -->
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="stat-icon-circle flex-shrink-0" style="width: 40px; height: 40px; background-color: #f1f5f9; color: #475569; font-size: 1.1rem;">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div class="lh-sm">
+                        <small class="text-muted d-block" style="font-size: 0.72rem;">Batas Jam Presensi</small>
+                        <div class="d-flex align-items-center gap-1.5 mt-0.5">
+                            <span class="badge bg-light text-dark border rounded-pill px-2 py-0.5 font-monospace" style="font-size: 0.75rem;" title="Maksimal Jam Datang">
+                                <i class="bi bi-box-arrow-in-right text-success me-1"></i><?= esc(substr($jam_masuk_max ?? '07:15:00', 0, 5)) ?>
+                            </span>
+                            <span class="text-muted" style="font-size: 0.75rem;">—</span>
+                            <span class="badge bg-light text-dark border rounded-pill px-2 py-0.5 font-monospace" style="font-size: 0.75rem;" title="Minimal Jam Pulang">
+                                <i class="bi bi-box-arrow-right text-warning me-1"></i><?= esc(substr($jam_pulang_min ?? '15:00:00', 0, 5)) ?> WIB
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Tombol Aksi Kelola Pengaturan -->
+            <div class="col-12 col-sm-6 col-xl-2 text-xl-end">
+                <a href="<?= base_url('admin/pengaturan') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 d-inline-flex align-items-center justify-content-center gap-1.5 w-100 w-xl-auto shadow-xs" style="font-size: 0.8rem;">
+                    <i class="bi bi-sliders"></i>
+                    <span>Kelola Pengaturan</span>
                 </a>
             </div>
         </div>
