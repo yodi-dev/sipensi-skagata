@@ -17,6 +17,31 @@
         padding: 1.25rem 1.5rem;
     }
 
+    /* Stat Cards (Harmonized with Dashboard) */
+    .stat-card-modern {
+        border-radius: 1rem;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        height: 100%;
+    }
+
+    .stat-card-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(15, 81, 50, 0.06);
+    }
+
+    .stat-icon-circle {
+        width: 44px;
+        height: 44px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
     /* Mobile User Card */
     .user-item-card {
         background: #ffffff;
@@ -51,14 +76,13 @@
     .filter-wrapper {
         background-color: #f8fafc;
         border: 1px solid #e2e8f0;
-        border-radius: 1rem;
-        padding: 0.5rem 0.75rem;
+        border-radius: 0.875rem;
+        padding: 0.75rem 1rem;
     }
-    @media (min-width: 992px) {
-        .filter-wrapper {
-            border-radius: 2rem;
-            padding: 0.35rem 0.75rem;
-        }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15);
     }
 
     /* User Avatar Circle */
@@ -75,6 +99,17 @@
         color: #166534;
         border: 1px solid #bbf7d0;
         flex-shrink: 0;
+    }
+
+    /* Action Buttons */
+    .btn-action-circle {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.15s ease;
     }
 
     /* Pagination Styling Emerald */
@@ -120,7 +155,7 @@ function getInitials($name)
     <div class="mb-4">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-1 small">
-                <li class="breadcrumb-item"><a href="<?= base_url('admin') ?>" class="text-success text-decoration-none"><i class="bi bi-grid-1x2 me-1"></i>Beranda</a></li>
+                <li class="breadcrumb-item"><a href="<?= base_url('admin') ?>" class="text-success text-decoration-none"><i class="bi bi-grid-1x2 me-1"></i>Dashboard</a></li>
                 <li class="breadcrumb-item active text-muted" aria-current="page">Data Pengguna</li>
             </ol>
         </nav>
@@ -130,104 +165,178 @@ function getInitials($name)
                     <i class="bi bi-people-fill text-success"></i>
                     <span>Manajemen Data Pengguna</span>
                 </h4>
-                <p class="text-muted small mt-1 mb-0">Kelola akun Guru Pamong, GTT, dan Mahasiswa Praktikan PPL/PK</p>
+                <p class="text-muted small mt-1 mb-0">Kelola akun Guru Pamong, GTT, dan Mahasiswa Praktikan PPL/PK di SMK Negeri 3 Yogyakarta</p>
             </div>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 small">
-                    <i class="bi bi-mortarboard me-1"></i> Mahasiswa: <strong><?= $totalMahasiswa ?></strong>
-                </span>
-                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3 py-2 small">
-                    <i class="bi bi-person-badge me-1"></i> Guru Pamong: <strong><?= $totalGuru ?></strong>
-                </span>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Tambah Pengguna</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ringkasan Statistik Modern (Tema Skagata Emerald Seragam Dashboard) -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Total Mahasiswa PPL/PK -->
+        <div class="col-6 col-lg-3">
+            <div class="card stat-card-modern p-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-medium">Mahasiswa PPL/PK</span>
+                    <div class="stat-icon-circle" style="background-color: #ccfbf1; color: #0f766e;">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-dark mb-0"><?= $totalMahasiswa ?></h3>
+                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">
+                    Praktikan (<?= count($daftar_universitas ?? []) ?> universitas mitra)
+                </small>
+            </div>
+        </div>
+
+        <!-- 2. Total Guru Pamong / GTT -->
+        <div class="col-6 col-lg-3">
+            <div class="card stat-card-modern p-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-medium">Guru Pamong / GTT</span>
+                    <div class="stat-icon-circle" style="background-color: #fef3c7; color: #92400e;">
+                        <i class="bi bi-person-badge-fill"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-dark mb-0"><?= $totalGuru ?></h3>
+                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">
+                    Pamong (<?= count($daftar_jurusan ?? []) ?> jurusan bimbingan)
+                </small>
+            </div>
+        </div>
+
+        <!-- 3. Total Keseluruhan Pengguna -->
+        <div class="col-6 col-lg-3">
+            <div class="card stat-card-modern p-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-medium">Total Akun Aktif</span>
+                    <div class="stat-icon-circle" style="background-color: #e0e7ff; color: #3730a3;">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-dark mb-0"><?= (int) $totalMahasiswa + (int) $totalGuru ?></h3>
+                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">
+                    Pengguna terdaftar (non-admin)
+                </small>
+            </div>
+        </div>
+
+        <!-- 4. Periode Aktif -->
+        <div class="col-6 col-lg-3">
+            <div class="card stat-card-modern p-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-medium">Periode Aktif</span>
+                    <div class="stat-icon-circle" style="background-color: #dcfce7; color: #166534;">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                </div>
+                <div class="text-truncate">
+                    <?php if (!empty($periode_aktif)): ?>
+                        <a href="<?= base_url('admin/periode') ?>" class="h5 fw-bold text-success text-decoration-none d-block text-truncate mb-0" title="<?= esc($periode_aktif['nama_periode']) ?>">
+                            <?= esc($periode_aktif['nama_periode']) ?>
+                        </a>
+                    <?php else: ?>
+                        <span class="h6 fw-bold text-muted d-block mb-0">Belum Ada</span>
+                    <?php endif; ?>
+                </div>
+                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">
+                    Gelombang operasional saat ini
+                </small>
             </div>
         </div>
     </div>
 
     <!-- Tabel Daftar Pengguna -->
     <div class="card admin-card">
-        <div class="card-header-custom d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-            <!-- Sisi Kiri: Judul Tabel + Tombol Tambah Pengguna Tepat di Sampingnya -->
-            <div class="d-flex align-items-center gap-3 flex-wrap">
+        <div class="card-header-custom">
+            <!-- Header Kartu: Judul Tabel & Reset Filter -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
                 <div>
                     <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
                         <i class="bi bi-person-lines-fill text-success"></i>
                         <span>Daftar Pengguna Terdaftar</span>
                     </h6>
-                    <small class="text-muted">Total: <?= count($users) ?> akun ditemukan</small>
+                    <small class="text-muted">
+                        Menampilkan <span class="fw-semibold text-dark"><?= count($users) ?></span> dari <span class="fw-semibold text-dark"><?= $totalFiltered ?? count($users) ?></span> total akun
+                    </small>
                 </div>
-                <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
-                    <i class="bi bi-person-plus"></i>
-                    <span>Tambah Pengguna</span>
-                </button>
+                <?php if (!empty($keyword) || !empty($role_terpilih) || !empty($jurusan_pilih) || !empty($universitas_pilih) || !empty($periode_pilih)): ?>
+                    <div>
+                        <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-1.5 shadow-xs" style="font-size: 0.8rem;">
+                            <i class="bi bi-arrow-clockwise"></i>
+                            <span>Reset Filter</span>
+                        </a>
+                    </div>
+                <?php endif; ?>
             </div>
 
-            <!-- Sisi Kanan: Toolbar Filter Otomatis (Onchange Submit ala Sibenka) -->
-            <form action="<?= base_url('admin/pengguna') ?>" method="GET" class="filter-wrapper d-flex align-items-center flex-wrap gap-2 m-0 shadow-xs">
-                <div class="input-group input-group-sm" style="width: auto;">
-                    <span class="input-group-text bg-white border-0 text-muted ps-2 pe-1"><i class="bi bi-search text-success"></i></span>
-                    <input type="text" name="keyword" class="form-control border-0 bg-transparent fw-medium" placeholder="Cari nama / username..." value="<?= esc($keyword ?? '') ?>" style="min-width: 170px;">
+            <!-- Toolbar Filter Responsif (Grid Rapi Tanpa Bug VR) -->
+            <form action="<?= base_url('admin/pengguna') ?>" method="GET" class="filter-wrapper shadow-xs">
+                <div class="row g-2 align-items-center">
+                    <div class="col-12 col-md-4 col-xl-3">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white border-end-0 text-muted ps-2.5">
+                                <i class="bi bi-search text-success"></i>
+                            </span>
+                            <input type="text" name="keyword" class="form-control border-start-0 ps-1 fw-medium" placeholder="Cari nama / username..." value="<?= esc($keyword ?? '') ?>">
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <select name="role" class="form-select form-select-sm fw-medium" onchange="this.form.submit()" aria-label="Filter Role">
+                            <option value="">Semua Role</option>
+                            <option value="mahasiswa" <?= (($role_terpilih ?? '') === 'mahasiswa') ? 'selected' : '' ?>>Mahasiswa Praktikan</option>
+                            <option value="guru" <?= (($role_terpilih ?? '') === 'guru') ? 'selected' : '' ?>>Guru Pamong / GTT</option>
+                        </select>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <select name="jurusan" class="form-select form-select-sm fw-medium" onchange="this.form.submit()" aria-label="Filter Jurusan">
+                            <option value="">Semua Jurusan</option>
+                            <?php if (!empty($daftar_jurusan)): ?>
+                                <?php foreach ($daftar_jurusan as $jrs): ?>
+                                    <option value="<?= esc($jrs) ?>" <?= (($jurusan_pilih ?? '') === $jrs) ? 'selected' : '' ?>><?= esc($jrs) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <select name="universitas" class="form-select form-select-sm fw-medium" onchange="this.form.submit()" aria-label="Filter Universitas">
+                            <option value="">Semua Universitas</option>
+                            <?php if (!empty($daftar_universitas)): ?>
+                                <?php foreach ($daftar_universitas as $univ): ?>
+                                    <option value="<?= esc($univ) ?>" <?= (($universitas_pilih ?? '') === $univ) ? 'selected' : '' ?>><?= esc($univ) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <select name="periode" class="form-select form-select-sm fw-medium" onchange="this.form.submit()" aria-label="Filter Periode">
+                            <option value="">Semua Periode</option>
+                            <?php if (!empty($daftar_periode)): ?>
+                                <?php foreach ($daftar_periode as $prd): ?>
+                                    <option value="<?= $prd['id'] ?>" <?= (($periode_pilih ?? '') == $prd['id']) ? 'selected' : '' ?>>
+                                        <?= esc($prd['nama_periode']) ?><?= ((int)$prd['is_aktif'] === 1) ? ' (Aktif)' : '' ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-4 col-xl-1 text-end">
+                        <button type="submit" class="btn btn-sm btn-skagata w-100 rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center justify-content-center gap-1 shadow-xs">
+                            <i class="bi bi-funnel"></i>
+                            <span>Filter</span>
+                        </button>
+                    </div>
                 </div>
-
-                <div class="vr my-1 text-muted d-none d-sm-block"></div>
-
-                <div class="input-group input-group-sm" style="width: auto;">
-                    <select name="role" class="form-select form-select-sm border-0 bg-transparent fw-medium" onchange="this.form.submit()" aria-label="Filter Role">
-                        <option value="">Semua Role</option>
-                        <option value="mahasiswa" <?= (($role_terpilih ?? '') === 'mahasiswa') ? 'selected' : '' ?>>Mahasiswa Praktikan</option>
-                        <option value="guru" <?= (($role_terpilih ?? '') === 'guru') ? 'selected' : '' ?>>Guru Pamong / GTT</option>
-                    </select>
-                </div>
-
-                <div class="vr my-1 text-muted d-none d-sm-block"></div>
-
-                <div class="input-group input-group-sm" style="width: auto;">
-                    <select name="jurusan" class="form-select form-select-sm border-0 bg-transparent fw-medium" onchange="this.form.submit()" aria-label="Filter Jurusan">
-                        <option value="">Semua Jurusan</option>
-                        <?php if (!empty($daftar_jurusan)): ?>
-                            <?php foreach ($daftar_jurusan as $jrs): ?>
-                                <option value="<?= esc($jrs) ?>" <?= (($jurusan_pilih ?? '') === $jrs) ? 'selected' : '' ?>><?= esc($jrs) ?></option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
-                </div>
-
-                <div class="vr my-1 text-muted d-none d-sm-block"></div>
-
-                <div class="input-group input-group-sm" style="width: auto;">
-                    <select name="universitas" class="form-select form-select-sm border-0 bg-transparent fw-medium" onchange="this.form.submit()" aria-label="Filter Universitas">
-                        <option value="">Semua Universitas</option>
-                        <?php if (!empty($daftar_universitas)): ?>
-                            <?php foreach ($daftar_universitas as $univ): ?>
-                                <option value="<?= esc($univ) ?>" <?= (($universitas_pilih ?? '') === $univ) ? 'selected' : '' ?>><?= esc($univ) ?></option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
-                </div>
-
-                <div class="vr my-1 text-muted d-none d-sm-block"></div>
-
-                <div class="input-group input-group-sm" style="width: auto;">
-                    <select name="periode" class="form-select form-select-sm border-0 bg-transparent fw-medium" onchange="this.form.submit()" aria-label="Filter Periode">
-                        <option value="">Semua Periode</option>
-                        <?php if (!empty($daftar_periode)): ?>
-                            <?php foreach ($daftar_periode as $prd): ?>
-                                <option value="<?= $prd['id'] ?>" <?= (($periode_pilih ?? '') == $prd['id']) ? 'selected' : '' ?>>
-                                    <?= esc($prd['nama_periode']) ?><?= ((int)$prd['is_aktif'] === 1) ? ' (Aktif)' : '' ?>
-                                </option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
-                </div>
-
-                <?php if (!empty($keyword) || !empty($role_terpilih) || !empty($jurusan_pilih) || !empty($universitas_pilih) || !empty($periode_pilih)): ?>
-                    <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-sm btn-link text-muted p-1" title="Reset Filter">
-                        <i class="bi bi-x-circle-fill"></i>
-                    </a>
-                <?php endif; ?>
-
-                <button type="submit" class="btn btn-sm btn-light border rounded-pill px-2 py-0 text-success fw-semibold">
-                    Cari
-                </button>
             </form>
         </div>
 
@@ -424,17 +533,17 @@ function getInitials($name)
                                 <td class="text-center">
                                     <div class="d-inline-flex align-items-center gap-1">
                                         <!-- Tombol Edit -->
-                                        <button type="button" class="btn btn-sm btn-light border text-primary rounded-circle p-1" style="width: 32px; height: 32px;" title="Edit Pengguna" onclick="bukaModalEdit(<?= (int) $u['id'] ?>, '<?= esc($u['username'], 'js') ?>', '<?= esc($u['nama'], 'js') ?>', '<?= esc($u['role'], 'js') ?>', '<?= esc($u['jurusan'] ?? '', 'js') ?>', '<?= esc($u['universitas'] ?? '', 'js') ?>', '<?= esc($u['periode_id'] ?? '', 'js') ?>')">
+                                        <button type="button" class="btn btn-sm btn-light border text-primary btn-action-circle shadow-xs" title="Edit Pengguna" onclick="bukaModalEdit(<?= (int) $u['id'] ?>, '<?= esc($u['username'], 'js') ?>', '<?= esc($u['nama'], 'js') ?>', '<?= esc($u['role'], 'js') ?>', '<?= esc($u['jurusan'] ?? '', 'js') ?>', '<?= esc($u['universitas'] ?? '', 'js') ?>', '<?= esc($u['periode_id'] ?? '', 'js') ?>')">
                                             <i class="bi bi-pencil"></i>
                                         </button>
 
                                         <!-- Tombol Reset Password -->
-                                        <button type="button" class="btn btn-sm btn-light border text-warning rounded-circle p-1" style="width: 32px; height: 32px;" title="Reset Password" onclick="bukaModalReset(<?= (int) $u['id'] ?>, '<?= esc($u['nama'], 'js') ?>')">
+                                        <button type="button" class="btn btn-sm btn-light border text-warning btn-action-circle shadow-xs" title="Reset Password" onclick="bukaModalReset(<?= (int) $u['id'] ?>, '<?= esc($u['nama'], 'js') ?>')">
                                             <i class="bi bi-key"></i>
                                         </button>
 
                                         <!-- Tombol Hapus -->
-                                        <button type="button" class="btn btn-sm btn-light border text-danger rounded-circle p-1" style="width: 32px; height: 32px;" title="Hapus Pengguna" onclick="konfirmasiHapus(<?= (int) $u['id'] ?>, '<?= esc($u['nama'], 'js') ?>')">
+                                        <button type="button" class="btn btn-sm btn-light border text-danger btn-action-circle shadow-xs" title="Hapus Pengguna" onclick="konfirmasiHapus(<?= (int) $u['id'] ?>, '<?= esc($u['nama'], 'js') ?>')">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
@@ -552,7 +661,7 @@ function getInitials($name)
 <div class="modal fade" id="modalEditUser" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-header bg-primary text-white py-3">
+            <div class="modal-header bg-success text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
                     <i class="bi bi-pencil-square"></i>
                     <span>Edit Data Pengguna</span>

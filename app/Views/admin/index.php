@@ -121,10 +121,18 @@ $namaHariIndo = [
     'Saturday'  => 'Sabtu'
 ];
 $namaBulanIndo = [
-    '01' => 'Januari',   '02' => 'Februari', '03' => 'Maret',
-    '04' => 'April',     '05' => 'Mei',      '06' => 'Juni',
-    '07' => 'Juli',      '08' => 'Agustus',  '09' => 'September',
-    '10' => 'Oktober',   '11' => 'November', '12' => 'Desember'
+    '01' => 'Januari',
+    '02' => 'Februari',
+    '03' => 'Maret',
+    '04' => 'April',
+    '05' => 'Mei',
+    '06' => 'Juni',
+    '07' => 'Juli',
+    '08' => 'Agustus',
+    '09' => 'September',
+    '10' => 'Oktober',
+    '11' => 'November',
+    '12' => 'Desember'
 ];
 $hariIni = $namaHariIndo[date('l')] ?? date('l');
 $bulanIni = $namaBulanIndo[date('m')] ?? date('F');
@@ -222,8 +230,8 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
             <!-- 4. Tombol Aksi Kelola Pengaturan -->
             <div class="col-12 col-sm-6 col-xl-2 text-xl-end">
                 <a href="<?= base_url('admin/pengaturan') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 d-inline-flex align-items-center justify-content-center gap-1.5 w-100 w-xl-auto shadow-xs" style="font-size: 0.8rem;">
-                    <i class="bi bi-sliders"></i>
-                    <span>Kelola Pengaturan</span>
+                    <i class="bi bi-sliders me-1"></i>
+                    <span> Kelola Pengaturan</span>
                 </a>
             </div>
         </div>
@@ -306,7 +314,7 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                     <div class="d-flex align-items-center gap-2 flex-wrap">
                         <?php if (!empty($daftar_jurusan)): ?>
                             <div class="d-flex align-items-center gap-1.5 py-1 px-2.5 bg-light rounded-pill border shadow-xs" style="font-size: 0.82rem;">
-                                <i class="bi bi-funnel text-success"></i>
+                                <i class="bi bi-funnel text-success ms-3"></i>
                                 <select id="filterJurusanSnapshot" class="form-select form-select-sm border-0 bg-transparent py-0 shadow-none fw-medium" style="font-size: 0.82rem; cursor: pointer; min-width: 140px;" onchange="filterSnapshotByJurusan(this.value)">
                                     <option value="">Semua Jurusan</option>
                                     <?php foreach ($daftar_jurusan as $jrs): ?>
@@ -410,7 +418,8 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                                 </tr>
                             </thead>
                             <tbody id="snapshotTableBody">
-                                <?php $no = 1; foreach ($presensiHariIni as $p): ?>
+                                <?php $no = 1;
+                                foreach ($presensiHariIni as $p): ?>
                                     <tr data-jurusan="<?= esc(strtolower($p['jurusan'] ?? '')) ?>">
                                         <td class="text-center text-muted fw-semibold" style="font-size: 0.85rem;"><?= $no++ ?></td>
                                         <td>
