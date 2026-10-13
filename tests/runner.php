@@ -723,6 +723,9 @@ $runner->it("View admin/jurusan harus memuat stat-card, tabel interaktif, dan mo
     $runner->assertTrue(strpos($content, 'konfirmasiHapusJurusan') !== false, "Harus memuat konfirmasiHapusJurusan");
     $runner->assertTrue(strpos($content, 'Swal.fire') !== false, "Harus memuat integrasi SweetAlert2");
     $runner->assertTrue(strpos($content, 'nama_universitas') !== false, "Harus menampilkan identitas nama_universitas mitra");
+    $runner->assertTrue(strpos($content, 'inputCariJurusan') !== false, "Harus memuat inputCariJurusan instan tanpa tombol submit");
+    $runner->assertTrue(strpos($content, 'filterTabelJurusan') !== false, "Harus memuat fungsi filterTabelJurusan live filtering");
+    $runner->assertTrue(strpos($content, 'filterUniversitasJurusan') !== false, "Harus memuat filterUniversitasJurusan");
 });
 
 $runner->it("Layout template dan form pengguna harus terintegrasi dengan Master Data Jurusan dan dependent dropdown", function() use ($runner) {

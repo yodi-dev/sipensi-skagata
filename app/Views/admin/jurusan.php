@@ -64,13 +64,6 @@
         background-color: #f8fafc;
     }
 
-    .filter-wrapper {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 9999px;
-        padding: 0.35rem 0.65rem;
-    }
-
     .btn-skagata {
         background-color: #0f5132;
         color: #ffffff;
@@ -98,8 +91,16 @@
         box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
+    .jurusan-item-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(15, 81, 50, 0.08);
+    }
     .jurusan-item-card:active {
         transform: scale(0.99);
+    }
+
+    .shadow-xs {
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     }
 </style>
 <?= $this->endSection() ?>
@@ -125,7 +126,7 @@
                 <p class="text-muted small mt-1 mb-0">Kelola bidang kejuruan SMK Negeri 3 Yogyakarta dan penempatan mahasiswa PPL/PK</p>
             </div>
             <div>
-                <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahJurusan">
+                <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 py-1.5 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahJurusan">
                     <i class="bi bi-plus-circle"></i>
                     <span>Tambah Jurusan Baru</span>
                 </button>
@@ -135,7 +136,7 @@
 
     <!-- Ringkasan Statistik Modern -->
     <div class="row g-3 mb-4">
-        <div class="col-12 col-sm-6 col-lg-4">
+        <div class="col-12 col-sm-6 col-lg-3">
             <div class="stat-card-modern d-flex align-items-center justify-content-between">
                 <div>
                     <span class="text-muted small fw-semibold d-block mb-1">Total Jurusan Aktif</span>
@@ -148,7 +149,20 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-lg-4">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="stat-card-modern d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold d-block mb-1">Universitas Mitra</span>
+                    <h3 class="fw-bold text-dark mb-0"><?= count($daftar_universitas) ?></h3>
+                    <small class="text-info fw-medium"><i class="bi bi-buildings me-1"></i>Institusi Kampus</small>
+                </div>
+                <div class="stat-icon-wrapper bg-info-subtle text-info-emphasis">
+                    <i class="bi bi-buildings"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
             <div class="stat-card-modern d-flex align-items-center justify-content-between">
                 <div>
                     <span class="text-muted small fw-semibold d-block mb-1">Mahasiswa Terdistribusi</span>
@@ -161,14 +175,14 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-12 col-lg-4">
+        <div class="col-12 col-sm-6 col-lg-3">
             <div class="stat-card-modern d-flex align-items-center justify-content-between">
                 <div>
                     <span class="text-muted small fw-semibold d-block mb-1">Rata-rata Penempatan</span>
                     <h3 class="fw-bold text-dark mb-0">
                         <?= count($jurusan_list) > 0 ? round($total_mahasiswa / count($jurusan_list), 1) : 0 ?>
                     </h3>
-                    <small class="text-muted fw-medium"><i class="bi bi-diagram-3 me-1"></i>Mahasiswa per jurusan</small>
+                    <small class="text-warning-emphasis fw-medium"><i class="bi bi-diagram-3 me-1"></i>Mahasiswa per jurusan</small>
                 </div>
                 <div class="stat-icon-wrapper bg-warning-subtle text-warning-emphasis">
                     <i class="bi bi-pie-chart"></i>
@@ -181,42 +195,43 @@
     <div class="card admin-card">
         <div class="card-header-custom d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
-                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                    <i class="bi bi-list-check text-success"></i>
-                    <span>Daftar Jurusan Terdaftar</span>
-                </h6>
-                <small class="text-muted">Total: <?= count($jurusan_list) ?> bidang kejuruan / prodi ditemukan</small>
+                <div class="d-flex align-items-center gap-2">
+                    <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-list-check text-success"></i>
+                        <span>Daftar Jurusan Terdaftar</span>
+                    </h6>
+                    <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 fw-semibold" id="counterJurusanAktif" style="font-size: 0.75rem;">
+                        <?= count($jurusan_list) ?> Jurusan
+                    </span>
+                </div>
+                <small class="text-muted mt-1 d-block">Bidang kejuruan prodi universitas mitra di SMK Negeri 3 Yogyakarta</small>
             </div>
 
-            <!-- Toolbar Pencarian & Filter Universitas -->
-            <form action="<?= base_url('admin/jurusan') ?>" method="GET" class="filter-wrapper d-flex flex-wrap align-items-center gap-2 m-0 shadow-xs">
+            <!-- Toolbar Pencarian & Filter Instan (Tanpa Tombol Submit) -->
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <!-- Input Pencarian Real-time -->
+                <div class="input-group input-group-sm shadow-xs" style="width: 250px;">
+                    <span class="input-group-text bg-white border-end-0 text-muted ps-2.5 pe-1">
+                        <i class="bi bi-search text-success"></i>
+                    </span>
+                    <input type="text" id="inputCariJurusan" class="form-control border-start-0 ps-1 fw-medium" placeholder="Cari nama, kode, deskripsi..." oninput="filterTabelJurusan()" value="<?= esc($keyword ?? '') ?>">
+                    <button type="button" id="btnResetCariJurusan" class="btn btn-sm btn-link text-muted p-1 border-0 pe-2" onclick="resetCariJurusan()" title="Hapus Pencarian" style="<?= empty($keyword) ? 'display: none;' : '' ?>">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                </div>
+
+                <!-- Filter Universitas Dropdown -->
                 <?php if (!empty($daftar_universitas)): ?>
-                    <select name="universitas_id" class="form-select form-select-sm border-0 bg-transparent fw-medium" style="min-width: 175px;" onchange="this.form.submit()">
-                        <option value="">-- Semua Universitas --</option>
+                    <select id="filterUniversitasJurusan" class="form-select form-select-sm fw-medium shadow-xs" style="min-width: 195px;" onchange="filterTabelJurusan()">
+                        <option value="">Semua Universitas Mitra</option>
                         <?php foreach ($daftar_universitas as $univ): ?>
-                            <option value="<?= $univ['id'] ?>" <?= ((string)($universitas_filter ?? '') === (string)$univ['id']) ? 'selected' : '' ?>>
+                            <option value="<?= (int) $univ['id'] ?>" <?= ((string)($universitas_filter ?? '') === (string)$univ['id']) ? 'selected' : '' ?>>
                                 <?= esc($univ['nama_universitas']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <div class="vr opacity-25 d-none d-sm-block"></div>
                 <?php endif; ?>
-
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-white border-0 text-muted ps-2 pe-1"><i class="bi bi-search text-success"></i></span>
-                    <input type="text" name="keyword" class="form-control border-0 bg-transparent fw-medium" placeholder="Cari nama / kode jurusan..." value="<?= esc($keyword ?? '') ?>" style="min-width: 180px;">
-                </div>
-
-                <?php if (!empty($keyword) || !empty($universitas_filter)): ?>
-                    <a href="<?= base_url('admin/jurusan') ?>" class="btn btn-sm btn-link text-muted p-1" title="Reset Pencarian">
-                        <i class="bi bi-x-circle-fill"></i>
-                    </a>
-                <?php endif; ?>
-
-                <button type="submit" class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-success fw-semibold">
-                    Cari
-                </button>
-            </form>
+            </div>
         </div>
 
         <?php if (empty($jurusan_list)): ?>
@@ -224,7 +239,7 @@
                 <div class="py-4">
                     <i class="bi bi-journal-x text-muted opacity-50" style="font-size: 3rem;"></i>
                     <h6 class="fw-semibold text-muted mt-3 mb-1">Tidak Ada Data Jurusan</h6>
-                    <p class="text-muted small mb-3">Tidak ditemukan data jurusan yang sesuai dengan kriteria pencarian.</p>
+                    <p class="text-muted small mb-3">Belum ada data jurusan yang terdaftar di sistem.</p>
                     <a href="<?= base_url('admin/jurusan') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3">
                         <i class="bi bi-arrow-clockwise me-1"></i>Muat Ulang Data
                     </a>
@@ -236,24 +251,26 @@
             <!-- ============================================== -->
             <div class="d-block d-md-none p-3">
                 <div class="d-flex flex-column gap-3">
-                    <?php $noMobile = 1; foreach ($jurusan_list as $j): ?>
-                        <?php $jml = (int) ($j['total_mahasiswa'] ?? 0); ?>
-                        <div class="jurusan-item-card">
+                    <?php foreach ($jurusan_list as $j): ?>
+                        <?php
+                            $jml = (int) ($j['total_mahasiswa'] ?? 0);
+                            $univId = (int) ($j['universitas_id'] ?? 0);
+                            $searchKeywords = strtolower(
+                                ($j['kode_jurusan'] ?? '') . ' ' .
+                                ($j['nama_jurusan'] ?? '') . ' ' .
+                                ($j['nama_universitas'] ?? '') . ' ' .
+                                ($j['deskripsi'] ?? '')
+                            );
+                        ?>
+                        <div class="jurusan-item-card baris-jurusan-mobile" data-universitas="<?= $univId ?>" data-search="<?= esc($searchKeywords) ?>">
                             <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
                                 <div>
                                     <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill badge-kode mb-1">
                                         <?= esc($j['kode_jurusan']) ?>
                                     </span>
-                                    <div class="fw-bold text-dark mt-1" style="font-size: 0.95rem;"><?= esc($j['nama_jurusan']) ?></div>
-                                    <?php if (!empty($j['nama_universitas'])): ?>
-                                        <div class="mt-1">
-                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
-                                                <i class="bi bi-buildings text-success me-1"></i><?= esc($j['nama_universitas']) ?>
-                                            </span>
-                                        </div>
-                                    <?php endif; ?>
+                                    <div class="fw-bold text-dark mt-1" style="font-size: 0.95rem; line-height: 1.35;"><?= esc($j['nama_jurusan']) ?></div>
                                 </div>
-                                <div class="text-end">
+                                <div class="text-end flex-shrink-0">
                                     <?php if ($jml > 0): ?>
                                         <a href="<?= base_url('admin/pengguna?jurusan=' . urlencode($j['nama_jurusan'])) ?>" class="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 text-decoration-none shadow-xs d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;" title="Lihat Mahasiswa">
                                             <i class="bi bi-mortarboard text-success"></i>
@@ -265,8 +282,22 @@
                                 </div>
                             </div>
 
+                            <!-- Asal Kampus Mitra -->
+                            <div class="mb-2">
+                                <?php if (!empty($j['nama_universitas'])): ?>
+                                    <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1 shadow-xs d-inline-flex align-items-center gap-1.5" style="font-size: 0.75rem;">
+                                        <i class="bi bi-buildings text-success"></i>
+                                        <span><?= esc($j['nama_universitas']) ?></span>
+                                    </span>
+                                <?php else: ?>
+                                    <span class="badge bg-light text-muted border rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
+                                        <i class="bi bi-buildings me-1"></i>Umum / Belum Ditautkan
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+
                             <?php if (!empty($j['deskripsi'])): ?>
-                                <div class="p-2 bg-light rounded-3 small text-muted mb-3" style="font-size: 0.8rem;">
+                                <div class="p-2.5 bg-light rounded-3 small text-muted mb-3" style="font-size: 0.8rem; line-height: 1.45;">
                                     <?= esc($j['deskripsi']) ?>
                                 </div>
                             <?php else: ?>
@@ -274,13 +305,13 @@
                             <?php endif; ?>
 
                             <!-- Tombol Aksi Mobile Touch-Friendly -->
-                            <div class="d-flex align-items-center gap-2 pt-1 border-top">
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
+                            <div class="d-flex align-items-center gap-2 pt-2 border-top">
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1.5 shadow-xs" style="font-size: 0.82rem; min-height: 38px;"
                                         onclick="bukaModalEditJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['kode_jurusan'], 'js') ?>', '<?= esc($j['nama_jurusan'], 'js') ?>', '<?= esc($j['deskripsi'] ?? '', 'js') ?>', '<?= esc($j['universitas_id'] ?? '', 'js') ?>')">
                                     <i class="bi bi-pencil-square"></i>
                                     <span>Edit</span>
                                 </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1.5 shadow-xs" style="font-size: 0.82rem; min-height: 38px;"
                                         onclick="konfirmasiHapusJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['nama_jurusan'], 'js') ?>', <?= $jml ?>)">
                                     <i class="bi bi-trash"></i>
                                     <span>Hapus</span>
@@ -288,6 +319,13 @@
                             </div>
                         </div>
                     <?php endforeach; ?>
+
+                    <!-- Pesan Tidak Ditemukan Mobile -->
+                    <div id="emptySearchMobile" class="text-center py-5 bg-white rounded-3 border" style="display: none;">
+                        <i class="bi bi-search text-muted opacity-50 d-block fs-2 mb-2"></i>
+                        <h6 class="fw-semibold text-muted mb-1">Jurusan Tidak Ditemukan</h6>
+                        <p class="text-muted small mb-0">Tidak ada jurusan yang sesuai dengan kata kunci "<span id="textSearchMobile" class="fw-bold text-dark"></span>".</p>
+                    </div>
                 </div>
             </div>
 
@@ -301,15 +339,25 @@
                             <th class="text-center" style="width: 50px;">No</th>
                             <th style="width: 120px;">Kode Jurusan</th>
                             <th>Nama Jurusan &amp; Keterangan</th>
-                            <th style="width: 220px;">Asal Universitas Mitra</th>
+                            <th style="width: 230px;">Asal Universitas Mitra</th>
                             <th class="text-center" style="width: 170px;">Mahasiswa Terdaftar</th>
                             <th class="text-center" style="width: 120px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php $no = 1; foreach ($jurusan_list as $j): ?>
-                            <tr>
-                                <td class="text-center text-muted fw-semibold"><?= $no++ ?></td>
+                            <?php
+                                $jml = (int) ($j['total_mahasiswa'] ?? 0);
+                                $univId = (int) ($j['universitas_id'] ?? 0);
+                                $searchKeywords = strtolower(
+                                    ($j['kode_jurusan'] ?? '') . ' ' .
+                                    ($j['nama_jurusan'] ?? '') . ' ' .
+                                    ($j['nama_universitas'] ?? '') . ' ' .
+                                    ($j['deskripsi'] ?? '')
+                                );
+                            ?>
+                            <tr class="baris-jurusan-desktop" data-universitas="<?= $univId ?>" data-search="<?= esc($searchKeywords) ?>">
+                                <td class="text-center text-muted fw-semibold nomor-urut"><?= $no++ ?></td>
                                 <td>
                                     <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill badge-kode">
                                         <?= esc($j['kode_jurusan']) ?>
@@ -318,7 +366,7 @@
                                 <td>
                                     <div class="fw-bold text-dark"><?= esc($j['nama_jurusan']) ?></div>
                                     <?php if (!empty($j['deskripsi'])): ?>
-                                        <div class="small text-muted text-truncate mt-1" style="max-width: 450px;" title="<?= esc($j['deskripsi']) ?>">
+                                        <div class="small text-muted text-truncate mt-1" style="max-width: 440px;" title="<?= esc($j['deskripsi']) ?>">
                                             <?= esc($j['deskripsi']) ?>
                                         </div>
                                     <?php else: ?>
@@ -327,18 +375,17 @@
                                 </td>
                                 <td>
                                     <?php if (!empty($j['nama_universitas'])): ?>
-                                        <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 shadow-xs d-inline-flex align-items-center gap-1" style="font-size: 0.8rem;">
+                                        <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 shadow-xs d-inline-flex align-items-center gap-1.5" style="font-size: 0.8rem;">
                                             <i class="bi bi-buildings text-success"></i>
-                                            <span class="text-truncate" style="max-width: 160px;" title="<?= esc($j['nama_universitas']) ?>"><?= esc($j['nama_universitas']) ?></span>
+                                            <span class="text-truncate" style="max-width: 180px;" title="<?= esc($j['nama_universitas']) ?>"><?= esc($j['nama_universitas']) ?></span>
                                         </span>
                                     <?php else: ?>
                                         <span class="badge bg-light text-muted border rounded-pill px-2.5 py-1" style="font-size: 0.75rem;">Umum / Belum Ditautkan</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
-                                    <?php $jml = (int) ($j['total_mahasiswa'] ?? 0); ?>
                                     <?php if ($jml > 0): ?>
-                                        <a href="<?= base_url('admin/pengguna?jurusan=' . urlencode($j['nama_jurusan'])) ?>" class="badge bg-light text-dark border rounded-pill px-3 py-2 text-decoration-none shadow-xs d-inline-flex align-items-center gap-1" title="Lihat Mahasiswa">
+                                        <a href="<?= base_url('admin/pengguna?jurusan=' . urlencode($j['nama_jurusan'])) ?>" class="badge bg-light text-dark border rounded-pill px-3 py-2 text-decoration-none shadow-xs d-inline-flex align-items-center gap-1.5" title="Lihat Mahasiswa">
                                             <i class="bi bi-mortarboard text-success"></i>
                                             <strong><?= $jml ?></strong> Mahasiswa
                                         </a>
@@ -351,18 +398,27 @@
                                 <td class="text-center">
                                     <div class="d-inline-flex align-items-center gap-1">
                                         <!-- Tombol Edit -->
-                                        <button type="button" class="btn btn-sm btn-light border text-primary rounded-circle p-1" style="width: 32px; height: 32px;" title="Edit Jurusan" onclick="bukaModalEditJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['kode_jurusan'], 'js') ?>', '<?= esc($j['nama_jurusan'], 'js') ?>', '<?= esc($j['deskripsi'] ?? '', 'js') ?>', '<?= esc($j['universitas_id'] ?? '', 'js') ?>')">
+                                        <button type="button" class="btn btn-sm btn-light border text-primary rounded-circle p-1 shadow-xs" style="width: 32px; height: 32px;" title="Edit Jurusan" onclick="bukaModalEditJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['kode_jurusan'], 'js') ?>', '<?= esc($j['nama_jurusan'], 'js') ?>', '<?= esc($j['deskripsi'] ?? '', 'js') ?>', '<?= esc($j['universitas_id'] ?? '', 'js') ?>')">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
 
                                         <!-- Tombol Hapus -->
-                                        <button type="button" class="btn btn-sm btn-light border text-danger rounded-circle p-1" style="width: 32px; height: 32px;" title="Hapus Jurusan" onclick="konfirmasiHapusJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['nama_jurusan'], 'js') ?>', <?= $jml ?>)">
+                                        <button type="button" class="btn btn-sm btn-light border text-danger rounded-circle p-1 shadow-xs" style="width: 32px; height: 32px;" title="Hapus Jurusan" onclick="konfirmasiHapusJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['nama_jurusan'], 'js') ?>', <?= $jml ?>)">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
+
+                        <!-- Pesan Tidak Ditemukan Desktop -->
+                        <tr id="emptySearchDesktop" style="display: none;">
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-search text-muted opacity-50 d-block fs-2 mb-2"></i>
+                                <h6 class="fw-semibold text-muted mb-1">Jurusan Tidak Ditemukan</h6>
+                                <p class="text-muted small mb-0">Tidak ada data jurusan yang cocok dengan kriteria pencarian "<span id="textSearchDesktop" class="fw-bold text-dark"></span>".</p>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -508,6 +564,13 @@
 
         bindSubmitSpinner('formTambahJurusan', 'btnSubmitTambahJurusan', 'Menyimpan...');
         bindSubmitSpinner('formEditJurusan', 'btnSubmitEditJurusan', 'Menyimpan...');
+
+        // Inisialisasi filter jika terdapat query parameter dari URL
+        const input = document.getElementById('inputCariJurusan');
+        const filterUniv = document.getElementById('filterUniversitasJurusan');
+        if ((input && input.value.trim() !== '') || (filterUniv && filterUniv.value.trim() !== '')) {
+            filterTabelJurusan();
+        }
     });
 
     function bukaModalEditJurusan(id, kode, nama, deskripsi, universitasId) {
@@ -550,6 +613,111 @@
             }
         });
     }
+
+    // Filter Instan Real-time Tabel & Mobile Cards Tanpa Tombol Cari
+    function filterTabelJurusan() {
+        const input = document.getElementById('inputCariJurusan');
+        const btnReset = document.getElementById('btnResetCariJurusan');
+        const filterUniv = document.getElementById('filterUniversitasJurusan');
+
+        const keyword = input ? input.value.toLowerCase().trim() : '';
+        const univId = filterUniv ? filterUniv.value.trim() : '';
+
+        if (btnReset) {
+            btnReset.style.display = (keyword.length > 0 || univId.length > 0) ? 'inline-block' : 'none';
+        }
+
+        const rows = document.querySelectorAll('.baris-jurusan-desktop');
+        const cards = document.querySelectorAll('.baris-jurusan-mobile');
+
+        // Filter Baris Desktop
+        let visibleDesktop = 0;
+        rows.forEach((row) => {
+            const rowSearch = row.getAttribute('data-search') || '';
+            const rowUniv = row.getAttribute('data-universitas') || '';
+
+            const matchKeyword = keyword === '' || rowSearch.includes(keyword);
+            const matchUniv = univId === '' || rowUniv === univId;
+
+            if (matchKeyword && matchUniv) {
+                row.style.display = '';
+                visibleDesktop++;
+                const numCell = row.querySelector('.nomor-urut');
+                if (numCell) numCell.textContent = visibleDesktop;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Update Counter Badges
+        const counterBadge = document.getElementById('counterJurusanAktif');
+        if (counterBadge) {
+            counterBadge.textContent = `${visibleDesktop} Jurusan`;
+        }
+
+        // Empty State Desktop
+        const emptyDesktop = document.getElementById('emptySearchDesktop');
+        const textDesktop = document.getElementById('textSearchDesktop');
+        if (emptyDesktop) {
+            if (visibleDesktop === 0 && (keyword !== '' || univId !== '')) {
+                emptyDesktop.style.display = '';
+                if (textDesktop) {
+                    let label = keyword;
+                    if (univId !== '' && filterUniv) {
+                        const univText = filterUniv.options[filterUniv.selectedIndex]?.text || '';
+                        label = keyword ? `${keyword} (${univText})` : univText;
+                    }
+                    textDesktop.textContent = label;
+                }
+            } else {
+                emptyDesktop.style.display = 'none';
+            }
+        }
+
+        // Filter Kartu Mobile
+        let visibleMobile = 0;
+        cards.forEach((card) => {
+            const cardSearch = card.getAttribute('data-search') || '';
+            const cardUniv = card.getAttribute('data-universitas') || '';
+
+            const matchKeyword = keyword === '' || cardSearch.includes(keyword);
+            const matchUniv = univId === '' || cardUniv === univId;
+
+            if (matchKeyword && matchUniv) {
+                card.style.display = '';
+                visibleMobile++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Empty State Mobile
+        const emptyMobile = document.getElementById('emptySearchMobile');
+        const textMobile = document.getElementById('textSearchMobile');
+        if (emptyMobile) {
+            if (visibleMobile === 0 && (keyword !== '' || univId !== '')) {
+                emptyMobile.style.display = 'block';
+                if (textMobile) {
+                    let label = keyword;
+                    if (univId !== '' && filterUniv) {
+                        const univText = filterUniv.options[filterUniv.selectedIndex]?.text || '';
+                        label = keyword ? `${keyword} (${univText})` : univText;
+                    }
+                    textMobile.textContent = label;
+                }
+            } else {
+                emptyMobile.style.display = 'none';
+            }
+        }
+    }
+
+    function resetCariJurusan() {
+        const input = document.getElementById('inputCariJurusan');
+        const filterUniv = document.getElementById('filterUniversitasJurusan');
+        if (input) input.value = '';
+        if (filterUniv) filterUniv.value = '';
+        filterTabelJurusan();
+        if (input) input.focus();
+    }
 </script>
 <?= $this->endSection() ?>
-
