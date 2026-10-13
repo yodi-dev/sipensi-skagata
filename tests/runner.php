@@ -1183,5 +1183,57 @@ $runner->it("Service Throttler harus memblokir request setelah batas kapasitas t
     cache()->delete('throttler_' . $testKey);
 });
 
+
+// ==========================================
+// 22. PENGUJIAN PENYATUAN PROFIL & KEAMANAN UNIVERSAL
+// ==========================================
+$runner->describe("22. Pengujian Penyatuan Profil & Keamanan Universal");
+
+$runner->it("Route profil dan profil/simpan serta backward-compatible ubah_password harus terdaftar di Config/Routes.php", function() use ($runner) {
+    $routesFile = APPPATH . 'Config/Routes.php';
+    $runner->assertTrue(file_exists($routesFile));
+    $content = file_get_contents($routesFile);
+    $runner->assertTrue(strpos($content, "'Auth::profil'") !== false, "Route GET profil harus diarahkan ke Auth::profil");
+    $runner->assertTrue(strpos($content, "'Auth::prosesUpdateProfil'") !== false, "Route POST profil/simpan harus diarahkan ke Auth::prosesUpdateProfil");
+    $runner->assertTrue(strpos($content, "'/ubah_password'") !== false, "Route legacy /ubah_password harus tetap terdaftar untuk graceful handling");
+});
+
+$runner->it("Controller Auth harus memiliki method profil() dan prosesUpdateProfil() dengan validasi lengkap", function() use ($runner) {
+    $controller = new \App\Controllers\Auth();
+    $runner->assertTrue(method_exists($controller, 'profil'), "Auth harus memiliki method profil()");
+    $runner->assertTrue(method_exists($controller, 'prosesUpdateProfil'), "Auth harus memiliki method prosesUpdateProfil()");
+    $runner->assertTrue(method_exists($controller, 'ubahPasswordView'), "Auth harus tetap memiliki method ubahPasswordView()");
+    $runner->assertTrue(method_exists($controller, 'prosesUbahPassword'), "Auth harus tetap memiliki method prosesUbahPassword()");
+
+    $authFile = APPPATH . 'Controllers/Auth.php';
+    $content = file_get_contents($authFile);
+    $runner->assertTrue(strpos($content, 'password_hash') !== false, "prosesUpdateProfil harus mengenkripsi password dengan password_hash");
+    $runner->assertTrue(strpos($content, 'PASSWORD_BCRYPT') !== false, "Algoritma password hash harus PASSWORD_BCRYPT");
+    $runner->assertTrue(strpos($content, 'password_verify') !== false, "Verifikasi password lama harus menggunakan password_verify");
+});
+
+$runner->it("View auth/profil.php harus memuat komponen identitas pengguna, form profil, dan toggle keamanan password", function() use ($runner) {
+    $viewFile = APPPATH . 'Views/auth/profil.php';
+    $runner->assertTrue(file_exists($viewFile), "File Views/auth/profil.php harus tersedia");
+    $content = file_get_contents($viewFile);
+    $runner->assertTrue(strpos($content, 'name="nama"') !== false, "View profil harus memuat field nama");
+    $runner->assertTrue(strpos($content, 'name="password_baru"') !== false, "View profil harus memuat field password_baru");
+    $runner->assertTrue(strpos($content, 'name="password_lama"') !== false, "View profil harus memuat field password_lama");
+    $runner->assertTrue(strpos($content, 'name="konfirmasi_password"') !== false, "View profil harus memuat field konfirmasi_password");
+    $runner->assertTrue(strpos($content, 'togglePassVisibility') !== false, "View profil harus memuat fungsi togglePassVisibility");
+    $runner->assertTrue(strpos($content, 'validasiLivePassword') !== false, "View profil harus memuat indikator kekuatan password validasiLivePassword");
+});
+
+$runner->it("Layout template harus menyediakan navigasi profil terpadu untuk semua role di sidebar, topbar, dan mobile menu", function() use ($runner) {
+    $templateFile = APPPATH . 'Views/layout/template.php';
+    $runner->assertTrue(file_exists($templateFile));
+    $content = file_get_contents($templateFile);
+    $runner->assertTrue(strpos($content, "base_url('profil')") !== false, "Template harus memiliki tautan ke base_url('profil')");
+    $runner->assertTrue(strpos($content, 'modalMobileUserMenu') !== false, "Template harus memiliki modal mobile bottom sheet");
+    $runner->assertTrue(strpos($content, 'adminUserDropdown') !== false, "Template harus memiliki adminUserDropdown");
+    $runner->assertTrue(strpos($content, 'userDropdownGeneral') !== false, "Template harus memiliki userDropdownGeneral");
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());
+

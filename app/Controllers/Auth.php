@@ -85,65 +85,131 @@ class Auth extends BaseController
         }
     }
 
-    // --- METHOD UNTUK MENAMPILKAN VIEW ---
-    public function ubahPasswordView()
+    // --- METHOD PROFIL & KEAMANAN TERPADU ---
+    public function profil()
     {
-        // Pastikan user sudah login (cek session)
-        if (!session()->get('nama')) {
-            return redirect()->to('/')->with('error', 'Silakan login terlebih dahulu.');
+        $session = session();
+        if (!$session->get('isLoggedIn')) {
+            return redirect()->to('/auth')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        return view('auth/ubah_password');
+        $userId = $session->get('id_user');
+        $userModel = new UserModel();
+        $user = $userModel->find($userId);
+
+        if (!$user) {
+            $session->destroy();
+            return redirect()->to('/auth')->with('error', 'Data pengguna tidak ditemukan. Silakan login kembali.');
+        }
+
+        $data = [
+            'title'        => 'Profil & Keamanan Akun - SIPENSI SKAGATA',
+            'user'         => $user,
+            'role'         => $user['role'],
+            'namaUser'     => $user['nama'],
+            'usernameUser' => $user['username'],
+        ];
+
+        // Ambil info kontekstual berdasarkan role
+        if ($user['role'] === 'mahasiswa') {
+            $periodeModel = new \App\Models\PeriodeModel();
+            $periode = !empty($user['periode_id']) ? $periodeModel->find($user['periode_id']) : null;
+            $data['periode'] = $periode;
+        } elseif ($user['role'] === 'guru') {
+            $guruPamongModel = new \App\Models\GuruPamongModel();
+            $assignments = $guruPamongModel->getAssignmentsByGuru((int) $user['id']);
+            $totalMhs = $guruPamongModel->countMahasiswaByGuru((int) $user['id']);
+            $data['assignments'] = $assignments;
+            $data['total_mahasiswa'] = $totalMhs;
+        }
+
+        return view('auth/profil', $data);
     }
 
-    // --- METHOD UNTUK MEMPROSES UBAH PASSWORD ---
-    public function prosesUbahPassword()
+    public function prosesUpdateProfil()
     {
-        $passwordLama = $this->request->getPost('password_lama');
-        $passwordBaru = $this->request->getPost('password_baru');
-        $konfirmasiPassword = $this->request->getPost('konfirmasi_password');
-
-        // 1. Validasi konfirmasi password dan panjang karakter
-        if (strlen((string) $passwordBaru) < 6) {
-            return redirect()->back()->with('error', 'Password baru minimal 6 karakter!');
+        $session = session();
+        if (!$session->get('isLoggedIn')) {
+            return redirect()->to('/auth')->with('error', 'Sesi telah berakhir. Silakan login kembali.');
         }
 
-        if ($passwordBaru !== $konfirmasiPassword) {
-            return redirect()->back()->with('error', 'Konfirmasi password tidak cocok dengan password baru!');
-        }
-
-        // 2. Ambil data session
-        $idUser = session()->get('id_user');
-        $role   = session()->get('role');
-
-        // 3. Panggil UserModel
+        $userId = $session->get('id_user');
         $userModel = new UserModel();
+        $user = $userModel->find($userId);
 
-        // 4. Cari data user di database berdasarkan ID session
-        $user = $userModel->find($idUser);
         if (!$user) {
-            return redirect()->to('/auth')->with('error', 'User tidak ditemukan atau sesi telah berakhir.');
+            return redirect()->to('/auth')->with('error', 'Data pengguna tidak ditemukan.');
         }
 
-        // 5. Cek apakah password lama sesuai
-        if (!password_verify($passwordLama, $user['password'])) {
-            return redirect()->back()->with('error', 'Password saat ini yang Anda masukkan tidak sesuai!');
+        $nama = trim(strip_tags((string) $this->request->getPost('nama')));
+        if (empty($nama) || mb_strlen($nama) < 2) {
+            return redirect()->back()->withInput()->with('error', 'Nama lengkap minimal 2 karakter!');
         }
 
-        // 6. Enkripsi password baru dan Update ke database
-        $userModel->update($idUser, [
-            'password' => password_hash($passwordBaru, PASSWORD_DEFAULT)
+        $updateData = ['nama' => $nama];
+
+        // Khusus Administrator: Boleh mengupdate username
+        if ($user['role'] === 'admin') {
+            $username = trim((string) $this->request->getPost('username'));
+            if (!empty($username) && $username !== $user['username']) {
+                if (mb_strlen($username) < 3) {
+                    return redirect()->back()->withInput()->with('error', 'Username minimal 3 karakter!');
+                }
+                // Cek keunikan
+                $cek = $userModel->where('username', $username)->where('id !=', $userId)->first();
+                if ($cek) {
+                    return redirect()->back()->withInput()->with('error', "Username '{$username}' telah digunakan pengguna lain!");
+                }
+                $updateData['username'] = $username;
+            }
+        }
+
+        // Cek jika ada pengubahan kata sandi
+        $passwordLama = (string) $this->request->getPost('password_lama');
+        $passwordBaru = (string) $this->request->getPost('password_baru');
+        $konfirmasiPassword = (string) $this->request->getPost('konfirmasi_password');
+
+        if (!empty($passwordBaru) || !empty($passwordLama) || !empty($konfirmasiPassword)) {
+            if (empty($passwordLama)) {
+                return redirect()->back()->withInput()->with('error', 'Masukkan password saat ini untuk memverifikasi perubahan password!');
+            }
+            if (!password_verify($passwordLama, $user['password'])) {
+                return redirect()->back()->withInput()->with('error', 'Password saat ini yang Anda masukkan tidak sesuai!');
+            }
+            if (strlen($passwordBaru) < 6) {
+                return redirect()->back()->withInput()->with('error', 'Password baru minimal 6 karakter!');
+            }
+            if ($passwordBaru !== $konfirmasiPassword) {
+                return redirect()->back()->withInput()->with('error', 'Konfirmasi password baru tidak cocok!');
+            }
+
+            $updateData['password'] = password_hash($passwordBaru, PASSWORD_BCRYPT);
+        }
+
+        $userModel->update($userId, $updateData);
+
+        // Perbarui data session yang relevan
+        $session->set([
+            'nama'     => $updateData['nama'],
+            'username' => $updateData['username'] ?? $user['username']
         ]);
 
-        // 7. Arahkan kembali ke dashboard yang sesuai berdasarkan role
-        if ($role === 'admin') {
-            $redirectUrl = '/admin';
-        } elseif ($role === 'guru') {
-            $redirectUrl = '/guru';
-        } else {
-            $redirectUrl = '/mahasiswa';
-        }
-        return redirect()->to($redirectUrl)->with('pesan', 'Password berhasil diperbarui!');
+        $pesanSukses = (!empty($passwordBaru))
+            ? 'Profil dan kata sandi akun Anda berhasil diperbarui!'
+            : 'Informasi profil Anda berhasil diperbarui!';
+
+        return redirect()->to('/profil')->with('pesan', $pesanSukses);
+    }
+
+    // --- ALIAS BACKWARD-COMPATIBILITY UNTUK RUTE LAMA ---
+    public function ubahPasswordView()
+    {
+        return redirect()->to('/profil');
+    }
+
+    public function prosesUbahPassword()
+    {
+        return $this->prosesUpdateProfil();
     }
 
     public function logout()

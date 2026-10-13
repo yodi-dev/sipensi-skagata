@@ -410,8 +410,8 @@
                 $pageTitleDesktop = 'Laporan Piket KBM';
             } elseif (strpos($currentUri, 'guru/laporan') !== false) {
                 $pageTitleDesktop = 'Rekapitulasi Bulanan';
-            } elseif (strpos($currentUri, 'ubah_password') !== false) {
-                $pageTitleDesktop = 'Ubah Kata Sandi';
+            } elseif (strpos($currentUri, 'profil') !== false || strpos($currentUri, 'ubah_password') !== false) {
+                $pageTitleDesktop = 'Profil & Keamanan';
             } else {
                 $pageTitleDesktop = 'Presensi Harian';
             }
@@ -420,8 +420,8 @@
                 $pageTitleDesktop = 'Presensi Piket KBM';
             } elseif (strpos($currentUri, 'mahasiswa/riwayat') !== false) {
                 $pageTitleDesktop = 'Riwayat Presensi';
-            } elseif (strpos($currentUri, 'ubah_password') !== false) {
-                $pageTitleDesktop = 'Ubah Kata Sandi';
+            } elseif (strpos($currentUri, 'profil') !== false || strpos($currentUri, 'ubah_password') !== false) {
+                $pageTitleDesktop = 'Profil & Keamanan';
             } else {
                 $pageTitleDesktop = 'Presensi Harian';
             }
@@ -438,8 +438,8 @@
                 $pageTitleDesktop = 'Master Data Periode';
             } elseif (strpos($currentUri, 'admin/pengaturan') !== false) {
                 $pageTitleDesktop = 'Pengaturan Geofencing & Jam';
-            } elseif (strpos($currentUri, 'ubah_password') !== false) {
-                $pageTitleDesktop = 'Ubah Kata Sandi';
+            } elseif (strpos($currentUri, 'profil') !== false || strpos($currentUri, 'ubah_password') !== false) {
+                $pageTitleDesktop = 'Profil & Keamanan';
             } else {
                 $pageTitleDesktop = 'Dashboard';
             }
@@ -564,15 +564,9 @@
                     <?php endif; ?>
 
                     <div class="sidebar-section-label">Akun &amp; Sesi</div>
-                    <?php if ($role === 'admin'): ?>
-                        <a href="#" class="sidebar-nav-item" data-bs-toggle="modal" data-bs-target="#modalProfilAdmin">
-                            <i class="bi bi-person-gear"></i>
-                            <span>Profil Saya</span>
-                        </a>
-                    <?php endif; ?>
-                    <a href="<?= base_url('ubah_password') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'ubah_password') !== false) ? 'active' : '' ?>">
-                        <i class="bi bi-key-fill"></i>
-                        <span>Ubah Password</span>
+                    <a href="<?= base_url('profil') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'profil') !== false || strpos($currentUri, 'ubah_password') !== false) ? 'active' : '' ?>">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Profil &amp; Keamanan</span>
                     </a>
                     <a href="javascript:void(0)" onclick="konfirmasiLogout()" class="sidebar-nav-item text-danger-subtle">
                         <i class="bi bi-box-arrow-right"></i>
@@ -626,15 +620,35 @@
                             </div>
                         </div>
 
-                        <!-- Sisi Kanan Desktop: Sapaan Personal Pengguna (Bebas Tanggal Ganda & Tanpa Emoji) -->
+                        <!-- Sisi Kanan Desktop: Dropdown Akun Pengguna Terpadu Universal -->
                         <div class="d-none d-md-flex align-items-center gap-2">
-                            <div class="d-flex align-items-center gap-2 bg-light px-3 py-1.5 rounded-pill border shadow-xs" style="font-size: 0.85rem;">
-                                <span class="avatar-initial-sm" style="width: 26px; height: 26px; font-size: 0.7rem; background-color: var(--skagata-primary);">
-                                    <?= esc(mb_strtoupper(mb_substr($namaUser, 0, 1))) ?>
-                                </span>
-                                <span class="text-secondary">
-                                    <?= $greetingTemplate ?>, <strong class="text-dark"><?= esc(explode(' ', trim($namaUser))[0]) ?></strong>
-                                </span>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light border rounded-pill px-2.5 py-1.5 dropdown-toggle d-flex align-items-center gap-2 shadow-xs" type="button" id="userDropdownGeneral" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="avatar-initial-sm" style="background-color: var(--skagata-primary);">
+                                        <?= esc(mb_strtoupper(mb_substr($namaUser, 0, 1))) ?>
+                                    </div>
+                                    <div class="text-start lh-1 me-1">
+                                        <span class="fw-semibold text-dark small d-block text-truncate" style="max-width: 140px;"><?= esc($namaUser) ?></span>
+                                        <small class="text-muted" style="font-size: 0.7rem;"><?= $greetingTemplate ?></small>
+                                    </div>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="userDropdownGeneral" style="min-width: 210px;">
+                                    <li class="px-3 py-2 text-muted small border-bottom">
+                                        Login sebagai: <strong class="text-dark d-block text-truncate"><?= esc($namaUser) ?></strong>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle mt-1"><?= esc($roleLabel) ?></span>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="<?= base_url('profil') ?>">
+                                            <i class="bi bi-person-gear text-success"></i> Profil &amp; Keamanan
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <button type="button" class="dropdown-item py-2 text-danger d-flex align-items-center gap-2 border-0 bg-transparent w-100 text-start" onclick="konfirmasiLogout()">
+                                            <i class="bi bi-box-arrow-right"></i> Logout
+                                        </button>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
 
@@ -676,14 +690,14 @@
                                         <span class="badge bg-success-subtle text-success border border-success-subtle mt-1"><?= esc($roleLabel) ?></span>
                                     </li>
                                     <li>
-                                        <button type="button" class="dropdown-item py-2 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalProfilAdmin">
-                                            <i class="bi bi-person-gear text-success"></i> Profil Saya
-                                        </button>
+                                        <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="<?= base_url('profil') ?>">
+                                            <i class="bi bi-person-gear text-success"></i> Profil &amp; Keamanan
+                                        </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="<?= base_url('ubah_password') ?>">
-                                            <i class="bi bi-key text-muted"></i> Ubah Password
-                                        </a>
+                                        <button type="button" class="dropdown-item py-2 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalProfilAdmin">
+                                            <i class="bi bi-sliders text-muted"></i> Modal Profil Admin
+                                        </button>
                                     </li>
                                     <li><hr class="dropdown-divider my-1"></li>
                                     <li>
@@ -817,7 +831,7 @@
                     </a>
                 <?php endif; ?>
 
-                <button type="button" class="bottom-nav-item <?= (strpos($currentUri, 'ubah_password') !== false) ? 'active' : '' ?>" data-bs-toggle="modal" data-bs-target="#modalMobileUserMenu" aria-label="Menu Akun">
+                <button type="button" class="bottom-nav-item <?= (strpos($currentUri, 'profil') !== false || strpos($currentUri, 'ubah_password') !== false) ? 'active' : '' ?>" data-bs-toggle="modal" data-bs-target="#modalMobileUserMenu" aria-label="Menu Akun">
                     <i class="bi bi-person-circle"></i>
                     <span>Akun</span>
                 </button>
@@ -841,9 +855,9 @@
                         </div>
                         <div class="modal-body p-3">
                             <div class="d-flex flex-column gap-2">
-                                <a href="<?= base_url('ubah_password') ?>" class="btn btn-light text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 text-dark fw-medium border">
-                                    <i class="bi bi-key text-success fs-5"></i>
-                                    <span>Ubah Password</span>
+                                <a href="<?= base_url('profil') ?>" class="btn btn-light text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 text-dark fw-medium border">
+                                    <i class="bi bi-person-gear text-success fs-5"></i>
+                                    <span>Profil & Keamanan</span>
                                 </a>
                                 <button type="button" onclick="konfirmasiLogout()" class="btn btn-light text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 text-danger fw-medium border w-100">
                                     <i class="bi bi-box-arrow-right fs-5"></i>
