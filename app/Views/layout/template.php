@@ -620,14 +620,14 @@
                             </div>
                         </div>
 
-                        <!-- Sisi Kanan Desktop: Dropdown Akun Pengguna Terpadu Universal -->
-                        <div class="d-none d-md-flex align-items-center gap-2">
+                        <!-- Sisi Kanan Desktop & Mobile: Dropdown Akun Pengguna Terpadu Universal -->
+                        <div class="d-flex align-items-center gap-2">
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-light border rounded-pill px-2.5 py-1.5 dropdown-toggle d-flex align-items-center gap-2 shadow-xs" type="button" id="userDropdownGeneral" data-bs-toggle="dropdown" aria-expanded="false">
                                     <div class="avatar-initial-sm" style="background-color: var(--skagata-primary);">
                                         <?= esc(mb_strtoupper(mb_substr($namaUser, 0, 1))) ?>
                                     </div>
-                                    <div class="text-start lh-1 me-1">
+                                    <div class="d-none d-sm-block text-start lh-1 me-1">
                                         <span class="fw-semibold text-dark small d-block text-truncate" style="max-width: 140px;"><?= esc($namaUser) ?></span>
                                         <small class="text-muted" style="font-size: 0.7rem;"><?= $greetingTemplate ?></small>
                                     </div>
@@ -841,9 +841,9 @@
             <div class="modal fade" id="modalMobileUserMenu" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-sm">
                     <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                        <div class="modal-header bg-success text-white py-3">
+                        <div class="modal-header text-white py-3" style="background: linear-gradient(135deg, #0f5132 0%, #10b981 100%);">
                             <div class="d-flex align-items-center gap-2">
-                                <div class="avatar-initial-sm" style="background-color: #10b981;">
+                                <div class="avatar-initial-sm shadow-xs" style="background-color: #ffffff; color: #0f5132; font-weight: 700;">
                                     <?= esc(mb_strtoupper(mb_substr($namaUser, 0, 1))) ?>
                                 </div>
                                 <div class="lh-1 overflow-hidden">
@@ -855,13 +855,19 @@
                         </div>
                         <div class="modal-body p-3">
                             <div class="d-flex flex-column gap-2">
-                                <a href="<?= base_url('profil') ?>" class="btn btn-light text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 text-dark fw-medium border">
+                                <a href="<?= base_url('profil') ?>" class="btn btn-light text-start d-flex align-items-center gap-2.5 py-2.5 px-3 rounded-3 text-dark fw-medium border shadow-xs">
                                     <i class="bi bi-person-gear text-success fs-5"></i>
-                                    <span>Profil & Keamanan</span>
+                                    <div>
+                                        <span class="d-block lh-sm">Profil &amp; Keamanan</span>
+                                        <small class="text-muted d-block" style="font-size: 0.72rem;">Ubah nama &amp; kata sandi akun</small>
+                                    </div>
                                 </a>
-                                <button type="button" onclick="konfirmasiLogout()" class="btn btn-light text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 text-danger fw-medium border w-100">
+                                <button type="button" onclick="konfirmasiLogout()" class="btn btn-light text-start d-flex align-items-center gap-2.5 py-2.5 px-3 rounded-3 text-danger fw-medium border shadow-xs w-100">
                                     <i class="bi bi-box-arrow-right fs-5"></i>
-                                    <span>Keluar (Logout)</span>
+                                    <div>
+                                        <span class="d-block lh-sm">Keluar (Logout)</span>
+                                        <small class="text-muted d-block" style="font-size: 0.72rem;">Akhiri sesi akun di perangkat ini</small>
+                                    </div>
                                 </button>
                             </div>
                         </div>
