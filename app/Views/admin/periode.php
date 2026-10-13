@@ -238,20 +238,22 @@
                 <small class="text-muted">Total <?= count($periode_list) ?> periode tercatat dalam pangkalan data</small>
             </div>
 
-            <!-- Toolbar Pencarian -->
-            <div class="d-flex align-items-center gap-2">
-                <form action="<?= base_url('admin/periode') ?>" method="GET" class="d-flex align-items-center">
-                    <div class="filter-wrapper d-flex align-items-center shadow-xs">
-                        <i class="bi bi-search text-muted ms-2 me-1"></i>
-                        <input type="text" name="keyword" class="form-control form-control-sm border-0 bg-transparent shadow-none" style="width: 220px;" placeholder="Cari nama, tahun, semester..." value="<?= esc($keyword ?? '') ?>">
-                        <?php if (!empty($keyword)): ?>
-                            <a href="<?= base_url('admin/periode') ?>" class="btn btn-sm text-muted p-0 me-2" title="Reset Pencarian">
-                                <i class="bi bi-x-circle-fill"></i>
-                            </a>
-                        <?php endif; ?>
-                        <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-3 py-1">Cari</button>
-                    </div>
-                </form>
+            <!-- Toolbar Pencarian & Filter Instan (Tanpa Tombol Cari) -->
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="input-group input-group-sm shadow-xs" style="width: 250px;">
+                    <span class="input-group-text bg-white border-end-0 text-muted ps-2.5 pe-1">
+                        <i class="bi bi-search text-success"></i>
+                    </span>
+                    <input type="text" id="inputCariPeriode" class="form-control border-start-0 ps-1 fw-medium" placeholder="Cari nama, tahun, semester..." oninput="filterTabelPeriode()" value="<?= esc($keyword ?? '') ?>">
+                    <button type="button" id="btnResetCariPeriode" class="btn btn-sm btn-link text-muted p-1 border-0 pe-2" onclick="resetCariPeriode()" title="Hapus Pencarian" style="<?= empty($keyword) ? 'display: none;' : '' ?>">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                </div>
+                <select id="filterStatusPeriode" class="form-select form-select-sm fw-medium shadow-xs" style="width: 155px;" onchange="filterTabelPeriode()">
+                    <option value="">Semua Status</option>
+                    <option value="aktif">Periode Aktif</option>
+                    <option value="arsip">Arsip / Nonaktif</option>
+                </select>
             </div>
         </div>
 
@@ -281,8 +283,10 @@
                             } elseif ($p['timeline_badge'] === 'info') {
                                 $badgeClass = 'bg-info text-dark';
                             }
+                            $statusStr = ((int)$p['is_aktif'] === 1) ? 'aktif' : 'arsip';
+                            $searchKeywords = strtolower($p['nama_periode'] . ' ' . $p['tahun_ajaran'] . ' ' . $p['semester'] . ' ' . $p['timeline_status'] . ' ' . ($p['keterangan'] ?? ''));
                         ?>
-                        <div class="periode-item-card">
+                        <div class="periode-item-card baris-periode-mobile" data-status="<?= $statusStr ?>" data-search="<?= esc($searchKeywords) ?>">
                             <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
                                 <div>
                                     <div class="fw-bold text-dark" style="font-size: 0.95rem;"><?= esc($p['nama_periode']) ?></div>
@@ -353,6 +357,13 @@
                             </div>
                         </div>
                     <?php endforeach; ?>
+
+                    <!-- Pesan Tidak Ditemukan Mobile -->
+                    <div id="emptySearchMobile" class="text-center py-5 bg-light rounded-4 border p-3" style="display: none;">
+                        <i class="bi bi-search text-muted opacity-50 d-block fs-2 mb-2"></i>
+                        <h6 class="fw-semibold text-muted mb-1">Periode Tidak Ditemukan</h6>
+                        <p class="text-muted small mb-0">Tidak ada periode yang sesuai dengan filter "<span id="textSearchMobile" class="fw-bold text-dark"></span>".</p>
+                    </div>
                 </div>
             </div>
 
@@ -374,8 +385,12 @@
                     </thead>
                     <tbody>
                         <?php $no = 1; foreach ($periode_list as $p): ?>
-                            <tr>
-                                <td class="text-center text-muted fw-semibold"><?= $no++ ?></td>
+                            <?php
+                                $statusStr = ((int)$p['is_aktif'] === 1) ? 'aktif' : 'arsip';
+                                $searchKeywords = strtolower($p['nama_periode'] . ' ' . $p['tahun_ajaran'] . ' ' . $p['semester'] . ' ' . $p['timeline_status'] . ' ' . ($p['keterangan'] ?? ''));
+                            ?>
+                            <tr class="baris-periode-desktop" data-status="<?= $statusStr ?>" data-search="<?= esc($searchKeywords) ?>">
+                                <td class="text-center text-muted fw-semibold nomor-urut"><?= $no++ ?></td>
                                 <td>
                                     <div class="fw-bold text-dark"><?= esc($p['nama_periode']) ?></div>
                                     <div class="mt-1">
@@ -458,6 +473,15 @@
                                 </td>
                             </tr>
                         <?php endforeach; ?>
+
+                        <!-- Pesan Tidak Ditemukan Desktop -->
+                        <tr id="emptySearchDesktop" style="display: none;">
+                            <td colspan="7" class="text-center py-5">
+                                <i class="bi bi-search text-muted opacity-50 d-block fs-2 mb-2"></i>
+                                <h6 class="fw-semibold text-muted mb-1">Periode Tidak Ditemukan</h6>
+                                <p class="text-muted small mb-0">Tidak ada data periode yang sesuai dengan filter "<span id="textSearchDesktop" class="fw-bold text-dark"></span>".</p>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -713,6 +737,97 @@
             }
         });
     }
+
+    // Filter Instan Real-time Tabel & Mobile Cards Tanpa Tombol Cari
+    function filterTabelPeriode() {
+        const input = document.getElementById('inputCariPeriode');
+        const btnReset = document.getElementById('btnResetCariPeriode');
+        const filterStatus = document.getElementById('filterStatusPeriode');
+
+        const keyword = input ? input.value.toLowerCase().trim() : '';
+        const status = filterStatus ? filterStatus.value : '';
+
+        if (btnReset) {
+            btnReset.style.display = (keyword.length > 0) ? 'inline-block' : 'none';
+        }
+
+        const rows = document.querySelectorAll('.baris-periode-desktop');
+        const cards = document.querySelectorAll('.baris-periode-mobile');
+
+        // Filter Baris Desktop
+        let visibleDesktop = 0;
+        rows.forEach((row) => {
+            const rowSearch = row.getAttribute('data-search') || '';
+            const rowStatus = row.getAttribute('data-status') || '';
+
+            const matchKeyword = keyword === '' || rowSearch.includes(keyword);
+            const matchStatus = status === '' || rowStatus === status;
+
+            if (matchKeyword && matchStatus) {
+                row.style.display = '';
+                visibleDesktop++;
+                const numCell = row.querySelector('.nomor-urut');
+                if (numCell) numCell.textContent = visibleDesktop;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        const emptyDesktop = document.getElementById('emptySearchDesktop');
+        const textDesktop = document.getElementById('textSearchDesktop');
+        if (emptyDesktop) {
+            if (visibleDesktop === 0 && (keyword !== '' || status !== '')) {
+                emptyDesktop.style.display = '';
+                if (textDesktop) textDesktop.textContent = keyword || (status === 'aktif' ? 'Periode Aktif' : 'Arsip');
+            } else {
+                emptyDesktop.style.display = 'none';
+            }
+        }
+
+        // Filter Kartu Mobile
+        let visibleMobile = 0;
+        cards.forEach((card) => {
+            const cardSearch = card.getAttribute('data-search') || '';
+            const cardStatus = card.getAttribute('data-status') || '';
+
+            const matchKeyword = keyword === '' || cardSearch.includes(keyword);
+            const matchStatus = status === '' || cardStatus === status;
+
+            if (matchKeyword && matchStatus) {
+                card.style.display = '';
+                visibleMobile++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        const emptyMobile = document.getElementById('emptySearchMobile');
+        const textMobile = document.getElementById('textSearchMobile');
+        if (emptyMobile) {
+            if (visibleMobile === 0 && (keyword !== '' || status !== '')) {
+                emptyMobile.style.display = 'block';
+                if (textMobile) textMobile.textContent = keyword || (status === 'aktif' ? 'Periode Aktif' : 'Arsip');
+            } else {
+                emptyMobile.style.display = 'none';
+            }
+        }
+    }
+
+    function resetCariPeriode() {
+        const input = document.getElementById('inputCariPeriode');
+        const filterStatus = document.getElementById('filterStatusPeriode');
+        if (input) input.value = '';
+        if (filterStatus) filterStatus.value = '';
+        filterTabelPeriode();
+        if (input) input.focus();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const input = document.getElementById('inputCariPeriode');
+        if (input && input.value.trim() !== '') {
+            filterTabelPeriode();
+        }
+    });
 </script>
 <?= $this->endSection() ?>
 

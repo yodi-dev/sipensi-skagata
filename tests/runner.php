@@ -861,6 +861,9 @@ $runner->it("View admin/periode harus memuat stat-card, tabel interaktif, dan mo
     $runner->assertTrue(strpos($content, 'konfirmasiSetAktif') !== false, "Harus memuat konfirmasiSetAktif");
     $runner->assertTrue(strpos($content, 'konfirmasiHapusPeriode') !== false, "Harus memuat konfirmasiHapusPeriode");
     $runner->assertTrue(strpos($content, 'Swal.fire') !== false, "Harus memuat integrasi SweetAlert2");
+    $runner->assertTrue(strpos($content, 'inputCariPeriode') !== false, "Harus memuat inputCariPeriode instan tanpa tombol cari");
+    $runner->assertTrue(strpos($content, 'filterTabelPeriode') !== false, "Harus memuat fungsi filterTabelPeriode live filtering");
+    $runner->assertTrue(strpos($content, 'filterStatusPeriode') !== false, "Harus memuat filterStatusPeriode");
 });
 
 $runner->it("Layout template dan manajemen pengguna harus terintegrasi dengan Master Data Periode", function() use ($runner) {
