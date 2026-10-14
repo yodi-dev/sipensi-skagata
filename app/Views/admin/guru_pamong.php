@@ -137,14 +137,14 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                    <i class="bi bi-person-lines-fill text-success"></i>
+                    <i class="bi bi-person-lines-fill text-success me-2"></i>
                     <span>Pemetaan Guru Pamong &amp; Isolasi Jurusan</span>
                 </h4>
                 <p class="text-muted small mt-1 mb-0">Petakan penugasan Guru Pamong ke jurusan binaan untuk menjamin isolasi data monitoring, presensi, dan rekapitulasi bulanan</p>
             </div>
             <div class="d-flex align-items-center gap-2">
                 <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahGuruPamong">
-                    <i class="bi bi-person-plus-fill"></i>
+                    <i class="bi bi-person-plus-fill me-1.5"></i>
                     <span>Tambah Guru Pamong</span>
                 </button>
             </div>
@@ -234,7 +234,7 @@
             </div>
             <div>
                 <h6 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-                    <i class="bi bi-shield-lock-fill text-success d-sm-none"></i>
+                    <i class="bi bi-shield-lock-fill text-success d-sm-none me-1.5"></i>
                     <span>Prinsip Keamanan &amp; Isolasi Data Guru Pamong</span>
                 </h6>
                 <p class="text-muted small mb-0 lh-base">
@@ -504,7 +504,7 @@
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-success text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-diagram-3-fill"></i>
+                    <i class="bi bi-diagram-3-fill me-2"></i>
                     <span>Atur Pemetaan Jurusan Guru Pamong</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -614,7 +614,7 @@
             <?= csrf_field() ?>
             <div class="modal-header bg-success text-white py-3 flex-shrink-0">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-person-plus-fill"></i>
+                    <i class="bi bi-person-plus-fill me-2"></i>
                     <span>Tambah Guru Pamong &amp; Atur Jurusan Binaan</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>

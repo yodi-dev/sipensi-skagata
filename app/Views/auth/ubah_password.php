@@ -122,7 +122,7 @@
                     $currentUserRoleLabel = $roleLabels[$currentUserRole] ?? ucfirst($currentUserRole);
                     ?>
                     <!-- Identitas Akun Aktif Mobile-Friendly -->
-                    <div class="account-badge-card d-flex align-items-center gap-2.5 mb-4">
+                    <div class="account-badge-card d-flex align-items-center gap-3 mb-4">
                         <div class="avatar-initial-sm" style="width: 38px; height: 38px; font-size: 0.85rem; background-color: #0f5132; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; box-shadow: 0 2px 5px rgba(15, 81, 50, 0.2);">
                             <?= esc(mb_strtoupper(mb_substr($currentUserName, 0, 1))) ?>
                         </div>
@@ -130,7 +130,7 @@
                             <div class="fw-bold text-dark text-truncate" style="font-size: 0.875rem;" title="<?= esc($currentUserName) ?>">
                                 <?= esc($currentUserName) ?>
                             </div>
-                            <div class="d-flex align-items-center gap-1.5 mt-0.5 flex-wrap">
+                            <div class="d-flex align-items-center gap-2 mt-0.5 flex-wrap">
                                 <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0.5 fw-semibold" style="font-size: 0.68rem;">
                                     <?= esc($currentUserRoleLabel) ?>
                                 </span>
@@ -167,7 +167,7 @@
                                 </span>
                             </div>
                             <div class="d-flex align-items-center gap-2 mt-1 requirement-item text-muted" id="ruleMinLength">
-                                <i class="bi bi-circle text-muted" id="iconRuleMinLength"></i>
+                                <i class="bi bi-circle text-muted me-1.5" id="iconRuleMinLength"></i>
                                 <span id="textRuleMinLength">Minimal 6 karakter</span>
                             </div>
                         </div>
@@ -186,7 +186,7 @@
 
                         <div class="d-grid">
                             <button type="submit" id="btnSubmitUbahPass" class="btn btn-primary-custom text-white d-flex align-items-center justify-content-center gap-2">
-                                <i class="bi bi-save"></i>
+                                <i class="bi bi-save me-2"></i>
                                 <span>Simpan Password</span>
                             </button>
                         </div>

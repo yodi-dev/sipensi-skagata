@@ -214,7 +214,7 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                     </div>
                     <div class="lh-sm">
                         <small class="text-muted d-block" style="font-size: 0.72rem;">Batas Jam Presensi</small>
-                        <div class="d-flex align-items-center gap-1.5 mt-0.5">
+                        <div class="d-flex align-items-center gap-2 mt-0.5">
                             <span class="badge bg-light text-dark border rounded-pill px-2 py-0.5 font-monospace" style="font-size: 0.75rem;" title="Maksimal Jam Datang">
                                 <i class="bi bi-box-arrow-in-right text-success me-1"></i><?= esc(substr($jam_masuk_max ?? '07:15:00', 0, 5)) ?>
                             </span>
@@ -229,9 +229,9 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
 
             <!-- 4. Tombol Aksi Kelola Pengaturan -->
             <div class="col-12 col-sm-6 col-xl-2 text-xl-end">
-                <a href="<?= base_url('admin/pengaturan') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 d-inline-flex align-items-center justify-content-center gap-1.5 w-100 w-xl-auto shadow-xs" style="font-size: 0.8rem;">
-                    <i class="bi bi-sliders me-1"></i>
-                    <span> Kelola Pengaturan</span>
+                <a href="<?= base_url('admin/pengaturan') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 d-inline-flex align-items-center justify-content-center gap-2 w-100 w-xl-auto shadow-xs" style="font-size: 0.8rem;">
+                    <i class="bi bi-sliders me-2"></i>
+                    <span>Kelola Pengaturan</span>
                 </a>
             </div>
         </div>
@@ -313,7 +313,7 @@ $tanggalRingkasIndo = date('d') . ' ' . $bulanIni . ' ' . date('Y');
                     </div>
                     <div class="d-flex align-items-center gap-2 flex-wrap">
                         <?php if (!empty($daftar_jurusan)): ?>
-                            <div class="d-flex align-items-center gap-1.5 py-1 px-2.5 bg-light rounded-pill border shadow-xs" style="font-size: 0.82rem;">
+                            <div class="d-flex align-items-center gap-2 py-1 px-2.5 bg-light rounded-pill border shadow-xs" style="font-size: 0.82rem;">
                                 <i class="bi bi-funnel text-success ms-3"></i>
                                 <select id="filterJurusanSnapshot" class="form-select form-select-sm border-0 bg-transparent py-0 shadow-none fw-medium" style="font-size: 0.82rem; cursor: pointer; min-width: 140px;" onchange="filterSnapshotByJurusan(this.value)">
                                     <option value="">Semua Jurusan</option>

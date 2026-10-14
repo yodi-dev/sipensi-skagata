@@ -403,7 +403,7 @@
 
                     <!-- SEKSI 1: DATA IDENTITAS AKUN -->
                     <div class="form-section-title" id="seksiIdentitas">
-                        <i class="bi bi-person-lines-fill text-success fs-5"></i>
+                        <i class="bi bi-person-lines-fill text-success fs-5 me-2"></i>
                         <span>Informasi Identitas Diri</span>
                     </div>
 
@@ -440,12 +440,12 @@
 
                     <!-- SEKSI 2: PENGATURAN KATA SANDI -->
                     <div class="form-section-title mt-2" id="seksiKeamanan">
-                        <i class="bi bi-shield-lock-fill text-success fs-5"></i>
+                        <i class="bi bi-shield-lock-fill text-success fs-5 me-2"></i>
                         <span>Perlindungan Kata Sandi (Opsional)</span>
                     </div>
 
-                    <div class="alert alert-light border rounded-3 p-3 mb-3 d-flex align-items-start gap-2.5">
-                        <i class="bi bi-info-circle-fill text-success fs-5 flex-shrink-0 mt-0.5"></i>
+                    <div class="alert alert-light border rounded-3 p-3 mb-3 d-flex align-items-start gap-3">
+                        <i class="bi bi-info-circle-fill text-success fs-5 flex-shrink-0 mt-0.5 me-2"></i>
                         <div class="small text-muted lh-sm">
                             Biarkan seluruh kolom kata sandi di bawah ini <strong>kosong</strong> jika Anda tidak bermaksud mengganti password akun Anda saat ini.
                         </div>
@@ -486,14 +486,14 @@
                     <!-- Indikator Live Kriteria Password (Responsive Grid) -->
                     <div class="row g-2 mb-4">
                         <div class="col-12 col-sm-6">
-                            <div class="requirement-item d-flex align-items-center gap-1.5 text-muted w-100" id="reqPanjang">
-                                <i class="bi bi-circle fs-6 flex-shrink-0" id="iconReqPanjang"></i>
+                            <div class="requirement-item d-flex align-items-center gap-2 text-muted w-100" id="reqPanjang">
+                                <i class="bi bi-circle fs-6 flex-shrink-0 me-1.5" id="iconReqPanjang"></i>
                                 <span style="font-size: 0.78rem;">Minimal 6 karakter</span>
                             </div>
                         </div>
                         <div class="col-12 col-sm-6">
-                            <div class="requirement-item d-flex align-items-center gap-1.5 text-muted w-100" id="reqMatch">
-                                <i class="bi bi-circle fs-6 flex-shrink-0" id="iconReqMatch"></i>
+                            <div class="requirement-item d-flex align-items-center gap-2 text-muted w-100" id="reqMatch">
+                                <i class="bi bi-circle fs-6 flex-shrink-0 me-1.5" id="iconReqMatch"></i>
                                 <span id="textReqMatch" style="font-size: 0.78rem;">Ketik ulang untuk konfirmasi</span>
                             </div>
                         </div>
@@ -505,7 +505,7 @@
                             Batal
                         </a>
                         <button type="submit" class="btn btn-skagata rounded-pill px-4 py-2.5 d-inline-flex align-items-center justify-content-center gap-2 shadow-sm fw-semibold" id="btnSubmitProfil">
-                            <i class="bi bi-check2-circle fs-5"></i>
+                            <i class="bi bi-check2-circle fs-5 me-2"></i>
                             <span>Simpan Perubahan</span>
                         </button>
                     </div>
@@ -554,9 +554,9 @@
 
             // Jika form password sama sekali tidak diisi
             if (!valBaru && !valKonfirm) {
-                reqPanjang.className = 'requirement-item d-flex align-items-center gap-1.5 text-muted w-100';
+                reqPanjang.className = 'requirement-item d-flex align-items-center gap-2 text-muted w-100';
                 iconReqPanjang.className = 'bi bi-circle fs-6 flex-shrink-0';
-                reqMatch.className = 'requirement-item d-flex align-items-center gap-1.5 text-muted w-100';
+                reqMatch.className = 'requirement-item d-flex align-items-center gap-2 text-muted w-100';
                 iconReqMatch.className = 'bi bi-circle fs-6 flex-shrink-0';
                 textReqMatch.textContent = 'Ketik ulang untuk konfirmasi';
                 return;
@@ -564,24 +564,24 @@
 
             // Validasi Panjang Minimal 6 Karakter
             if (valBaru.length >= 6) {
-                reqPanjang.className = 'requirement-item d-flex align-items-center gap-1.5 text-success fw-medium w-100';
+                reqPanjang.className = 'requirement-item d-flex align-items-center gap-2 text-success fw-medium w-100';
                 iconReqPanjang.className = 'bi bi-check-circle-fill fs-6 text-success flex-shrink-0';
             } else {
-                reqPanjang.className = 'requirement-item d-flex align-items-center gap-1.5 text-danger w-100';
+                reqPanjang.className = 'requirement-item d-flex align-items-center gap-2 text-danger w-100';
                 iconReqPanjang.className = 'bi bi-x-circle-fill fs-6 text-danger flex-shrink-0';
             }
 
             // Validasi Kecocokan Konfirmasi
             if (!valKonfirm) {
-                reqMatch.className = 'requirement-item d-flex align-items-center gap-1.5 text-muted w-100';
+                reqMatch.className = 'requirement-item d-flex align-items-center gap-2 text-muted w-100';
                 iconReqMatch.className = 'bi bi-circle fs-6 flex-shrink-0';
                 textReqMatch.textContent = 'Ketik ulang untuk konfirmasi';
             } else if (valBaru === valKonfirm && valBaru.length >= 6) {
-                reqMatch.className = 'requirement-item d-flex align-items-center gap-1.5 text-success fw-medium w-100';
+                reqMatch.className = 'requirement-item d-flex align-items-center gap-2 text-success fw-medium w-100';
                 iconReqMatch.className = 'bi bi-check-circle-fill fs-6 text-success flex-shrink-0';
                 textReqMatch.textContent = 'Password baru cocok';
             } else {
-                reqMatch.className = 'requirement-item d-flex align-items-center gap-1.5 text-danger w-100';
+                reqMatch.className = 'requirement-item d-flex align-items-center gap-2 text-danger w-100';
                 iconReqMatch.className = 'bi bi-x-circle-fill fs-6 text-danger flex-shrink-0';
                 textReqMatch.textContent = 'Password tidak cocok';
             }
