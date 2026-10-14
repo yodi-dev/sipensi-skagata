@@ -25,6 +25,7 @@
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         position: relative;
         overflow: hidden;
+        height: 100%;
     }
 
     .stat-card-modern:hover {
@@ -173,56 +174,56 @@
     <!-- Ringkasan Statistik Modern -->
     <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="stat-card-modern d-flex align-items-center justify-content-between">
-                <div>
-                    <span class="text-muted small fw-semibold d-block mb-1">Total Periode</span>
+            <div class="stat-card-modern d-flex align-items-center justify-content-between h-100">
+                <div class="flex-grow-1 pe-2">
+                    <span class="text-muted small fw-semibold d-block mb-1 text-truncate" title="Total Periode">Total Periode</span>
                     <h3 class="fw-bold text-dark mb-0"><?= $total_periode ?></h3>
                     <small class="text-success fw-medium"><i class="bi bi-collection me-1"></i>Gelombang Terdata</small>
                 </div>
-                <div class="stat-icon-wrapper bg-success-subtle text-success">
+                <div class="stat-icon-wrapper bg-success-subtle text-success flex-shrink-0 ms-2">
                     <i class="bi bi-calendar3"></i>
                 </div>
             </div>
         </div>
 
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="stat-card-modern d-flex align-items-center justify-content-between">
-                <div>
-                    <span class="text-muted small fw-semibold d-block mb-1">Periode Aktif</span>
-                    <h5 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 170px;" title="<?= esc($periode_aktif['nama_periode'] ?? 'Tidak Ada') ?>">
+            <div class="stat-card-modern d-flex align-items-center justify-content-between h-100">
+                <div class="flex-grow-1 pe-2">
+                    <span class="text-muted small fw-semibold d-block mb-1 text-truncate" title="Periode Aktif">Periode Aktif</span>
+                    <h3 class="fw-bold text-dark mb-0 text-truncate" style="font-size: 1.45rem; line-height: 1.25;" title="<?= esc($periode_aktif['nama_periode'] ?? 'Tidak Ada') ?>">
                         <?= esc($periode_aktif['tahun_ajaran'] ?? '-') ?>
-                    </h5>
+                    </h3>
                     <small class="text-success fw-medium">
                         <i class="bi bi-check-circle-fill me-1"></i><?= esc($periode_aktif ? 'Semester ' . $periode_aktif['semester'] : 'Belum Dipilih') ?>
                     </small>
                 </div>
-                <div class="stat-icon-wrapper bg-emerald-subtle text-success" style="background-color: #d1fae5;">
+                <div class="stat-icon-wrapper bg-success-subtle text-success flex-shrink-0 ms-2">
                     <i class="bi bi-calendar-check-fill"></i>
                 </div>
             </div>
         </div>
 
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="stat-card-modern d-flex align-items-center justify-content-between">
-                <div>
-                    <span class="text-muted small fw-semibold d-block mb-1">Mahasiswa Periode Aktif</span>
+            <div class="stat-card-modern d-flex align-items-center justify-content-between h-100">
+                <div class="flex-grow-1 pe-2">
+                    <span class="text-muted small fw-semibold d-block mb-1 text-truncate" title="Mahasiswa Periode Aktif">Mahasiswa Aktif</span>
                     <h3 class="fw-bold text-dark mb-0"><?= $total_mahasiswa_aktif ?></h3>
                     <small class="text-primary fw-medium"><i class="bi bi-mortarboard me-1"></i>Praktikan Berjalan</small>
                 </div>
-                <div class="stat-icon-wrapper bg-primary-subtle text-primary">
+                <div class="stat-icon-wrapper bg-primary-subtle text-primary flex-shrink-0 ms-2">
                     <i class="bi bi-person-check-fill"></i>
                 </div>
             </div>
         </div>
 
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="stat-card-modern d-flex align-items-center justify-content-between">
-                <div>
-                    <span class="text-muted small fw-semibold d-block mb-1">Total Semua Praktikan</span>
+            <div class="stat-card-modern d-flex align-items-center justify-content-between h-100">
+                <div class="flex-grow-1 pe-2">
+                    <span class="text-muted small fw-semibold d-block mb-1 text-truncate" title="Total Semua Praktikan">Total Mahasiswa</span>
                     <h3 class="fw-bold text-dark mb-0"><?= $total_mahasiswa ?></h3>
                     <small class="text-muted fw-medium"><i class="bi bi-people-fill me-1"></i>Akumulasi Keseluruhan</small>
                 </div>
-                <div class="stat-icon-wrapper bg-secondary-subtle text-secondary">
+                <div class="stat-icon-wrapper bg-secondary-subtle text-secondary flex-shrink-0 ms-2">
                     <i class="bi bi-people"></i>
                 </div>
             </div>

@@ -25,6 +25,7 @@
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         position: relative;
         overflow: hidden;
+        height: 100%;
     }
 
     .stat-card-modern:hover {
@@ -154,13 +155,13 @@
     <div class="row g-3 mb-4">
         <!-- Card 1: Total Guru Pamong -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="stat-card-modern">
+            <div class="stat-card-modern h-100 d-flex flex-column justify-content-between">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-medium">Total Guru Pamong</div>
                         <div class="fs-3 fw-bold text-dark mt-1"><?= (int) $total_guru ?></div>
                     </div>
-                    <div class="stat-icon-wrapper bg-success-subtle text-success">
+                    <div class="stat-icon-wrapper bg-success-subtle text-success flex-shrink-0 ms-2">
                         <i class="bi bi-person-badge-fill"></i>
                     </div>
                 </div>
@@ -172,13 +173,13 @@
 
         <!-- Card 2: Terpetakan -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="stat-card-modern">
+            <div class="stat-card-modern h-100 d-flex flex-column justify-content-between">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-medium">Terpetakan Jurusan</div>
                         <div class="fs-3 fw-bold text-success mt-1"><?= (int) $guru_terpetakan ?></div>
                     </div>
-                    <div class="stat-icon-wrapper bg-success bg-opacity-10 text-success">
+                    <div class="stat-icon-wrapper bg-success bg-opacity-10 text-success flex-shrink-0 ms-2">
                         <i class="bi bi-shield-check"></i>
                     </div>
                 </div>
@@ -190,13 +191,13 @@
 
         <!-- Card 3: Belum Dipetakan -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="stat-card-modern">
+            <div class="stat-card-modern h-100 d-flex flex-column justify-content-between">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-medium">Belum Dipetakan</div>
                         <div class="fs-3 fw-bold <?= ($guru_belum > 0) ? 'text-warning' : 'text-secondary' ?> mt-1"><?= (int) $guru_belum ?></div>
                     </div>
-                    <div class="stat-icon-wrapper <?= ($guru_belum > 0) ? 'bg-warning-subtle text-warning' : 'bg-light text-muted' ?>">
+                    <div class="stat-icon-wrapper <?= ($guru_belum > 0) ? 'bg-warning-subtle text-warning' : 'bg-light text-muted' ?> flex-shrink-0 ms-2">
                         <i class="bi bi-exclamation-circle-fill"></i>
                     </div>
                 </div>
@@ -208,13 +209,13 @@
 
         <!-- Card 4: Mahasiswa Terbimbing -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="stat-card-modern">
+            <div class="stat-card-modern h-100 d-flex flex-column justify-content-between">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-medium">Mahasiswa Terbimbing</div>
                         <div class="fs-3 fw-bold text-primary mt-1"><?= (int) $total_mahasiswa_terbimbing ?></div>
                     </div>
-                    <div class="stat-icon-wrapper bg-primary-subtle text-primary">
+                    <div class="stat-icon-wrapper bg-primary-subtle text-primary flex-shrink-0 ms-2">
                         <i class="bi bi-mortarboard-fill"></i>
                     </div>
                 </div>

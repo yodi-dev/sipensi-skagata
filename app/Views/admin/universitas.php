@@ -25,6 +25,7 @@
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         position: relative;
         overflow: hidden;
+        height: 100%;
     }
 
     .stat-card-modern:hover {
@@ -130,41 +131,41 @@
     <!-- Ringkasan Statistik Modern -->
     <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-lg-4">
-            <div class="stat-card-modern d-flex align-items-center justify-content-between">
-                <div>
-                    <span class="text-muted small fw-semibold d-block mb-1">Total Kampus Mitra</span>
+            <div class="stat-card-modern d-flex align-items-center justify-content-between h-100">
+                <div class="flex-grow-1 pe-2">
+                    <span class="text-muted small fw-semibold d-block mb-1 text-truncate" title="Total Kampus Mitra">Total Kampus Mitra</span>
                     <h3 class="fw-bold text-dark mb-0"><?= count($universitas_list) ?></h3>
                     <small class="text-success fw-medium"><i class="bi bi-check-circle-fill me-2"></i>Perguruan Tinggi Terdaftar</small>
                 </div>
-                <div class="stat-icon-wrapper bg-success-subtle text-success">
+                <div class="stat-icon-wrapper bg-success-subtle text-success flex-shrink-0 ms-2">
                     <i class="bi bi-buildings"></i>
                 </div>
             </div>
         </div>
 
         <div class="col-12 col-sm-6 col-lg-4">
-            <div class="stat-card-modern d-flex align-items-center justify-content-between">
-                <div>
-                    <span class="text-muted small fw-semibold d-block mb-1">Mahasiswa Terdistribusi</span>
+            <div class="stat-card-modern d-flex align-items-center justify-content-between h-100">
+                <div class="flex-grow-1 pe-2">
+                    <span class="text-muted small fw-semibold d-block mb-1 text-truncate" title="Mahasiswa Terdistribusi">Mahasiswa Terdistribusi</span>
                     <h3 class="fw-bold text-dark mb-0"><?= $total_mahasiswa ?></h3>
                     <small class="text-primary fw-medium"><i class="bi bi-mortarboard me-1"></i>Praktikan PPL/PK</small>
                 </div>
-                <div class="stat-icon-wrapper bg-primary-subtle text-primary">
+                <div class="stat-icon-wrapper bg-primary-subtle text-primary flex-shrink-0 ms-2">
                     <i class="bi bi-people"></i>
                 </div>
             </div>
         </div>
 
         <div class="col-12 col-sm-12 col-lg-4">
-            <div class="stat-card-modern d-flex align-items-center justify-content-between">
-                <div>
-                    <span class="text-muted small fw-semibold d-block mb-1">Rata-rata Penempatan</span>
+            <div class="stat-card-modern d-flex align-items-center justify-content-between h-100">
+                <div class="flex-grow-1 pe-2">
+                    <span class="text-muted small fw-semibold d-block mb-1 text-truncate" title="Rata-rata Penempatan">Rata-rata Penempatan</span>
                     <h3 class="fw-bold text-dark mb-0">
                         <?= count($universitas_list) > 0 ? round($total_mahasiswa / count($universitas_list), 1) : 0 ?>
                     </h3>
                     <small class="text-muted fw-medium"><i class="bi bi-diagram-3 me-1"></i>Mahasiswa per kampus</small>
                 </div>
-                <div class="stat-icon-wrapper bg-warning-subtle text-warning-emphasis">
+                <div class="stat-icon-wrapper bg-warning-subtle text-warning-emphasis flex-shrink-0 ms-2">
                     <i class="bi bi-pie-chart"></i>
                 </div>
             </div>
