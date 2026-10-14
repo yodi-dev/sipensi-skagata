@@ -116,14 +116,14 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                    <i class="bi bi-journal-bookmark-fill text-success me-2"></i>
+                    <i class="bi bi-journal-bookmark-fill text-success"></i>
                     <span>Master Data Jurusan / Konsentrasi Keahlian</span>
                 </h4>
                 <p class="text-muted small mt-1 mb-0">Kelola bidang kejuruan SMK Negeri 3 Yogyakarta dan penempatan mahasiswa PPL/PK</p>
             </div>
             <div>
                 <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahJurusan">
-                    <i class="bi bi-plus-circle me-1.5"></i>
+                    <i class="bi bi-plus-circle"></i>
                     <span>Tambah Jurusan Baru</span>
                 </button>
             </div>
@@ -300,14 +300,14 @@
 
                             <!-- Tombol Aksi Mobile Touch-Friendly -->
                             <div class="d-flex align-items-center gap-2 pt-2 border-top">
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-2 shadow-xs" style="font-size: 0.82rem; min-height: 38px;"
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1.5 shadow-xs" style="font-size: 0.82rem; min-height: 38px;"
                                     onclick="bukaModalEditJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['kode_jurusan'], 'js') ?>', '<?= esc($j['nama_jurusan'], 'js') ?>', '<?= esc($j['deskripsi'] ?? '', 'js') ?>', '<?= esc($j['universitas_id'] ?? '', 'js') ?>')">
-                                    <i class="bi bi-pencil-square me-1.5"></i>
+                                    <i class="bi bi-pencil-square"></i>
                                     <span>Edit</span>
                                 </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-2 shadow-xs" style="font-size: 0.82rem; min-height: 38px;"
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1.5 shadow-xs" style="font-size: 0.82rem; min-height: 38px;"
                                     onclick="konfirmasiHapusJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['nama_jurusan'], 'js') ?>', <?= $jml ?>)">
-                                    <i class="bi bi-trash me-1.5"></i>
+                                    <i class="bi bi-trash"></i>
                                     <span>Hapus</span>
                                 </button>
                             </div>
@@ -431,7 +431,7 @@
             <?= csrf_field() ?>
             <div class="modal-header bg-success text-white py-3 flex-shrink-0">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-journal-plus me-2"></i>
+                    <i class="bi bi-journal-plus"></i>
                     <span>Tambah Jurusan Baru</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -483,7 +483,7 @@
             <input type="hidden" name="id" id="editJurusanId">
             <div class="modal-header bg-success text-white py-3 flex-shrink-0">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-pencil-square me-2"></i>
+                    <i class="bi bi-pencil-square"></i>
                     <span>Edit Data Jurusan</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>

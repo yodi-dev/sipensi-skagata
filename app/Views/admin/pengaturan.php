@@ -90,7 +90,7 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                    <i class="bi bi-sliders text-success me-2"></i>
+                    <i class="bi bi-sliders text-success"></i>
                     <span>Pengaturan Lokasi &amp; Jam Presensi</span>
                 </h4>
                 <p class="text-muted small mt-1 mb-0">Kalibrasi perimeter GPS radius sekolah dan kebijakan waktu presensi SMK Negeri 3 Yogyakarta</p>
@@ -158,18 +158,18 @@
                     <div class="card-header-custom d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                         <div>
                             <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                                <i class="bi bi-geo-alt-fill text-success me-2"></i>
+                                <i class="bi bi-geo-alt-fill text-success"></i>
                                 <span>Peta Perimeter Skagata</span>
                             </h6>
                             <small class="text-muted">Geser marker atau klik peta untuk menentukan titik koordinat</small>
                         </div>
                         <div class="d-flex align-items-center gap-2 flex-shrink-0 flex-nowrap">
-                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 shadow-xs text-nowrap d-inline-flex align-items-center gap-2" onclick="resetKeSkagata()" id="btnResetSkagata" title="Kembalikan koordinat ke titik resmi SMKN 3 Yogyakarta">
-                                <i class="bi bi-arrow-counterclockwise text-secondary me-2"></i>
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 shadow-xs text-nowrap d-inline-flex align-items-center gap-1.5" onclick="resetKeSkagata()" id="btnResetSkagata" title="Kembalikan koordinat ke titik resmi SMKN 3 Yogyakarta">
+                                <i class="bi bi-arrow-counterclockwise text-secondary"></i>
                                 <span>Reset Skagata</span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-xs text-nowrap d-inline-flex align-items-center gap-2" onclick="deteksiLokasiSaya()" id="btnLokasiSaya" title="Deteksi posisi GPS perangkat saya saat ini">
-                                <i class="bi bi-crosshair me-2"></i>
+                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-xs text-nowrap d-inline-flex align-items-center gap-1.5" onclick="deteksiLokasiSaya()" id="btnLokasiSaya" title="Deteksi posisi GPS perangkat saya saat ini">
+                                <i class="bi bi-crosshair"></i>
                                 <span>Lokasi Saya</span>
                             </button>
                         </div>
@@ -178,7 +178,7 @@
                         <div id="map" class="flex-grow-1"></div>
                         <div class="mt-3 p-3 bg-light rounded-3 text-muted small border">
                             <div class="d-flex align-items-start gap-2">
-                                <i class="bi bi-info-circle-fill text-success fs-6 mt-0.5 me-2"></i>
+                                <i class="bi bi-info-circle-fill text-success fs-6 mt-0.5"></i>
                                 <div class="lh-sm">
                                     Lingkaran hijau menggambarkan <strong>radius perimeter absensi resmi</strong>. Presensi mahasiswa maupun guru hanya dapat dilakukan jika posisi perangkat berada di dalam lingkaran ini (kecuali jika mode toleransi darurat diaktifkan).
                                 </div>
@@ -193,15 +193,15 @@
                 <div class="card settings-card shadow-xs">
                     <div class="card-header-custom">
                         <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                            <i class="bi bi-gear-fill text-success me-2"></i>
+                            <i class="bi bi-gear-fill text-success"></i>
                             <span>Parameter Konfigurasi Operasional</span>
                         </h6>
                     </div>
                     <div class="card-body p-4">
 
                         <!-- Section Institusi -->
-                        <div class="form-section-title d-flex align-items-center gap-2">
-                            <i class="bi bi-building me-2"></i>
+                        <div class="form-section-title d-flex align-items-center gap-1.5">
+                            <i class="bi bi-building"></i>
                             <span>Informasi Institusi</span>
                         </div>
                         <div class="mb-3">
@@ -213,8 +213,8 @@
                         </div>
 
                         <!-- Section Koordinat & Radius -->
-                        <div class="form-section-title mt-4 d-flex align-items-center gap-2">
-                            <i class="bi bi-geo-alt me-2"></i>
+                        <div class="form-section-title mt-4 d-flex align-items-center gap-1.5">
+                            <i class="bi bi-geo-alt"></i>
                             <span>Geofencing &amp; Titik Koordinat</span>
                         </div>
                         <div class="row g-2 mb-3">
@@ -261,8 +261,8 @@
                         </div>
 
                         <!-- Section Jam Presensi -->
-                        <div class="form-section-title mt-4 d-flex align-items-center gap-2">
-                            <i class="bi bi-clock-history me-2"></i>
+                        <div class="form-section-title mt-4 d-flex align-items-center gap-1.5">
+                            <i class="bi bi-clock-history"></i>
                             <span>Ketentuan Jam Kerja Operasional</span>
                         </div>
                         <div class="row g-2 mb-4">
@@ -285,7 +285,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-skagata w-100 py-2.5 fw-semibold rounded-pill shadow-sm d-inline-flex align-items-center justify-content-center gap-2" id="btnSubmitPengaturan">
-                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <i class="bi bi-check-circle-fill"></i>
                             <span>Simpan Konfigurasi Sistem</span>
                         </button>
 
@@ -415,10 +415,10 @@
         }
 
         const btn = document.getElementById('btnLokasiSaya');
-        const originalContent = btn ? btn.innerHTML : '<i class="bi bi-crosshair me-2"></i><span>Lokasi Saya</span>';
+        const originalContent = btn ? btn.innerHTML : '<i class="bi bi-crosshair"></i><span>Lokasi Saya</span>';
         if (btn) {
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span><span>Mencari...</span>';
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span><span>Mencari...</span>';
         }
 
         navigator.geolocation.getCurrentPosition(

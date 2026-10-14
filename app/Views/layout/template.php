@@ -855,15 +855,15 @@
                         </div>
                         <div class="modal-body p-3">
                             <div class="d-flex flex-column gap-2">
-                                <a href="<?= base_url('profil') ?>" class="btn btn-light text-start d-flex align-items-center gap-3 py-2.5 px-3 rounded-3 text-dark fw-medium border shadow-xs">
-                                    <i class="bi bi-person-gear text-success fs-5 me-2"></i>
+                                <a href="<?= base_url('profil') ?>" class="btn btn-light text-start d-flex align-items-center gap-2.5 py-2.5 px-3 rounded-3 text-dark fw-medium border shadow-xs">
+                                    <i class="bi bi-person-gear text-success fs-5"></i>
                                     <div>
                                         <span class="d-block lh-sm">Profil &amp; Keamanan</span>
                                         <small class="text-muted d-block" style="font-size: 0.72rem;">Ubah nama &amp; kata sandi akun</small>
                                     </div>
                                 </a>
-                                <button type="button" onclick="konfirmasiLogout()" class="btn btn-light text-start d-flex align-items-center gap-3 py-2.5 px-3 rounded-3 text-danger fw-medium border shadow-xs w-100">
-                                    <i class="bi bi-box-arrow-right fs-5 me-2"></i>
+                                <button type="button" onclick="konfirmasiLogout()" class="btn btn-light text-start d-flex align-items-center gap-2.5 py-2.5 px-3 rounded-3 text-danger fw-medium border shadow-xs w-100">
+                                    <i class="bi bi-box-arrow-right fs-5"></i>
                                     <div>
                                         <span class="d-block lh-sm">Keluar (Logout)</span>
                                         <small class="text-muted d-block" style="font-size: 0.72rem;">Akhiri sesi akun di perangkat ini</small>

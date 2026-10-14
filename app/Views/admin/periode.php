@@ -157,14 +157,14 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                    <i class="bi bi-calendar-range-fill text-success me-2"></i>
+                    <i class="bi bi-calendar-range-fill text-success"></i>
                     <span>Master Data Periode &amp; Gelombang PPL / PK</span>
                 </h4>
                 <p class="text-muted small mt-1 mb-0">Kelola tahun ajaran, semester, rentang tanggal pelaksanaan, dan penetapan gelombang aktif mahasiswa praktikan</p>
             </div>
             <div>
                 <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahPeriode">
-                    <i class="bi bi-plus-circle me-1.5"></i>
+                    <i class="bi bi-plus-circle"></i>
                     <span>Tambah Periode Baru</span>
                 </button>
             </div>
@@ -341,20 +341,20 @@
                             <!-- Tombol Aksi Mobile Touch-Friendly -->
                             <div class="d-flex align-items-center gap-2 pt-2 border-top">
                                 <?php if ((int)$p['is_aktif'] !== 1): ?>
-                                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2.5 py-1.5 d-flex align-items-center justify-content-center gap-2" style="font-size: 0.78rem;"
+                                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2.5 py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.78rem;"
                                         title="Tetapkan Aktif" onclick="konfirmasiSetAktif(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>')">
-                                        <i class="bi bi-check-circle me-1.5"></i>
+                                        <i class="bi bi-check-circle"></i>
                                         <span>Aktifkan</span>
                                     </button>
                                 <?php endif; ?>
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-2" style="font-size: 0.82rem;"
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
                                     onclick="bukaModalEditPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', '<?= esc($p['tahun_ajaran'], 'js') ?>', '<?= esc($p['semester'], 'js') ?>', '<?= esc($p['tanggal_mulai'], 'js') ?>', '<?= esc($p['tanggal_selesai'], 'js') ?>', <?= (int)$p['is_aktif'] ?>, '<?= esc($p['keterangan'] ?? '', 'js') ?>')">
-                                    <i class="bi bi-pencil-square me-1.5"></i>
+                                    <i class="bi bi-pencil-square"></i>
                                     <span>Edit</span>
                                 </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 d-flex align-items-center justify-content-center gap-2" style="font-size: 0.82rem;"
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
                                     onclick="konfirmasiHapusPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', <?= $jml ?>, <?= (int)$p['is_aktif'] ?>)">
-                                    <i class="bi bi-trash me-1.5"></i>
+                                    <i class="bi bi-trash"></i>
                                     <span>Hapus</span>
                                 </button>
                             </div>
@@ -500,7 +500,7 @@
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-success text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-calendar-plus me-2"></i>
+                    <i class="bi bi-calendar-plus"></i>
                     <span>Tambah Periode PPL / PK Baru</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -570,7 +570,7 @@
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-primary text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-pencil-square me-2"></i>
+                    <i class="bi bi-pencil-square"></i>
                     <span>Edit Data Periode PPL / PK</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>

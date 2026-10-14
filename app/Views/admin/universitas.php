@@ -114,14 +114,14 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                    <i class="bi bi-buildings-fill text-success me-2"></i>
+                    <i class="bi bi-buildings-fill text-success"></i>
                     <span>Master Data Asal Universitas / Mitra Kampus</span>
                 </h4>
                 <p class="text-muted small mt-1 mb-0">Kelola perguruan tinggi mitra kerja sama penempatan mahasiswa praktikan PPL/PK</p>
             </div>
             <div>
                 <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahUniversitas">
-                    <i class="bi bi-plus-circle me-1.5"></i>
+                    <i class="bi bi-plus-circle"></i>
                     <span>Tambah Universitas Baru</span>
                 </button>
             </div>
@@ -268,14 +268,14 @@
 
                             <!-- Tombol Aksi Mobile Touch-Friendly -->
                             <div class="d-flex align-items-center gap-2 pt-1 border-top">
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-2" style="font-size: 0.82rem;"
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
                                     onclick="bukaModalEditUniversitas(<?= (int) $u['id'] ?>, '<?= esc($u['kode_universitas'], 'js') ?>', '<?= esc($u['nama_universitas'], 'js') ?>', '<?= esc($u['alamat'] ?? '', 'js') ?>', '<?= esc($u['telepon'] ?? '', 'js') ?>')">
-                                    <i class="bi bi-pencil-square me-1.5"></i>
+                                    <i class="bi bi-pencil-square"></i>
                                     <span>Edit</span>
                                 </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-2" style="font-size: 0.82rem;"
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
                                     onclick="konfirmasiHapusUniversitas(<?= (int) $u['id'] ?>, '<?= esc($u['nama_universitas'], 'js') ?>', <?= $jml ?>)">
-                                    <i class="bi bi-trash me-1.5"></i>
+                                    <i class="bi bi-trash"></i>
                                     <span>Hapus</span>
                                 </button>
                             </div>
@@ -377,7 +377,7 @@
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-success text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-buildings me-2"></i>
+                    <i class="bi bi-buildings"></i>
                     <span>Tambah Universitas Baru</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -420,7 +420,7 @@
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-primary text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-pencil-square me-2"></i>
+                    <i class="bi bi-pencil-square"></i>
                     <span>Edit Data Universitas</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>

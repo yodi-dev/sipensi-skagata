@@ -265,8 +265,8 @@ function getInitials($name)
                 </div>
                 <?php if (!empty($keyword) || !empty($role_terpilih) || !empty($jurusan_pilih) || !empty($universitas_pilih) || !empty($periode_pilih)): ?>
                     <div>
-                        <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2 shadow-xs" style="font-size: 0.8rem;">
-                            <i class="bi bi-arrow-clockwise me-1.5"></i>
+                        <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-1.5 shadow-xs" style="font-size: 0.8rem;">
+                            <i class="bi bi-arrow-clockwise"></i>
                             <span>Reset Filter</span>
                         </a>
                     </div>
