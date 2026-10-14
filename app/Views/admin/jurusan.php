@@ -14,14 +14,14 @@
     .card-header-custom {
         background-color: #ffffff;
         border-bottom: 1px solid #f1f5f9;
-        padding: 1.15rem 1.25rem;
+        padding: 1.25rem 1.5rem;
     }
 
     .stat-card-modern {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 1rem;
-        padding: 1.15rem 1.25rem;
+        padding: 1.25rem 1.5rem;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         position: relative;
         overflow: hidden;
@@ -33,41 +33,31 @@
     }
 
     .stat-icon-wrapper {
-        width: 46px;
-        height: 46px;
+        width: 48px;
+        height: 48px;
         border-radius: 0.75rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.4rem;
-    }
-
-    /* Fixed Layout Desktop Table - Auto-fit width, no horizontal scroll bug */
-    .table-custom {
-        table-layout: fixed;
-        width: 100%;
-        margin-bottom: 0;
+        font-size: 1.5rem;
     }
 
     .table-custom thead th {
         background-color: #f8fafc;
         color: #475569;
         font-weight: 600;
-        font-size: 0.78rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.05em;
         border-bottom: 1px solid #e2e8f0;
-        padding: 0.75rem 0.85rem;
-        vertical-align: middle;
-        white-space: nowrap;
+        padding: 0.85rem 1.25rem;
     }
 
     .table-custom tbody td {
-        padding: 0.75rem 0.85rem;
+        padding: 1rem 1.25rem;
         border-bottom: 1px solid #f1f5f9;
-        font-size: 0.88rem;
+        font-size: 0.9rem;
         color: #334155;
-        vertical-align: middle;
     }
 
     .table-custom tbody tr:hover {
@@ -87,8 +77,8 @@
 
     .badge-kode {
         font-family: monospace;
-        font-size: 0.8rem;
-        padding: 0.28rem 0.55rem;
+        font-size: 0.85rem;
+        padding: 0.35rem 0.65rem;
         letter-spacing: 0.5px;
     }
 
@@ -116,7 +106,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="container-fluid px-3 px-sm-4 py-3 py-sm-4">
+<div class="container-fluid px-4 py-4">
 
     <!-- Breadcrumb & Top Header -->
     <div class="mb-4">
@@ -136,7 +126,7 @@
                 <p class="text-muted small mt-1 mb-0">Kelola bidang kejuruan SMK Negeri 3 Yogyakarta dan penempatan mahasiswa PPL/PK</p>
             </div>
             <div>
-                <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 py-1.5 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahJurusan">
+                <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahJurusan">
                     <i class="bi bi-plus-circle"></i>
                     <span>Tambah Jurusan Baru</span>
                 </button>
@@ -203,28 +193,23 @@
 
     <!-- Tabel Daftar Jurusan -->
     <div class="card admin-card">
-        <div class="card-header-custom d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3">
+        <div class="card-header-custom d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                        <i class="bi bi-list-check text-success"></i>
-                        <span>Daftar Jurusan Terdaftar</span>
-                    </h6>
-                    <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 fw-semibold" id="counterJurusanAktif" style="font-size: 0.75rem;">
-                        <?= count($jurusan_list) ?> Jurusan
-                    </span>
-                </div>
-                <small class="text-muted mt-1 d-block">Bidang kejuruan prodi universitas mitra di SMK Negeri 3 Yogyakarta</small>
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="bi bi-list-check text-success"></i>
+                    <span>Daftar Jurusan Terdaftar</span>
+                </h6>
+                <small class="text-muted">Total: <?= count($jurusan_list) ?> bidang kejuruan / prodi ditemukan</small>
             </div>
 
-            <!-- Toolbar Pencarian & Filter Instan (Tanpa Tombol Submit) -->
+            <!-- Toolbar Pencarian & Filter Instan (Tanpa Tombol Cari) -->
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <!-- Input Pencarian Real-time -->
-                <div class="input-group input-group-sm shadow-xs" style="width: 230px;">
+                <div class="input-group input-group-sm shadow-xs" style="width: 250px;">
                     <span class="input-group-text bg-white border-end-0 text-muted ps-2.5 pe-1">
                         <i class="bi bi-search text-success"></i>
                     </span>
-                    <input type="text" id="inputCariJurusan" class="form-control border-start-0 ps-1 fw-medium" placeholder="Cari nama, kode, deskripsi..." oninput="filterTabelJurusan()" value="<?= esc($keyword ?? '') ?>">
+                    <input type="text" id="inputCariJurusan" class="form-control border-start-0 ps-1 fw-medium" placeholder="Cari nama / kode jurusan..." oninput="filterTabelJurusan()" value="<?= esc($keyword ?? '') ?>">
                     <button type="button" id="btnResetCariJurusan" class="btn btn-sm btn-link text-muted p-1 border-0 pe-2" onclick="resetCariJurusan()" title="Hapus Pencarian" style="<?= empty($keyword) ? 'display: none;' : '' ?>">
                         <i class="bi bi-x-circle-fill"></i>
                     </button>
@@ -232,7 +217,7 @@
 
                 <!-- Filter Universitas Dropdown -->
                 <?php if (!empty($daftar_universitas)): ?>
-                    <select id="filterUniversitasJurusan" class="form-select form-select-sm fw-medium shadow-xs" style="width: 190px;" onchange="filterTabelJurusan()">
+                    <select id="filterUniversitasJurusan" class="form-select form-select-sm fw-medium shadow-xs" style="min-width: 175px;" onchange="filterTabelJurusan()">
                         <option value="">Semua Universitas Mitra</option>
                         <?php foreach ($daftar_universitas as $univ): ?>
                             <option value="<?= (int) $univ['id'] ?>" <?= ((string)($universitas_filter ?? '') === (string)$univ['id']) ? 'selected' : '' ?>>
@@ -284,10 +269,10 @@
                                     <?php if ($jml > 0): ?>
                                         <a href="<?= base_url('admin/pengguna?jurusan=' . urlencode($j['nama_jurusan'])) ?>" class="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 text-decoration-none shadow-xs d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;" title="Lihat Mahasiswa">
                                             <i class="bi bi-mortarboard text-success"></i>
-                                            <strong><?= $jml ?></strong> Mhs
+                                            <strong><?= $jml ?></strong> Mahasiswa
                                         </a>
                                     <?php else: ?>
-                                        <span class="badge bg-light text-muted border rounded-pill px-2 py-1" style="font-size: 0.72rem;">0 Mhs</span>
+                                        <span class="badge bg-light text-muted border rounded-pill px-2 py-1" style="font-size: 0.72rem;">0 Mahasiswa</span>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -346,12 +331,12 @@
                 <table class="table table-hover table-custom align-middle mb-0">
                     <thead>
                         <tr>
-                            <th class="text-center" style="width: 48px;">No</th>
-                            <th style="width: 90px;">Kode</th>
+                            <th class="text-center" style="width: 50px;">No</th>
+                            <th style="width: 140px;">Kode Jurusan</th>
                             <th>Nama Jurusan &amp; Keterangan</th>
-                            <th style="width: 190px;">Universitas Mitra</th>
-                            <th class="text-center" style="width: 125px;">Mahasiswa</th>
-                            <th class="text-center" style="width: 85px;">Aksi</th>
+                            <th style="width: 230px;">Asal Universitas Mitra</th>
+                            <th class="text-center" style="width: 180px;">Mahasiswa Terdaftar</th>
+                            <th class="text-center" style="width: 120px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -367,54 +352,54 @@
                                 );
                             ?>
                             <tr class="baris-jurusan-desktop" data-universitas="<?= $univId ?>" data-search="<?= esc($searchKeywords) ?>">
-                                <td class="text-center text-muted fw-semibold nomor-urut" style="font-size: 0.85rem;"><?= $no++ ?></td>
+                                <td class="text-center text-muted fw-semibold nomor-urut"><?= $no++ ?></td>
                                 <td>
                                     <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill badge-kode">
                                         <?= esc($j['kode_jurusan']) ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="fw-bold text-dark text-truncate" title="<?= esc($j['nama_jurusan']) ?>"><?= esc($j['nama_jurusan']) ?></div>
+                                    <div class="fw-bold text-dark"><?= esc($j['nama_jurusan']) ?></div>
                                     <?php if (!empty($j['deskripsi'])): ?>
-                                        <div class="small text-muted text-truncate mt-0.5" title="<?= esc($j['deskripsi']) ?>">
+                                        <div class="small text-muted mt-1" style="line-height: 1.45;">
                                             <?= esc($j['deskripsi']) ?>
                                         </div>
                                     <?php else: ?>
-                                        <small class="text-muted fst-italic">Belum ada keterangan khusus.</small>
+                                        <small class="text-muted fst-italic">Belum ada deskripsi.</small>
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php if (!empty($j['nama_universitas'])): ?>
-                                        <div class="d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded-pill bg-light border shadow-xs" style="max-width: 100%;" title="<?= esc($j['nama_universitas']) ?>">
-                                            <i class="bi bi-buildings text-success flex-shrink-0" style="font-size: 0.78rem;"></i>
-                                            <span class="text-truncate small fw-medium text-dark"><?= esc($j['nama_universitas']) ?></span>
-                                        </div>
+                                        <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 shadow-xs d-inline-flex align-items-center gap-1.5" style="font-size: 0.8rem;">
+                                            <i class="bi bi-buildings text-success"></i>
+                                            <span><?= esc($j['nama_universitas']) ?></span>
+                                        </span>
                                     <?php else: ?>
-                                        <span class="badge bg-light text-muted border rounded-pill px-2 py-0.5" style="font-size: 0.75rem;">Umum</span>
+                                        <span class="badge bg-light text-muted border rounded-pill px-2.5 py-1" style="font-size: 0.75rem;">Umum / Belum Ditautkan</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
                                     <?php if ($jml > 0): ?>
-                                        <a href="<?= base_url('admin/pengguna?jurusan=' . urlencode($j['nama_jurusan'])) ?>" class="badge bg-light text-dark border rounded-pill px-2.5 py-1 text-decoration-none shadow-xs d-inline-flex align-items-center gap-1" title="Lihat Mahasiswa">
+                                        <a href="<?= base_url('admin/pengguna?jurusan=' . urlencode($j['nama_jurusan'])) ?>" class="badge bg-light text-dark border rounded-pill px-3 py-2 text-decoration-none shadow-xs d-inline-flex align-items-center gap-1.5" title="Lihat Mahasiswa">
                                             <i class="bi bi-mortarboard text-success"></i>
-                                            <span><strong><?= $jml ?></strong> Mhs</span>
+                                            <strong><?= $jml ?></strong> Mahasiswa
                                         </a>
                                     <?php else: ?>
-                                        <span class="badge bg-light text-muted border rounded-pill px-2.5 py-1" style="font-size: 0.75rem;">
-                                            0 Mhs
+                                        <span class="badge bg-light text-muted border rounded-pill px-3 py-2">
+                                            0 Mahasiswa
                                         </span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
-                                    <div class="d-inline-flex align-items-center justify-content-center gap-1">
+                                    <div class="d-inline-flex align-items-center gap-1">
                                         <!-- Tombol Edit -->
-                                        <button type="button" class="btn btn-sm btn-light border text-primary rounded-circle p-0 d-inline-flex align-items-center justify-content-center shadow-xs" style="width: 28px; height: 28px;" title="Edit Jurusan" onclick="bukaModalEditJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['kode_jurusan'], 'js') ?>', '<?= esc($j['nama_jurusan'], 'js') ?>', '<?= esc($j['deskripsi'] ?? '', 'js') ?>', '<?= esc($j['universitas_id'] ?? '', 'js') ?>')">
-                                            <i class="bi bi-pencil-square" style="font-size: 0.8rem;"></i>
+                                        <button type="button" class="btn btn-sm btn-light border text-primary rounded-circle p-1 shadow-xs" style="width: 32px; height: 32px;" title="Edit Jurusan" onclick="bukaModalEditJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['kode_jurusan'], 'js') ?>', '<?= esc($j['nama_jurusan'], 'js') ?>', '<?= esc($j['deskripsi'] ?? '', 'js') ?>', '<?= esc($j['universitas_id'] ?? '', 'js') ?>')">
+                                            <i class="bi bi-pencil-square"></i>
                                         </button>
 
                                         <!-- Tombol Hapus -->
-                                        <button type="button" class="btn btn-sm btn-light border text-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center shadow-xs" style="width: 28px; height: 28px;" title="Hapus Jurusan" onclick="konfirmasiHapusJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['nama_jurusan'], 'js') ?>', <?= $jml ?>)">
-                                            <i class="bi bi-trash" style="font-size: 0.8rem;"></i>
+                                        <button type="button" class="btn btn-sm btn-light border text-danger rounded-circle p-1 shadow-xs" style="width: 32px; height: 32px;" title="Hapus Jurusan" onclick="konfirmasiHapusJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['nama_jurusan'], 'js') ?>', <?= $jml ?>)">
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -658,12 +643,6 @@
                 row.style.display = 'none';
             }
         });
-
-        // Update Counter Badges
-        const counterBadge = document.getElementById('counterJurusanAktif');
-        if (counterBadge) {
-            counterBadge.textContent = `${visibleDesktop} Jurusan`;
-        }
 
         // Empty State Desktop
         const emptyDesktop = document.getElementById('emptySearchDesktop');
