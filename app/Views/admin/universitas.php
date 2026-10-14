@@ -98,6 +98,7 @@
         box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
+
     .universitas-item-card:active {
         transform: scale(0.99);
     }
@@ -107,15 +108,8 @@
 <?= $this->section('content') ?>
 <div class="container-fluid px-4 py-4">
 
-    <!-- Breadcrumb & Top Header -->
+    <!-- Top Header -->
     <div class="mb-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-1 small">
-                <li class="breadcrumb-item"><a href="<?= base_url('admin') ?>" class="text-success text-decoration-none"><i class="bi bi-grid-1x2 me-1"></i>Beranda</a></li>
-                <li class="breadcrumb-item text-muted">Master Data</li>
-                <li class="breadcrumb-item active text-muted" aria-current="page">Asal Universitas</li>
-            </ol>
-        </nav>
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
@@ -140,7 +134,7 @@
                 <div>
                     <span class="text-muted small fw-semibold d-block mb-1">Total Kampus Mitra</span>
                     <h3 class="fw-bold text-dark mb-0"><?= count($universitas_list) ?></h3>
-                    <small class="text-success fw-medium"><i class="bi bi-check-circle-fill me-1"></i>Perguruan Tinggi Terdaftar</small>
+                    <small class="text-success fw-medium"><i class="bi bi-check-circle-fill me-2"></i>Perguruan Tinggi Terdaftar</small>
                 </div>
                 <div class="stat-icon-wrapper bg-success-subtle text-success">
                     <i class="bi bi-buildings"></i>
@@ -224,7 +218,8 @@
             <!-- ============================================== -->
             <div class="d-block d-md-none p-3">
                 <div class="d-flex flex-column gap-3">
-                    <?php $noMobile = 1; foreach ($universitas_list as $u): ?>
+                    <?php $noMobile = 1;
+                    foreach ($universitas_list as $u): ?>
                         <?php $jml = (int) ($u['total_mahasiswa'] ?? 0); ?>
                         <div class="universitas-item-card">
                             <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
@@ -270,12 +265,12 @@
                             <!-- Tombol Aksi Mobile Touch-Friendly -->
                             <div class="d-flex align-items-center gap-2 pt-1 border-top">
                                 <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
-                                        onclick="bukaModalEditUniversitas(<?= (int) $u['id'] ?>, '<?= esc($u['kode_universitas'], 'js') ?>', '<?= esc($u['nama_universitas'], 'js') ?>', '<?= esc($u['alamat'] ?? '', 'js') ?>', '<?= esc($u['telepon'] ?? '', 'js') ?>')">
+                                    onclick="bukaModalEditUniversitas(<?= (int) $u['id'] ?>, '<?= esc($u['kode_universitas'], 'js') ?>', '<?= esc($u['nama_universitas'], 'js') ?>', '<?= esc($u['alamat'] ?? '', 'js') ?>', '<?= esc($u['telepon'] ?? '', 'js') ?>')">
                                     <i class="bi bi-pencil-square"></i>
                                     <span>Edit</span>
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-danger rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
-                                        onclick="konfirmasiHapusUniversitas(<?= (int) $u['id'] ?>, '<?= esc($u['nama_universitas'], 'js') ?>', <?= $jml ?>)">
+                                    onclick="konfirmasiHapusUniversitas(<?= (int) $u['id'] ?>, '<?= esc($u['nama_universitas'], 'js') ?>', <?= $jml ?>)">
                                     <i class="bi bi-trash"></i>
                                     <span>Hapus</span>
                                 </button>
@@ -301,7 +296,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $no = 1; foreach ($universitas_list as $u): ?>
+                        <?php $no = 1;
+                        foreach ($universitas_list as $u): ?>
                             <tr>
                                 <td class="text-center text-muted fw-semibold"><?= $no++ ?></td>
                                 <td>

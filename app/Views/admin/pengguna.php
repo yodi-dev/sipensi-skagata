@@ -51,6 +51,7 @@
         box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
+
     .user-item-card:active {
         transform: scale(0.99);
     }
@@ -80,7 +81,8 @@
         padding: 0.75rem 1rem;
     }
 
-    .form-control:focus, .form-select:focus {
+    .form-control:focus,
+    .form-select:focus {
         border-color: #10b981;
         box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15);
     }
@@ -118,12 +120,14 @@
         border-color: #0f5132 !important;
         color: #ffffff !important;
     }
+
     .page-link {
         color: #0f5132;
         border-radius: 0.375rem;
         margin: 0 2px;
         transition: all 0.2s ease;
     }
+
     .page-link:hover {
         background-color: #ecfdf5;
         color: #0f5132;
@@ -153,12 +157,6 @@ function getInitials($name)
 
     <!-- Breadcrumb & Top Header -->
     <div class="mb-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-1 small">
-                <li class="breadcrumb-item"><a href="<?= base_url('admin') ?>" class="text-success text-decoration-none"><i class="bi bi-grid-1x2 me-1"></i>Dashboard</a></li>
-                <li class="breadcrumb-item active text-muted" aria-current="page">Data Pengguna</li>
-            </ol>
-        </nav>
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
@@ -357,10 +355,10 @@ function getInitials($name)
             <!-- ============================================== -->
             <div class="d-block d-md-none p-3">
                 <div class="d-flex flex-column gap-3">
-                    <?php 
+                    <?php
                     $currentPage = !empty($pager) ? $pager->getCurrentPage() : 1;
                     $noMobile = (($currentPage - 1) * ($perPage ?? 15)) + 1;
-                    foreach ($users as $u): 
+                    foreach ($users as $u):
                     ?>
                         <div class="user-item-card">
                             <!-- Header Kartu: Inisial, Nama, Username, dan Role -->
@@ -459,10 +457,10 @@ function getInitials($name)
                         </tr>
                     </thead>
                     <tbody>
-                        <?php 
+                        <?php
                         $currentPage = !empty($pager) ? $pager->getCurrentPage() : 1;
                         $no = (($currentPage - 1) * ($perPage ?? 15)) + 1;
-                        foreach ($users as $u): 
+                        foreach ($users as $u):
                         ?>
                             <tr>
                                 <td class="text-center text-muted fw-semibold"><?= $no++ ?></td>

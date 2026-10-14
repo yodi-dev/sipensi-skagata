@@ -91,10 +91,12 @@
         box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
+
     .jurusan-item-card:hover {
         border-color: #cbd5e1;
         box-shadow: 0 4px 12px rgba(15, 81, 50, 0.08);
     }
+
     .jurusan-item-card:active {
         transform: scale(0.99);
     }
@@ -110,13 +112,6 @@
 
     <!-- Breadcrumb & Top Header -->
     <div class="mb-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-1 small">
-                <li class="breadcrumb-item"><a href="<?= base_url('admin') ?>" class="text-success text-decoration-none"><i class="bi bi-grid-1x2 me-1"></i>Beranda</a></li>
-                <li class="breadcrumb-item text-muted">Master Data</li>
-                <li class="breadcrumb-item active text-muted" aria-current="page">Data Jurusan</li>
-            </ol>
-        </nav>
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
@@ -182,7 +177,7 @@
                     <h3 class="fw-bold text-dark mb-0">
                         <?= count($jurusan_list) > 0 ? round($total_mahasiswa / count($jurusan_list), 1) : 0 ?>
                     </h3>
-                    <small class="text-warning-emphasis fw-medium"><i class="bi bi-diagram-3 me-1"></i>Mahasiswa per jurusan</small>
+                    <small class="text-warning-emphasis fw-medium"><i class="bi bi-diagram-3 me-1"></i>Mahasiswa</small>
                 </div>
                 <div class="stat-icon-wrapper bg-warning-subtle text-warning-emphasis">
                     <i class="bi bi-pie-chart"></i>
@@ -248,14 +243,14 @@
                 <div class="d-flex flex-column gap-3">
                     <?php foreach ($jurusan_list as $j): ?>
                         <?php
-                            $jml = (int) ($j['total_mahasiswa'] ?? 0);
-                            $univId = (int) ($j['universitas_id'] ?? 0);
-                            $searchKeywords = strtolower(
-                                ($j['kode_jurusan'] ?? '') . ' ' .
+                        $jml = (int) ($j['total_mahasiswa'] ?? 0);
+                        $univId = (int) ($j['universitas_id'] ?? 0);
+                        $searchKeywords = strtolower(
+                            ($j['kode_jurusan'] ?? '') . ' ' .
                                 ($j['nama_jurusan'] ?? '') . ' ' .
                                 ($j['nama_universitas'] ?? '') . ' ' .
                                 ($j['deskripsi'] ?? '')
-                            );
+                        );
                         ?>
                         <div class="jurusan-item-card baris-jurusan-mobile" data-universitas="<?= $univId ?>" data-search="<?= esc($searchKeywords) ?>">
                             <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
@@ -278,15 +273,15 @@
                             </div>
 
                             <!-- Asal Kampus Mitra -->
-                            <div class="mb-2">
+                            <div class="my-2">
                                 <?php if (!empty($j['nama_universitas'])): ?>
-                                    <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1 shadow-xs d-inline-flex align-items-center gap-1.5" style="font-size: 0.75rem;">
-                                        <i class="bi bi-buildings text-success"></i>
+                                    <span class="badge bg-light text-dark border rounded-pill px-3 py-1.5 shadow-xs d-inline-flex align-items-center" style="font-size: 0.78rem;">
+                                        <i class="bi bi-buildings text-success me-2"></i>
                                         <span><?= esc($j['nama_universitas']) ?></span>
                                     </span>
                                 <?php else: ?>
-                                    <span class="badge bg-light text-muted border rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
-                                        <i class="bi bi-buildings me-1"></i>Umum / Belum Ditautkan
+                                    <span class="badge bg-light text-muted border rounded-pill px-2.5 py-1 d-inline-flex align-items-center" style="font-size: 0.75rem;">
+                                        <i class="bi bi-buildings me-1.5 text-secondary"></i>Umum / Belum Ditautkan
                                     </span>
                                 <?php endif; ?>
                             </div>
@@ -302,12 +297,12 @@
                             <!-- Tombol Aksi Mobile Touch-Friendly -->
                             <div class="d-flex align-items-center gap-2 pt-2 border-top">
                                 <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1.5 shadow-xs" style="font-size: 0.82rem; min-height: 38px;"
-                                        onclick="bukaModalEditJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['kode_jurusan'], 'js') ?>', '<?= esc($j['nama_jurusan'], 'js') ?>', '<?= esc($j['deskripsi'] ?? '', 'js') ?>', '<?= esc($j['universitas_id'] ?? '', 'js') ?>')">
+                                    onclick="bukaModalEditJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['kode_jurusan'], 'js') ?>', '<?= esc($j['nama_jurusan'], 'js') ?>', '<?= esc($j['deskripsi'] ?? '', 'js') ?>', '<?= esc($j['universitas_id'] ?? '', 'js') ?>')">
                                     <i class="bi bi-pencil-square"></i>
                                     <span>Edit</span>
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-danger rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1.5 shadow-xs" style="font-size: 0.82rem; min-height: 38px;"
-                                        onclick="konfirmasiHapusJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['nama_jurusan'], 'js') ?>', <?= $jml ?>)">
+                                    onclick="konfirmasiHapusJurusan(<?= (int) $j['id'] ?>, '<?= esc($j['nama_jurusan'], 'js') ?>', <?= $jml ?>)">
                                     <i class="bi bi-trash"></i>
                                     <span>Hapus</span>
                                 </button>
@@ -340,16 +335,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $no = 1; foreach ($jurusan_list as $j): ?>
+                        <?php $no = 1;
+                        foreach ($jurusan_list as $j): ?>
                             <?php
-                                $jml = (int) ($j['total_mahasiswa'] ?? 0);
-                                $univId = (int) ($j['universitas_id'] ?? 0);
-                                $searchKeywords = strtolower(
-                                    ($j['kode_jurusan'] ?? '') . ' ' .
+                            $jml = (int) ($j['total_mahasiswa'] ?? 0);
+                            $univId = (int) ($j['universitas_id'] ?? 0);
+                            $searchKeywords = strtolower(
+                                ($j['kode_jurusan'] ?? '') . ' ' .
                                     ($j['nama_jurusan'] ?? '') . ' ' .
                                     ($j['nama_universitas'] ?? '') . ' ' .
                                     ($j['deskripsi'] ?? '')
-                                );
+                            );
                             ?>
                             <tr class="baris-jurusan-desktop" data-universitas="<?= $univId ?>" data-search="<?= esc($searchKeywords) ?>">
                                 <td class="text-center text-muted fw-semibold nomor-urut"><?= $no++ ?></td>
@@ -370,12 +366,14 @@
                                 </td>
                                 <td>
                                     <?php if (!empty($j['nama_universitas'])): ?>
-                                        <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 shadow-xs d-inline-flex align-items-center gap-1.5" style="font-size: 0.8rem;">
-                                            <i class="bi bi-buildings text-success"></i>
+                                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2 shadow-xs d-inline-flex align-items-center" style="font-size: 0.82rem;">
+                                            <i class="bi bi-buildings text-success me-2 fs-6"></i>
                                             <span><?= esc($j['nama_universitas']) ?></span>
                                         </span>
                                     <?php else: ?>
-                                        <span class="badge bg-light text-muted border rounded-pill px-2.5 py-1" style="font-size: 0.75rem;">Umum / Belum Ditautkan</span>
+                                        <span class="badge bg-light text-muted border rounded-pill px-3 py-2 d-inline-flex align-items-center" style="font-size: 0.78rem;">
+                                            <i class="bi bi-buildings me-2 text-secondary"></i>Umum / Belum Ditautkan
+                                        </span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">

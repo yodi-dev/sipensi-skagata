@@ -121,6 +121,7 @@
         box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
+
     .pamong-item-card:active {
         transform: scale(0.99);
     }
@@ -132,13 +133,6 @@
 
     <!-- Breadcrumb & Top Header -->
     <div class="mb-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-1 small">
-                <li class="breadcrumb-item"><a href="<?= base_url('admin') ?>" class="text-success text-decoration-none"><i class="bi bi-grid-1x2 me-1"></i>Beranda</a></li>
-                <li class="breadcrumb-item text-muted">Manajemen Pengguna</li>
-                <li class="breadcrumb-item active text-muted" aria-current="page">Pemetaan Guru Pamong</li>
-            </ol>
-        </nav>
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
@@ -148,10 +142,6 @@
                 <p class="text-muted small mt-1 mb-0">Petakan penugasan Guru Pamong ke jurusan binaan untuk menjamin isolasi data monitoring, presensi, dan rekapitulasi bulanan</p>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1">
-                    <i class="bi bi-people"></i>
-                    <span>Data Pengguna</span>
-                </a>
                 <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahGuruPamong">
                     <i class="bi bi-person-plus-fill"></i>
                     <span>Tambah Guru Pamong</span>
@@ -229,7 +219,7 @@
                     </div>
                 </div>
                 <div class="mt-3 small text-muted d-flex align-items-center gap-1">
-                    <span class="text-primary fw-medium">Praktikan PPL/PK</span> di bawah binaan
+                    <span class="text-primary fw-medium">Praktikan PPL/PK</span>
                 </div>
             </div>
         </div>
@@ -378,14 +368,14 @@
                             <!-- Tombol Aksi Mobile Touch-Friendly -->
                             <div class="d-flex align-items-center gap-2 pt-1 border-top">
                                 <button type="button" class="btn btn-sm btn-outline-success rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
-                                        onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanIdsJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>', <?= $jurusanJson ?>)">
+                                    onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanIdsJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>', <?= $jurusanJson ?>)">
                                     <i class="bi bi-diagram-3-fill"></i>
                                     <span><?= $isMapped ? 'Ubah Pemetaan' : 'Atur Pemetaan' ?></span>
                                 </button>
                                 <?php if ($isMapped): ?>
                                     <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
-                                            title="Reset Pemetaan"
-                                            onclick="konfirmasiReset(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>')">
+                                        title="Reset Pemetaan"
+                                        onclick="konfirmasiReset(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>')">
                                         <i class="bi bi-arrow-counterclockwise"></i>
                                         <span>Reset</span>
                                     </button>
@@ -412,7 +402,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $no = 1; foreach ($guru_list as $g): ?>
+                        <?php $no = 1;
+                        foreach ($guru_list as $g): ?>
                             <?php
                             $isMapped = !empty($g['jurusan_list']);
                             $jurusanJson = htmlspecialchars(json_encode($g['jurusan_list']), ENT_QUOTES, 'UTF-8');
@@ -480,8 +471,8 @@
                                     <div class="d-inline-flex align-items-center gap-1">
                                         <!-- Tombol Petakan / Edit Pemetaan -->
                                         <button type="button" class="btn btn-sm btn-light border text-success rounded-pill px-2 py-1 shadow-xs d-inline-flex align-items-center gap-1"
-                                                title="Petakan Jurusan"
-                                                onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanIdsJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>', <?= $jurusanJson ?>)">
+                                            title="Petakan Jurusan"
+                                            onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanIdsJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>', <?= $jurusanJson ?>)">
                                             <i class="bi bi-diagram-3-fill"></i>
                                             <span><?= $isMapped ? 'Ubah' : 'Petakan' ?></span>
                                         </button>
@@ -489,8 +480,8 @@
                                         <!-- Tombol Reset Pemetaan jika sudah terpetakan -->
                                         <?php if ($isMapped): ?>
                                             <button type="button" class="btn btn-sm btn-light border text-danger rounded-circle p-1" style="width: 30px; height: 30px;"
-                                                    title="Reset Pemetaan"
-                                                    onclick="konfirmasiReset(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>')">
+                                                title="Reset Pemetaan"
+                                                onclick="konfirmasiReset(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>')">
                                                 <i class="bi bi-arrow-counterclockwise"></i>
                                             </button>
                                         <?php endif; ?>
@@ -913,4 +904,3 @@
     }
 </script>
 <?= $this->endSection() ?>
-

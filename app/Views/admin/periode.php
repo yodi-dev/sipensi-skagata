@@ -121,12 +121,17 @@
         0% {
             box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
         }
+
         70% {
             box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
         }
+
         100% {
             box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
         }
+
+    }
+
     /* Mobile Periode Card */
     .periode-item-card {
         background: #ffffff;
@@ -136,6 +141,7 @@
         box-shadow: 0 2px 8px rgba(15, 81, 50, 0.04);
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
+
     .periode-item-card:active {
         transform: scale(0.99);
     }
@@ -145,15 +151,8 @@
 <?= $this->section('content') ?>
 <div class="container-fluid px-4 py-4">
 
-    <!-- Breadcrumb & Top Header -->
+    <!-- Top Header -->
     <div class="mb-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-1 small">
-                <li class="breadcrumb-item"><a href="<?= base_url('admin') ?>" class="text-success text-decoration-none"><i class="bi bi-grid-1x2 me-1"></i>Beranda</a></li>
-                <li class="breadcrumb-item text-muted">Master Data</li>
-                <li class="breadcrumb-item active text-muted" aria-current="page">Periode PPL / PK</li>
-            </ol>
-        </nav>
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
@@ -276,15 +275,15 @@
                 <div class="d-flex flex-column gap-3">
                     <?php foreach ($periode_list as $p): ?>
                         <?php
-                            $jml = (int) ($p['total_mahasiswa'] ?? 0);
-                            $badgeClass = 'bg-secondary';
-                            if ($p['timeline_badge'] === 'success') {
-                                $badgeClass = 'bg-success';
-                            } elseif ($p['timeline_badge'] === 'info') {
-                                $badgeClass = 'bg-info text-dark';
-                            }
-                            $statusStr = ((int)$p['is_aktif'] === 1) ? 'aktif' : 'arsip';
-                            $searchKeywords = strtolower($p['nama_periode'] . ' ' . $p['tahun_ajaran'] . ' ' . $p['semester'] . ' ' . $p['timeline_status'] . ' ' . ($p['keterangan'] ?? ''));
+                        $jml = (int) ($p['total_mahasiswa'] ?? 0);
+                        $badgeClass = 'bg-secondary';
+                        if ($p['timeline_badge'] === 'success') {
+                            $badgeClass = 'bg-success';
+                        } elseif ($p['timeline_badge'] === 'info') {
+                            $badgeClass = 'bg-info text-dark';
+                        }
+                        $statusStr = ((int)$p['is_aktif'] === 1) ? 'aktif' : 'arsip';
+                        $searchKeywords = strtolower($p['nama_periode'] . ' ' . $p['tahun_ajaran'] . ' ' . $p['semester'] . ' ' . $p['timeline_status'] . ' ' . ($p['keterangan'] ?? ''));
                         ?>
                         <div class="periode-item-card baris-periode-mobile" data-status="<?= $statusStr ?>" data-search="<?= esc($searchKeywords) ?>">
                             <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
@@ -339,18 +338,18 @@
                             <div class="d-flex align-items-center gap-2 pt-2 border-top">
                                 <?php if ((int)$p['is_aktif'] !== 1): ?>
                                     <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2.5 py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.78rem;"
-                                            title="Tetapkan Aktif" onclick="konfirmasiSetAktif(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>')">
+                                        title="Tetapkan Aktif" onclick="konfirmasiSetAktif(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>')">
                                         <i class="bi bi-check-circle"></i>
                                         <span>Aktifkan</span>
                                     </button>
                                 <?php endif; ?>
                                 <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
-                                        onclick="bukaModalEditPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', '<?= esc($p['tahun_ajaran'], 'js') ?>', '<?= esc($p['semester'], 'js') ?>', '<?= esc($p['tanggal_mulai'], 'js') ?>', '<?= esc($p['tanggal_selesai'], 'js') ?>', <?= (int)$p['is_aktif'] ?>, '<?= esc($p['keterangan'] ?? '', 'js') ?>')">
+                                    onclick="bukaModalEditPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', '<?= esc($p['tahun_ajaran'], 'js') ?>', '<?= esc($p['semester'], 'js') ?>', '<?= esc($p['tanggal_mulai'], 'js') ?>', '<?= esc($p['tanggal_selesai'], 'js') ?>', <?= (int)$p['is_aktif'] ?>, '<?= esc($p['keterangan'] ?? '', 'js') ?>')">
                                     <i class="bi bi-pencil-square"></i>
                                     <span>Edit</span>
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
-                                        onclick="konfirmasiHapusPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', <?= $jml ?>, <?= (int)$p['is_aktif'] ?>)">
+                                    onclick="konfirmasiHapusPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', <?= $jml ?>, <?= (int)$p['is_aktif'] ?>)">
                                     <i class="bi bi-trash"></i>
                                     <span>Hapus</span>
                                 </button>
@@ -384,10 +383,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $no = 1; foreach ($periode_list as $p): ?>
+                        <?php $no = 1;
+                        foreach ($periode_list as $p): ?>
                             <?php
-                                $statusStr = ((int)$p['is_aktif'] === 1) ? 'aktif' : 'arsip';
-                                $searchKeywords = strtolower($p['nama_periode'] . ' ' . $p['tahun_ajaran'] . ' ' . $p['semester'] . ' ' . $p['timeline_status'] . ' ' . ($p['keterangan'] ?? ''));
+                            $statusStr = ((int)$p['is_aktif'] === 1) ? 'aktif' : 'arsip';
+                            $searchKeywords = strtolower($p['nama_periode'] . ' ' . $p['tahun_ajaran'] . ' ' . $p['semester'] . ' ' . $p['timeline_status'] . ' ' . ($p['keterangan'] ?? ''));
                             ?>
                             <tr class="baris-periode-desktop" data-status="<?= $statusStr ?>" data-search="<?= esc($searchKeywords) ?>">
                                 <td class="text-center text-muted fw-semibold nomor-urut"><?= $no++ ?></td>
@@ -417,12 +417,12 @@
                                     </div>
                                     <div class="mt-1">
                                         <?php
-                                            $badgeClass = 'bg-secondary';
-                                            if ($p['timeline_badge'] === 'success') {
-                                                $badgeClass = 'bg-success';
-                                            } elseif ($p['timeline_badge'] === 'info') {
-                                                $badgeClass = 'bg-info text-dark';
-                                            }
+                                        $badgeClass = 'bg-secondary';
+                                        if ($p['timeline_badge'] === 'success') {
+                                            $badgeClass = 'bg-success';
+                                        } elseif ($p['timeline_badge'] === 'info') {
+                                            $badgeClass = 'bg-info text-dark';
+                                        }
                                         ?>
                                         <span class="badge <?= $badgeClass ?> rounded-pill" style="font-size: 0.7rem;">
                                             <?= esc($p['timeline_status']) ?>
@@ -643,10 +643,10 @@
 </form>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const formTambah = document.getElementById('formTambahPeriode');
         if (formTambah) {
-            formTambah.addEventListener('submit', function () {
+            formTambah.addEventListener('submit', function() {
                 const btn = document.getElementById('btnSubmitTambahPeriode');
                 if (btn) {
                     btn.disabled = true;
@@ -657,7 +657,7 @@
 
         const formEdit = document.getElementById('formEditPeriode');
         if (formEdit) {
-            formEdit.addEventListener('submit', function () {
+            formEdit.addEventListener('submit', function() {
                 const btn = document.getElementById('btnSubmitEditPeriode');
                 if (btn) {
                     btn.disabled = true;
@@ -830,4 +830,3 @@
     });
 </script>
 <?= $this->endSection() ?>
-
