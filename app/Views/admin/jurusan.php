@@ -262,12 +262,15 @@
                                 </div>
                                 <div class="text-end flex-shrink-0">
                                     <?php if ($jml > 0): ?>
-                                        <a href="<?= base_url('admin/pengguna?jurusan=' . urlencode($j['nama_jurusan'])) ?>" class="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 text-decoration-none shadow-xs d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;" title="Lihat Mahasiswa">
-                                            <i class="bi bi-mortarboard text-success"></i>
-                                            <strong><?= $jml ?></strong> Mahasiswa
+                                        <a href="<?= base_url('admin/pengguna?jurusan=' . urlencode($j['nama_jurusan'])) ?>" class="badge bg-light text-dark border rounded-pill px-3 py-1.5 text-decoration-none shadow-xs d-inline-flex align-items-center" style="font-size: 0.75rem;" title="Lihat Mahasiswa">
+                                            <i class="bi bi-mortarboard text-success me-1.5"></i>
+                                            <span><strong><?= $jml ?></strong> Mahasiswa</span>
                                         </a>
                                     <?php else: ?>
-                                        <span class="badge bg-light text-muted border rounded-pill px-2 py-1" style="font-size: 0.72rem;">0 Mahasiswa</span>
+                                        <span class="badge bg-light text-muted border rounded-pill px-3 py-1.5 d-inline-flex align-items-center" style="font-size: 0.72rem;">
+                                            <i class="bi bi-mortarboard text-secondary me-1.5"></i>
+                                            <span>0 Mahasiswa</span>
+                                        </span>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -378,13 +381,14 @@
                                 </td>
                                 <td class="text-center">
                                     <?php if ($jml > 0): ?>
-                                        <a href="<?= base_url('admin/pengguna?jurusan=' . urlencode($j['nama_jurusan'])) ?>" class="badge bg-light text-dark border rounded-pill px-3 py-2 text-decoration-none shadow-xs d-inline-flex align-items-center gap-1.5" title="Lihat Mahasiswa">
-                                            <i class="bi bi-mortarboard text-success"></i>
-                                            <strong><?= $jml ?></strong> Mahasiswa
+                                        <a href="<?= base_url('admin/pengguna?jurusan=' . urlencode($j['nama_jurusan'])) ?>" class="badge bg-light text-dark border rounded-pill px-3 py-2 text-decoration-none shadow-xs d-inline-flex align-items-center justify-content-center" style="font-size: 0.82rem;" title="Lihat Mahasiswa">
+                                            <i class="bi bi-mortarboard text-success me-2 fs-6"></i>
+                                            <span><strong><?= $jml ?></strong> Mahasiswa</span>
                                         </a>
                                     <?php else: ?>
-                                        <span class="badge bg-light text-muted border rounded-pill px-3 py-2">
-                                            0 Mahasiswa
+                                        <span class="badge bg-light text-muted border rounded-pill px-3 py-2 d-inline-flex align-items-center justify-content-center" style="font-size: 0.82rem;">
+                                            <i class="bi bi-mortarboard text-secondary me-2 fs-6"></i>
+                                            <span>0 Mahasiswa</span>
                                         </span>
                                     <?php endif; ?>
                                 </td>
