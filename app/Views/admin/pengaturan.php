@@ -155,20 +155,22 @@
             <!-- Kolom Kiri: Peta Interaktif Leaflet -->
             <div class="col-12 col-lg-7">
                 <div class="card settings-card h-100 shadow-xs">
-                    <div class="card-header-custom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                    <div class="card-header-custom d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                         <div>
                             <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                                <i class="bi bi-map text-success"></i>
-                                <span>Peta Perimeter Skagata (Leaflet)</span>
+                                <i class="bi bi-geo-alt-fill text-success"></i>
+                                <span>Peta Perimeter Skagata</span>
                             </h6>
-                            <small class="text-muted">Geser pin marker atau klik peta untuk menentukan titik koordinat</small>
+                            <small class="text-muted">Geser marker atau klik peta untuk menentukan titik koordinat</small>
                         </div>
-                        <div class="d-flex align-items-center gap-1.5 flex-wrap">
-                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 shadow-xs" onclick="resetKeSkagata()" title="Kembalikan koordinat ke titik resmi SMKN 3 Yogyakarta">
-                                <i class="bi bi-arrow-counterclockwise text-secondary me-1"></i> Reset Skagata
+                        <div class="d-flex align-items-center gap-2 flex-shrink-0 flex-nowrap">
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 shadow-xs text-nowrap d-inline-flex align-items-center gap-1.5" onclick="resetKeSkagata()" id="btnResetSkagata" title="Kembalikan koordinat ke titik resmi SMKN 3 Yogyakarta">
+                                <i class="bi bi-arrow-counterclockwise text-secondary"></i>
+                                <span>Reset Skagata</span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-xs" onclick="deteksiLokasiSaya()" title="Deteksi posisi GPS perangkat saya saat ini">
-                                <i class="bi bi-crosshair me-1"></i> Lokasi Saya
+                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-xs text-nowrap d-inline-flex align-items-center gap-1.5" onclick="deteksiLokasiSaya()" id="btnLokasiSaya" title="Deteksi posisi GPS perangkat saya saat ini">
+                                <i class="bi bi-crosshair"></i>
+                                <span>Lokasi Saya</span>
                             </button>
                         </div>
                     </div>
@@ -389,10 +391,11 @@
         const defLng = 110.366450;
         setCoordinates(defLat, defLng);
         map.setView([defLat, defLng], 17);
+        map.invalidateSize();
         Swal.fire({
-            icon: 'info',
+            icon: 'success',
             title: 'Reset ke SMKN 3 Yogyakarta',
-            text: 'Titik pusat koordinat dikembalikan ke lokasi resmi sekolah.',
+            text: 'Titik pusat koordinat berhasil dikembalikan ke lokasi resmi sekolah.',
             confirmButtonColor: '#0f5132',
             timer: 1800,
             showConfirmButton: false
@@ -411,26 +414,50 @@
             return;
         }
 
+        const btn = document.getElementById('btnLokasiSaya');
+        const originalContent = btn ? btn.innerHTML : '<i class="bi bi-crosshair"></i><span>Lokasi Saya</span>';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span><span>Mencari...</span>';
+        }
+
         navigator.geolocation.getCurrentPosition(
             function(pos) {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                }
                 const lat = pos.coords.latitude;
                 const lng = pos.coords.longitude;
                 setCoordinates(lat, lng);
                 map.setView([lat, lng], 17);
+                map.invalidateSize();
                 Swal.fire({
                     icon: 'success',
                     title: 'Lokasi Terdeteksi',
-                    text: `Koordinat berhasil disesuaikan ke posisi GPS Anda saat ini.`,
+                    text: 'Koordinat berhasil disesuaikan ke posisi GPS Anda saat ini.',
                     confirmButtonColor: '#0f5132',
                     timer: 2000,
                     showConfirmButton: false
                 });
             },
             function(err) {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                }
+                let errorMsg = 'Pastikan izin akses lokasi telah diberikan pada browser Anda.';
+                if (err.code === 1) {
+                    errorMsg = 'Akses lokasi ditolak. Harap izinkan browser mengakses lokasi Anda.';
+                } else if (err.code === 2) {
+                    errorMsg = 'Posisi lokasi tidak tersedia. Pastikan perangkat Anda terhubung ke internet/GPS.';
+                } else if (err.code === 3) {
+                    errorMsg = 'Waktu permintaan lokasi habis (timeout). Silakan coba kembali.';
+                }
                 Swal.fire({
                     icon: 'warning',
                     title: 'Gagal Mendeteksi Lokasi',
-                    text: 'Pastikan izin akses lokasi telah diberikan pada browser Anda.',
+                    text: errorMsg,
                     confirmButtonColor: '#0f5132'
                 });
             }, {
