@@ -379,10 +379,10 @@
                             <!-- Tombol Aksi Mobile Touch-Friendly (Unified All-in-One) -->
                             <div class="d-flex align-items-center gap-1.5 pt-2 border-top">
                                 <button type="button" class="btn btn-sm btn-outline-success rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1.5" style="font-size: 0.82rem;"
-                                    title="Edit Profil, Password &amp; Atur Jurusan"
+                                    title="Edit Data Guru &amp; Pemetaan Jurusan"
                                     onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanIdsJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>', <?= $jurusanJson ?>)">
                                     <i class="bi bi-pencil-square"></i>
-                                    <span><?= $isMapped ? 'Edit &amp; Kelola' : 'Petakan &amp; Kelola' ?></span>
+                                    <span>Edit</span>
                                 </button>
                                 <?php if ($isMapped): ?>
                                     <button type="button" class="btn btn-sm btn-light border text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;"
@@ -483,12 +483,12 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="d-inline-flex align-items-center gap-1.5">
-                                        <!-- Tombol Edit & Kelola Terpadu (All-in-One: Profil, Password & Pemetaan Jurusan) -->
+                                        <!-- Tombol Edit Terpadu (All-in-One: Profil, Password & Pemetaan Jurusan) -->
                                         <button type="button" class="btn btn-sm btn-light border text-success rounded-pill px-3 py-1 shadow-xs d-inline-flex align-items-center gap-1.5"
-                                            title="Edit Profil, Password &amp; Kelola Jurusan"
+                                            title="Edit Data Guru &amp; Pemetaan Jurusan"
                                             onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanIdsJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>', <?= $jurusanJson ?>)">
                                             <i class="bi bi-pencil-square"></i>
-                                            <span><?= $isMapped ? 'Edit &amp; Kelola' : 'Petakan &amp; Kelola' ?></span>
+                                            <span>Edit</span>
                                         </button>
 
                                         <!-- Tombol Reset Pemetaan jika sudah terpetakan -->
@@ -521,19 +521,19 @@
 <!-- Modal Pemetaan Guru Pamong Modern (All-in-One: Profil, Password & Jurusan) -->
 <div class="modal fade" id="modalPemetaan" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-header bg-success text-white py-3">
+        <form action="<?= base_url('admin/guru-pamong/simpan') ?>" method="POST" id="formPemetaan" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <?= csrf_field() ?>
+            <input type="hidden" name="guru_id" id="pemetaanGuruId">
+
+            <div class="modal-header bg-success text-white py-3 flex-shrink-0">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
                     <i class="bi bi-person-gear"></i>
                     <span>Edit Data &amp; Pemetaan Guru Pamong</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('admin/guru-pamong/simpan') ?>" method="POST" id="formPemetaan">
-                <?= csrf_field() ?>
-                <input type="hidden" name="guru_id" id="pemetaanGuruId">
 
-                <div class="modal-body text-start p-4">
+            <div class="modal-body text-start p-4">
                     <!-- Informasi Profil & Kredensial Akun -->
                     <div class="p-3 bg-light rounded-3 border mb-4">
                         <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
@@ -650,14 +650,13 @@
                     </div>
                 </div>
 
-                <div class="modal-footer border-0 bg-light py-2 px-4">
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitPemetaan">
-                        <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="modal-footer border-0 bg-light py-2 px-4 flex-shrink-0">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitPemetaan">
+                    <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
