@@ -103,21 +103,39 @@ class Admin extends BaseController
         $db = Database::connect();
         $builder = $db->table('users');
 
-        // Parameter pencarian & filter
+        // Parameter pencarian, filter, dan pagination
         $keyword = trim((string) $this->request->getGet('keyword'));
         $roleFilter = $this->request->getGet('role');
         $jurusanFilter = $this->request->getGet('jurusan');
         $universitasFilter = $this->request->getGet('universitas');
         $periodeFilter = $this->request->getGet('periode');
+        $perPageInput = (int) $this->request->getGet('per_page');
+        $perPage = in_array($perPageInput, [5, 10, 15, 25, 50, 100], true) ? $perPageInput : 10;
 
-        // Hitung statistik keseluruhan (tanpa filter pencarian)
+        // Ambil daftar periode dan periode aktif lebih awal untuk kalkulasi metrik
+        $daftarPeriode = $this->periodeModel->getDaftarPilihan();
+        $periodeAktif = $this->periodeModel->getPeriodeAktif();
+
+        // Hitung statistik khusus Mahasiswa & Pengguna
         $totalMahasiswa = $this->userModel->where('role', 'mahasiswa')->countAllResults();
         $totalGuru = $this->userModel->where('role', 'guru')->countAllResults();
+        $totalMahasiswaAktif = 0;
+        if ($periodeAktif) {
+            $totalMahasiswaAktif = $this->userModel->where('role', 'mahasiswa')->where('periode_id', (int) $periodeAktif['id'])->countAllResults();
+        }
+        $totalJurusanTerwakili = $db->table('users')->where('role', 'mahasiswa')->where('jurusan IS NOT NULL')->where('jurusan !=', '')->select('jurusan')->distinct()->countAllResults();
+        $totalUnivTerwakili = $db->table('users')->where('role', 'mahasiswa')->where('universitas IS NOT NULL')->where('universitas !=', '')->select('universitas')->distinct()->countAllResults();
 
-        // Siapkan query pengguna dengan filter
+        // Siapkan query pengguna: default khusus Mahasiswa (non-admin)
         $userQuery = $this->userModel->select('users.*, periode.nama_periode AS nama_periode_relasi')
             ->join('periode', 'periode.id = users.periode_id', 'left')
             ->where('role !=', 'admin');
+
+        if (empty($roleFilter)) {
+            $userQuery->where('users.role', 'mahasiswa');
+        } elseif (in_array($roleFilter, ['mahasiswa', 'guru'], true)) {
+            $userQuery->where('users.role', $roleFilter);
+        }
 
         // Terapkan filter query
         if (!empty($keyword)) {
@@ -125,10 +143,6 @@ class Admin extends BaseController
                 ->like('users.nama', $keyword)
                 ->orLike('users.username', $keyword)
                 ->groupEnd();
-        }
-
-        if (!empty($roleFilter) && in_array($roleFilter, ['mahasiswa', 'guru'], true)) {
-            $userQuery->where('users.role', $roleFilter);
         }
 
         if (!empty($jurusanFilter)) {
@@ -143,9 +157,7 @@ class Admin extends BaseController
             $userQuery->where('users.periode_id', (int) $periodeFilter);
         }
 
-        $perPage = 15;
-        $users = $userQuery->orderBy('users.role', 'ASC')
-            ->orderBy('users.nama', 'ASC')
+        $users = $userQuery->orderBy('users.nama', 'ASC')
             ->paginate($perPage);
 
         $pager = $this->userModel->pager;
@@ -180,30 +192,29 @@ class Admin extends BaseController
         $daftarUniversitas = array_values(array_unique(array_merge($masterUniversitas, $univFromDb)));
         sort($daftarUniversitas);
 
-        // Ambil daftar periode dan periode aktif
-        $daftarPeriode = $this->periodeModel->getDaftarPilihan();
-        $periodeAktif = $this->periodeModel->getPeriodeAktif();
-
         $data = [
-            'users'              => $users,
-            'pager'              => $pager,
-            'perPage'            => $perPage,
-            'totalFiltered'      => $pager ? $pager->getTotal() : count($users),
-            'current_admin'      => $currentAdmin,
-            'totalMahasiswa'     => $totalMahasiswa,
-            'totalGuru'          => $totalGuru,
-            'keyword'            => $keyword,
-            'role_terpilih'      => $roleFilter,
-            'jurusan_pilih'      => $jurusanFilter,
-            'universitas_pilih'  => $universitasFilter,
-            'periode_pilih'      => $periodeFilter,
-            'daftar_jurusan'     => $daftarJurusan,
-            'daftar_jurusan_mitra' => $this->jurusanModel->getJurusanWithUniversitas(),
-            'daftar_universitas' => $daftarUniversitas,
-            'jurusan_univ_map'   => $this->jurusanModel->getJurusanMappingByUniversitas(),
-            'daftar_periode'     => $daftarPeriode,
-            'periode_aktif'      => $periodeAktif,
-            'title'              => 'Manajemen Pengguna - SIPENSI SKAGATA'
+            'users'                 => $users,
+            'pager'                 => $pager,
+            'perPage'               => $perPage,
+            'totalFiltered'         => $pager ? $pager->getTotal() : count($users),
+            'current_admin'         => $currentAdmin,
+            'totalMahasiswa'        => $totalMahasiswa,
+            'totalGuru'             => $totalGuru,
+            'totalMahasiswaAktif'   => $totalMahasiswaAktif,
+            'totalJurusanTerwakili' => $totalJurusanTerwakili,
+            'totalUnivTerwakili'    => $totalUnivTerwakili,
+            'keyword'               => $keyword,
+            'role_terpilih'         => $roleFilter,
+            'jurusan_pilih'         => $jurusanFilter,
+            'universitas_pilih'     => $universitasFilter,
+            'periode_pilih'         => $periodeFilter,
+            'daftar_jurusan'        => $daftarJurusan,
+            'daftar_jurusan_mitra'  => $this->jurusanModel->getJurusanWithUniversitas(),
+            'daftar_universitas'    => $daftarUniversitas,
+            'jurusan_univ_map'      => $this->jurusanModel->getJurusanMappingByUniversitas(),
+            'daftar_periode'        => $daftarPeriode,
+            'periode_aktif'         => $periodeAktif,
+            'title'                 => 'Manajemen Data Mahasiswa - SIPENSI SKAGATA'
         ];
 
         return view('admin/pengguna', $data);
@@ -326,20 +337,32 @@ class Admin extends BaseController
             }
         }
 
-        $this->userModel->update($userId, [
+        $updateData = [
             'username'    => $username,
             'nama'        => $nama,
             'role'        => $role,
-            'jurusan'     => ($role === 'guru') ? $primaryJurusanName : (!empty($jurusan) ? $jurusan : null),
-            'universitas' => ($role === 'mahasiswa' && !empty($universitas)) ? $universitas : null,
             'periode_id'  => $periodeVal,
-        ]);
-
-        if ($role === 'guru') {
-            $this->guruPamongModel->assignJurusanToGuru((int) $userId, $jurusanAssignment);
+        ];
+        if ($role === 'mahasiswa') {
+            $updateData['jurusan'] = !empty($jurusan) ? $jurusan : null;
+            $updateData['universitas'] = !empty($universitas) ? $universitas : null;
+        } elseif ($role === 'guru') {
+            if (!empty($primaryJurusanName)) {
+                $updateData['jurusan'] = $primaryJurusanName;
+            }
+            $updateData['universitas'] = null;
         }
 
-        return redirect()->to('/admin/pengguna')->with('pesan', "Data pengguna {$nama} berhasil diperbarui!");
+        $this->userModel->update($userId, $updateData);
+
+        if ($role === 'guru') {
+            if (!empty($jurusanAssignment)) {
+                $this->guruPamongModel->assignJurusanToGuru((int) $userId, $jurusanAssignment);
+            }
+            return redirect()->to('/admin/guru-pamong')->with('pesan', "Data Guru Pamong {$nama} berhasil diperbarui!");
+        }
+
+        return redirect()->to('/admin/pengguna')->with('pesan', "Data mahasiswa {$nama} berhasil diperbarui!");
     }
 
     public function tambahGuruPamong()
@@ -518,7 +541,11 @@ class Admin extends BaseController
             return redirect()->back()->with('error', 'Gagal menghapus pengguna karena terjadi kendala pada transaksi database.');
         }
 
-        return redirect()->to('/admin/pengguna')->with('pesan', "Pengguna {$user['nama']} ({$user['username']}) berhasil dihapus!");
+        if ($user['role'] === 'guru') {
+            return redirect()->to('/admin/guru-pamong')->with('pesan', "Akun Guru Pamong {$user['nama']} (@{$user['username']}) berhasil dihapus!");
+        }
+
+        return redirect()->to('/admin/pengguna')->with('pesan', "Mahasiswa {$user['nama']} (@{$user['username']}) berhasil dihapus!");
     }
 
     public function resetPassword()
@@ -545,7 +572,11 @@ class Admin extends BaseController
             'password' => password_hash($passwordToSet, PASSWORD_BCRYPT)
         ]);
 
-        return redirect()->to('/admin/pengguna')->with('pesan', "Password untuk pengguna {$user['nama']} berhasil direset!");
+        if ($user['role'] === 'guru') {
+            return redirect()->to('/admin/guru-pamong')->with('pesan', "Password untuk Guru Pamong {$user['nama']} berhasil direset!");
+        }
+
+        return redirect()->to('/admin/pengguna')->with('pesan', "Password untuk mahasiswa {$user['nama']} berhasil direset!");
     }
 
     public function pengaturan()

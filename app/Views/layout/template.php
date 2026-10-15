@@ -500,12 +500,12 @@
 
                         <div class="sidebar-section-label">Manajemen Pengguna</div>
                         <a href="<?= base_url('admin/pengguna') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'admin/pengguna') !== false) ? 'active' : '' ?>">
-                            <i class="bi bi-people-fill"></i>
-                            <span>Data Pengguna</span>
+                            <i class="bi bi-mortarboard-fill"></i>
+                            <span>Data Mahasiswa</span>
                         </a>
                         <a href="<?= base_url('admin/guru-pamong') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'admin/guru-pamong') !== false) ? 'active' : '' ?>">
-                            <i class="bi bi-person-lines-fill"></i>
-                            <span>Pemetaan Pamong</span>
+                            <i class="bi bi-person-badge-fill"></i>
+                            <span>Data Guru Pamong</span>
                         </a>
 
                         <div class="sidebar-section-label">Master Data</div>

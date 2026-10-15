@@ -160,90 +160,102 @@ function getInitials($name)
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                    <i class="bi bi-people-fill text-success"></i>
-                    <span>Manajemen Data Pengguna</span>
+                    <i class="bi bi-mortarboard-fill text-success"></i>
+                    <span>Manajemen Data Mahasiswa</span>
                 </h4>
-                <p class="text-muted small mt-1 mb-0">Kelola akun Guru Pamong, GTT, dan Mahasiswa Praktikan PPL/PK di SMK Negeri 3 Yogyakarta</p>
+                <p class="text-muted small mt-1 mb-0">Kelola akun, penempatan kejuruan, asal universitas mitra, dan periode gelombang mahasiswa praktikan PPL/PK</p>
             </div>
             <div class="d-flex align-items-center gap-2">
                 <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
                     <i class="bi bi-person-plus"></i>
-                    <span>Tambah Pengguna</span>
+                    <span>Tambah Mahasiswa Baru</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Ringkasan Statistik Modern (Tema Skagata Emerald Seragam Dashboard) -->
+    <!-- Alert Edukasi & Pintasan ke Manajemen Guru Pamong -->
+    <div class="alert alert-light border border-success-subtle bg-white rounded-4 shadow-xs p-3 mb-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-2 rounded-3 bg-success-subtle text-success flex-shrink-0" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+                    <i class="bi bi-person-badge-fill"></i>
+                </div>
+                <div>
+                    <span class="fw-bold text-dark d-block" style="font-size: 0.88rem;">Pemisahan Manajemen Pamong &amp; Praktikan</span>
+                    <small class="text-muted" style="font-size: 0.78rem;">
+                        Pengelolaan akun Guru Pamong dan penugasan <strong>Jurusan Bimbingan / Pamong</strong> dikelola terpusat di menu <a href="<?= base_url('admin/guru-pamong') ?>" class="text-success fw-semibold text-decoration-underline">Data Guru Pamong</a>.
+                    </small>
+                </div>
+            </div>
+            <a href="<?= base_url('admin/guru-pamong') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-xs text-nowrap align-self-start align-self-sm-center" style="font-size: 0.8rem;">
+                <i class="bi bi-person-badge me-1"></i>Buka Data Pamong
+            </a>
+        </div>
+    </div>
+
+    <!-- Ringkasan Statistik Modern Khusus Mahasiswa Praktikan -->
     <div class="row g-3 mb-4">
         <!-- 1. Total Mahasiswa PPL/PK -->
         <div class="col-6 col-lg-3">
             <div class="card stat-card-modern p-3">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted small fw-medium">Mahasiswa PPL/PK</span>
+                    <span class="text-muted small fw-medium">Total Mahasiswa</span>
                     <div class="stat-icon-circle" style="background-color: #ccfbf1; color: #0f766e;">
                         <i class="bi bi-mortarboard-fill"></i>
                     </div>
                 </div>
                 <h3 class="fw-bold text-dark mb-0"><?= $totalMahasiswa ?></h3>
                 <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">
-                    Praktikan (<?= count($daftar_universitas ?? []) ?> universitas mitra)
+                    Praktikan terdaftar di sistem
                 </small>
             </div>
         </div>
 
-        <!-- 2. Total Guru Pamong / GTT -->
+        <!-- 2. Mahasiswa Gelombang Aktif -->
         <div class="col-6 col-lg-3">
             <div class="card stat-card-modern p-3">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted small fw-medium">Guru Pamong / GTT</span>
-                    <div class="stat-icon-circle" style="background-color: #fef3c7; color: #92400e;">
-                        <i class="bi bi-person-badge-fill"></i>
-                    </div>
-                </div>
-                <h3 class="fw-bold text-dark mb-0"><?= $totalGuru ?></h3>
-                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">
-                    Pamong (<?= count($daftar_jurusan ?? []) ?> jurusan bimbingan)
-                </small>
-            </div>
-        </div>
-
-        <!-- 3. Total Keseluruhan Pengguna -->
-        <div class="col-6 col-lg-3">
-            <div class="card stat-card-modern p-3">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted small fw-medium">Total Akun Aktif</span>
-                    <div class="stat-icon-circle" style="background-color: #e0e7ff; color: #3730a3;">
-                        <i class="bi bi-people-fill"></i>
-                    </div>
-                </div>
-                <h3 class="fw-bold text-dark mb-0"><?= (int) $totalMahasiswa + (int) $totalGuru ?></h3>
-                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">
-                    Pengguna terdaftar (non-admin)
-                </small>
-            </div>
-        </div>
-
-        <!-- 4. Periode Aktif -->
-        <div class="col-6 col-lg-3">
-            <div class="card stat-card-modern p-3">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted small fw-medium">Periode Aktif</span>
+                    <span class="text-muted small fw-medium">Gelombang Aktif</span>
                     <div class="stat-icon-circle" style="background-color: #dcfce7; color: #166534;">
-                        <i class="bi bi-calendar-check"></i>
+                        <i class="bi bi-person-check-fill"></i>
                     </div>
                 </div>
-                <div class="text-truncate">
-                    <?php if (!empty($periode_aktif)): ?>
-                        <a href="<?= base_url('admin/periode') ?>" class="h5 fw-bold text-success text-decoration-none d-block text-truncate mb-0" title="<?= esc($periode_aktif['nama_periode']) ?>">
-                            <?= esc($periode_aktif['nama_periode']) ?>
-                        </a>
-                    <?php else: ?>
-                        <span class="h6 fw-bold text-muted d-block mb-0">Belum Ada</span>
-                    <?php endif; ?>
+                <h3 class="fw-bold text-dark mb-0"><?= $totalMahasiswaAktif ?? 0 ?></h3>
+                <small class="text-muted mt-1 d-block text-truncate" style="font-size: 0.75rem;" title="<?= !empty($periode_aktif) ? esc($periode_aktif['nama_periode']) : 'Belum Ada Periode Aktif' ?>">
+                    <?= !empty($periode_aktif) ? esc($periode_aktif['nama_periode']) : 'Belum Ada Periode Aktif' ?>
+                </small>
+            </div>
+        </div>
+
+        <!-- 3. Jurusan / Konsentrasi Terwakili -->
+        <div class="col-6 col-lg-3">
+            <div class="card stat-card-modern p-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-medium">Jurusan Praktikan</span>
+                    <div class="stat-icon-circle" style="background-color: #e0e7ff; color: #3730a3;">
+                        <i class="bi bi-journal-bookmark-fill"></i>
+                    </div>
                 </div>
+                <h3 class="fw-bold text-dark mb-0"><?= $totalJurusanTerwakili ?? count($daftar_jurusan ?? []) ?></h3>
                 <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">
-                    Gelombang operasional saat ini
+                    Bidang keahlian terisi
+                </small>
+            </div>
+        </div>
+
+        <!-- 4. Asal Universitas Mitra -->
+        <div class="col-6 col-lg-3">
+            <div class="card stat-card-modern p-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-medium">Universitas Mitra</span>
+                    <div class="stat-icon-circle" style="background-color: #fef3c7; color: #92400e;">
+                        <i class="bi bi-buildings-fill"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-dark mb-0"><?= $totalUnivTerwakili ?? count($daftar_universitas ?? []) ?></h3>
+                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">
+                    Kampus pengirim kerja sama
                 </small>
             </div>
         </div>
@@ -257,45 +269,41 @@ function getInitials($name)
                 <div>
                     <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
                         <i class="bi bi-person-lines-fill text-success"></i>
-                        <span>Daftar Pengguna Terdaftar</span>
+                        <span>Daftar Mahasiswa Praktikan</span>
                     </h6>
                     <small class="text-muted">
-                        Menampilkan <span class="fw-semibold text-dark"><?= count($users) ?></span> dari <span class="fw-semibold text-dark"><?= $totalFiltered ?? count($users) ?></span> total akun
+                        Menampilkan <span class="fw-semibold text-dark"><?= count($users) ?></span> dari <span class="fw-semibold text-dark"><?= $totalFiltered ?? count($users) ?></span> total mahasiswa
                     </small>
                 </div>
-                <?php if (!empty($keyword) || !empty($role_terpilih) || !empty($jurusan_pilih) || !empty($universitas_pilih) || !empty($periode_pilih)): ?>
-                    <div>
+                <div class="d-flex align-items-center gap-2">
+                    <?php if (!empty($keyword) || !empty($role_terpilih) || !empty($jurusan_pilih) || !empty($universitas_pilih) || !empty($periode_pilih)): ?>
                         <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-1.5 shadow-xs" style="font-size: 0.8rem;">
                             <i class="bi bi-arrow-clockwise"></i>
                             <span>Reset Filter</span>
                         </a>
-                    </div>
-                <?php endif; ?>
+                    <?php endif; ?>
+                </div>
             </div>
 
-            <!-- Toolbar Filter Responsif (Grid Rapi Tanpa Bug VR) -->
+            <!-- Toolbar Filter Responsif (Bersih Tanpa Tombol Filter & Tanpa Dropdown Role) -->
             <form action="<?= base_url('admin/pengguna') ?>" method="GET" class="filter-wrapper shadow-xs">
+                <input type="hidden" name="per_page" value="<?= (int) ($perPage ?? 10) ?>">
+                <?php if (!empty($role_terpilih)): ?>
+                    <input type="hidden" name="role" value="<?= esc($role_terpilih) ?>">
+                <?php endif; ?>
                 <div class="row g-2 align-items-center">
-                    <div class="col-12 col-md-4 col-xl-3">
+                    <div class="col-12 col-md-6 col-xl-4">
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-white border-end-0 text-muted ps-2.5">
                                 <i class="bi bi-search text-success"></i>
                             </span>
-                            <input type="text" name="keyword" class="form-control border-start-0 ps-1 fw-medium" placeholder="Cari nama / username..." value="<?= esc($keyword ?? '') ?>">
+                            <input type="text" name="keyword" class="form-control border-start-0 ps-1 fw-medium" placeholder="Cari nama / username / NIM..." value="<?= esc($keyword ?? '') ?>">
                         </div>
                     </div>
 
-                    <div class="col-6 col-md-4 col-xl-2">
-                        <select name="role" class="form-select form-select-sm fw-medium" onchange="this.form.submit()" aria-label="Filter Role">
-                            <option value="">Semua Role</option>
-                            <option value="mahasiswa" <?= (($role_terpilih ?? '') === 'mahasiswa') ? 'selected' : '' ?>>Mahasiswa Praktikan</option>
-                            <option value="guru" <?= (($role_terpilih ?? '') === 'guru') ? 'selected' : '' ?>>Guru Pamong / GTT</option>
-                        </select>
-                    </div>
-
-                    <div class="col-6 col-md-4 col-xl-2">
+                    <div class="col-12 col-sm-6 col-md-6 col-xl-3">
                         <select name="jurusan" class="form-select form-select-sm fw-medium" onchange="this.form.submit()" aria-label="Filter Jurusan">
-                            <option value="">Semua Jurusan</option>
+                            <option value="">Semua Jurusan / Kejuruan</option>
                             <?php if (!empty($daftar_jurusan)): ?>
                                 <?php foreach ($daftar_jurusan as $jrs): ?>
                                     <option value="<?= esc($jrs) ?>" <?= (($jurusan_pilih ?? '') === $jrs) ? 'selected' : '' ?>><?= esc($jrs) ?></option>
@@ -304,9 +312,9 @@ function getInitials($name)
                         </select>
                     </div>
 
-                    <div class="col-6 col-md-4 col-xl-2">
+                    <div class="col-12 col-sm-6 col-md-6 col-xl-3">
                         <select name="universitas" class="form-select form-select-sm fw-medium" onchange="this.form.submit()" aria-label="Filter Universitas">
-                            <option value="">Semua Universitas</option>
+                            <option value="">Semua Universitas Mitra</option>
                             <?php if (!empty($daftar_universitas)): ?>
                                 <?php foreach ($daftar_universitas as $univ): ?>
                                     <option value="<?= esc($univ) ?>" <?= (($universitas_pilih ?? '') === $univ) ? 'selected' : '' ?>><?= esc($univ) ?></option>
@@ -315,9 +323,9 @@ function getInitials($name)
                         </select>
                     </div>
 
-                    <div class="col-6 col-md-4 col-xl-2">
+                    <div class="col-12 col-sm-6 col-md-6 col-xl-2">
                         <select name="periode" class="form-select form-select-sm fw-medium" onchange="this.form.submit()" aria-label="Filter Periode">
-                            <option value="">Semua Periode</option>
+                            <option value="">Semua Gelombang</option>
                             <?php if (!empty($daftar_periode)): ?>
                                 <?php foreach ($daftar_periode as $prd): ?>
                                     <option value="<?= $prd['id'] ?>" <?= (($periode_pilih ?? '') == $prd['id']) ? 'selected' : '' ?>>
@@ -327,13 +335,6 @@ function getInitials($name)
                             <?php endif; ?>
                         </select>
                     </div>
-
-                    <div class="col-12 col-md-4 col-xl-1 text-end">
-                        <button type="submit" class="btn btn-sm btn-skagata w-100 rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center justify-content-center gap-1 shadow-xs">
-                            <i class="bi bi-funnel"></i>
-                            <span>Filter</span>
-                        </button>
-                    </div>
                 </div>
             </form>
         </div>
@@ -341,9 +342,9 @@ function getInitials($name)
         <?php if (empty($users)): ?>
             <div class="text-center py-5">
                 <div class="py-4">
-                    <i class="bi bi-people text-muted opacity-50" style="font-size: 3rem;"></i>
-                    <h6 class="fw-semibold text-muted mt-3 mb-1">Tidak Ada Data Pengguna</h6>
-                    <p class="text-muted small mb-3">Tidak ditemukan pengguna yang cocok dengan kriteria pencarian atau filter.</p>
+                    <i class="bi bi-mortarboard text-muted opacity-50" style="font-size: 3rem;"></i>
+                    <h6 class="fw-semibold text-muted mt-3 mb-1">Tidak Ada Data Mahasiswa</h6>
+                    <p class="text-muted small mb-3">Tidak ditemukan mahasiswa praktikan yang cocok dengan kriteria pencarian atau filter.</p>
                     <a href="<?= base_url('admin/pengguna') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3">
                         <i class="bi bi-arrow-clockwise me-1"></i>Reset Filter
                     </a>
@@ -351,17 +352,17 @@ function getInitials($name)
             </div>
         <?php else: ?>
             <!-- ============================================== -->
-            <!-- 1. MOBILE VIEW: Interactive User Cards (< 768px) -->
+            <!-- 1. MOBILE VIEW: Interactive Mahasiswa Cards (< 768px) -->
             <!-- ============================================== -->
             <div class="d-block d-md-none p-3">
                 <div class="d-flex flex-column gap-3">
                     <?php
                     $currentPage = !empty($pager) ? $pager->getCurrentPage() : 1;
-                    $noMobile = (($currentPage - 1) * ($perPage ?? 15)) + 1;
+                    $noMobile = (($currentPage - 1) * ($perPage ?? 10)) + 1;
                     foreach ($users as $u):
                     ?>
                         <div class="user-item-card">
-                            <!-- Header Kartu: Inisial, Nama, Username, dan Role -->
+                            <!-- Header Kartu: Inisial, Nama, Username/NIM -->
                             <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="avatar-initial">
@@ -373,52 +374,29 @@ function getInitials($name)
                                     </div>
                                 </div>
                                 <div>
-                                    <?php if ($u['role'] === 'mahasiswa'): ?>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1" style="font-size: 0.72rem;">
-                                            <i class="bi bi-mortarboard me-1"></i>Mahasiswa
-                                        </span>
-                                    <?php elseif ($u['role'] === 'guru'): ?>
-                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1" style="font-size: 0.72rem;">
-                                            <i class="bi bi-person-badge me-1"></i>Guru Pamong
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="badge bg-secondary rounded-pill px-2 py-1" style="font-size: 0.72rem;"><?= esc($u['role']) ?></span>
-                                    <?php endif; ?>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1" style="font-size: 0.72rem;">
+                                        <i class="bi bi-mortarboard me-1"></i>Mahasiswa
+                                    </span>
                                 </div>
                             </div>
 
                             <!-- Detail: Jurusan, Universitas, Periode -->
-                            <div class="bg-light p-2 rounded-3 mb-3" style="font-size: 0.8rem;">
-                                <?php if ($u['role'] === 'guru'): ?>
+                            <div class="bg-light p-2.5 rounded-3 mb-3" style="font-size: 0.8rem;">
+                                <div class="d-flex align-items-center justify-content-between mb-1.5">
+                                    <span class="text-muted">Jurusan:</span>
+                                    <span class="fw-semibold text-dark text-end"><?= !empty($u['jurusan']) ? esc($u['jurusan']) : '-' ?></span>
+                                </div>
+                                <?php if (!empty($u['universitas'])): ?>
+                                    <div class="d-flex align-items-center justify-content-between mb-1.5">
+                                        <span class="text-muted">Universitas:</span>
+                                        <span class="fw-semibold text-dark text-truncate text-end" style="max-width: 190px;" title="<?= esc($u['universitas']) ?>"><?= esc($u['universitas']) ?></span>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (!empty($u['nama_periode_relasi'])): ?>
                                     <div class="d-flex align-items-center justify-content-between">
-                                        <span class="text-muted">Bimbingan:</span>
-                                        <?php if (!empty($u['jurusan'])): ?>
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
-                                                <i class="bi bi-shield-check me-1"></i><?= esc($u['jurusan']) ?>
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill">
-                                                <i class="bi bi-exclamation-circle me-1"></i>Belum Dipetakan
-                                            </span>
-                                        <?php endif; ?>
+                                        <span class="text-muted">Periode:</span>
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill"><?= esc($u['nama_periode_relasi']) ?></span>
                                     </div>
-                                <?php else: ?>
-                                    <div class="d-flex align-items-center justify-content-between mb-1">
-                                        <span class="text-muted">Jurusan:</span>
-                                        <span class="fw-semibold text-dark"><?= !empty($u['jurusan']) ? esc($u['jurusan']) : '-' ?></span>
-                                    </div>
-                                    <?php if (!empty($u['universitas'])): ?>
-                                        <div class="d-flex align-items-center justify-content-between mb-1">
-                                            <span class="text-muted">Universitas:</span>
-                                            <span class="fw-semibold text-dark text-truncate" style="max-width: 190px;"><?= esc($u['universitas']) ?></span>
-                                        </div>
-                                    <?php endif; ?>
-                                    <?php if (!empty($u['nama_periode_relasi'])): ?>
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <span class="text-muted">Periode:</span>
-                                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill"><?= esc($u['nama_periode_relasi']) ?></span>
-                                        </div>
-                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
 
@@ -450,16 +428,17 @@ function getInitials($name)
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 50px;">No</th>
-                            <th>Pengguna</th>
-                            <th>Role Akun</th>
-                            <th>Jurusan &amp; Kampus</th>
-                            <th class="text-center" style="width: 150px;">Aksi</th>
+                            <th>Mahasiswa Praktikan</th>
+                            <th>Konsentrasi Keahlian / Jurusan</th>
+                            <th>Asal Universitas Mitra</th>
+                            <th>Periode Gelombang</th>
+                            <th class="text-center" style="width: 140px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
                         $currentPage = !empty($pager) ? $pager->getCurrentPage() : 1;
-                        $no = (($currentPage - 1) * ($perPage ?? 15)) + 1;
+                        $no = (($currentPage - 1) * ($perPage ?? 10)) + 1;
                         foreach ($users as $u):
                         ?>
                             <tr>
@@ -476,62 +455,39 @@ function getInitials($name)
                                     </div>
                                 </td>
                                 <td>
-                                    <?php if ($u['role'] === 'mahasiswa'): ?>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
-                                            <i class="bi bi-mortarboard me-1"></i>Mahasiswa
-                                        </span>
-                                    <?php elseif ($u['role'] === 'guru'): ?>
-                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1">
-                                            <i class="bi bi-person-badge me-1"></i>Guru Pamong
+                                    <?php if (!empty($u['jurusan'])): ?>
+                                        <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1 fw-semibold">
+                                            <i class="bi bi-journal-bookmark text-success me-1"></i><?= esc($u['jurusan']) ?>
                                         </span>
                                     <?php else: ?>
-                                        <span class="badge bg-secondary rounded-pill px-2 py-1"><?= esc($u['role']) ?></span>
+                                        <span class="text-muted small fst-italic">Belum Ditentukan</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if ($u['role'] === 'guru'): ?>
-                                        <?php if (!empty($u['jurusan'])): ?>
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
-                                                <i class="bi bi-shield-check me-1"></i><?= esc($u['jurusan']) ?>
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1">
-                                                <i class="bi bi-exclamation-circle me-1"></i>Belum Dipetakan
-                                            </span>
-                                        <?php endif; ?>
-                                        <div class="mt-1">
-                                            <a href="<?= base_url('admin/guru-pamong') ?>" class="small text-decoration-none text-muted" style="font-size: 0.75rem;">
-                                                <i class="bi bi-gear-wide-connected me-1"></i>Atur Pemetaan
-                                            </a>
+                                    <?php if (!empty($u['universitas'])): ?>
+                                        <div class="d-flex align-items-center gap-1.5" title="Asal Universitas: <?= esc($u['universitas']) ?>">
+                                            <i class="bi bi-buildings text-success" style="font-size: 0.85rem;"></i>
+                                            <span class="fw-medium text-dark text-truncate" style="max-width: 220px;"><?= esc($u['universitas']) ?></span>
                                         </div>
                                     <?php else: ?>
-                                        <?php if (!empty($u['jurusan'])): ?>
-                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1">
-                                                <?= esc($u['jurusan']) ?>
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="text-muted small">-</span>
-                                        <?php endif; ?>
-
-                                        <?php if (!empty($u['universitas'])): ?>
-                                            <div class="small text-muted mt-1 d-flex align-items-center gap-1" title="Asal Universitas: <?= esc($u['universitas']) ?>">
-                                                <i class="bi bi-buildings text-success" style="font-size: 0.75rem;"></i>
-                                                <span class="text-truncate" style="max-width: 170px;"><?= esc($u['universitas']) ?></span>
-                                            </div>
-                                        <?php endif; ?>
-
-                                        <?php if (!empty($u['nama_periode_relasi'])): ?>
-                                            <div class="small text-muted mt-1 d-flex align-items-center gap-1" title="Periode: <?= esc($u['nama_periode_relasi']) ?>">
-                                                <i class="bi bi-calendar-range text-primary" style="font-size: 0.75rem;"></i>
-                                                <span class="text-truncate" style="max-width: 170px;"><?= esc($u['nama_periode_relasi']) ?></span>
-                                            </div>
-                                        <?php endif; ?>
+                                        <span class="text-muted small fst-italic">Umum / Mandiri</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if (!empty($u['nama_periode_relasi'])): ?>
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1">
+                                            <i class="bi bi-calendar-range me-1"></i><?= esc($u['nama_periode_relasi']) ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-2 py-0.5" style="font-size: 0.75rem;">
+                                            Tidak Terikat Gelombang
+                                        </span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
                                     <div class="d-inline-flex align-items-center gap-1">
                                         <!-- Tombol Edit -->
-                                        <button type="button" class="btn btn-sm btn-light border text-primary btn-action-circle shadow-xs" title="Edit Pengguna" onclick="bukaModalEdit(<?= (int) $u['id'] ?>, '<?= esc($u['username'], 'js') ?>', '<?= esc($u['nama'], 'js') ?>', '<?= esc($u['role'], 'js') ?>', '<?= esc($u['jurusan'] ?? '', 'js') ?>', '<?= esc($u['universitas'] ?? '', 'js') ?>', '<?= esc($u['periode_id'] ?? '', 'js') ?>')">
+                                        <button type="button" class="btn btn-sm btn-light border text-primary btn-action-circle shadow-xs" title="Edit Mahasiswa" onclick="bukaModalEdit(<?= (int) $u['id'] ?>, '<?= esc($u['username'], 'js') ?>', '<?= esc($u['nama'], 'js') ?>', '<?= esc($u['role'], 'js') ?>', '<?= esc($u['jurusan'] ?? '', 'js') ?>', '<?= esc($u['universitas'] ?? '', 'js') ?>', '<?= esc($u['periode_id'] ?? '', 'js') ?>')">
                                             <i class="bi bi-pencil"></i>
                                         </button>
 
@@ -541,7 +497,7 @@ function getInitials($name)
                                         </button>
 
                                         <!-- Tombol Hapus -->
-                                        <button type="button" class="btn btn-sm btn-light border text-danger btn-action-circle shadow-xs" title="Hapus Pengguna" onclick="konfirmasiHapus(<?= (int) $u['id'] ?>, '<?= esc($u['nama'], 'js') ?>')">
+                                        <button type="button" class="btn btn-sm btn-light border text-danger btn-action-circle shadow-xs" title="Hapus Mahasiswa" onclick="konfirmasiHapus(<?= (int) $u['id'] ?>, '<?= esc($u['nama'], 'js') ?>')">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
@@ -552,46 +508,66 @@ function getInitials($name)
                 </table>
             </div>
         <?php endif; ?>
-        <?php if (!empty($pager) && $pager->getPageCount() > 1): ?>
-            <div class="card-footer bg-white border-top py-3 px-4 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
-                <div class="text-muted small">
-                    Menampilkan <span class="fw-semibold text-dark"><?= count($users) ?></span> dari <span class="fw-semibold text-dark"><?= $totalFiltered ?? count($users) ?></span> total pengguna
+
+        <?php if (!empty($users)): ?>
+            <!-- Pagination & Per Page Selector Footer -->
+            <div class="card-footer bg-white border-top py-3 px-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <div class="text-muted small">
+                        Menampilkan <span class="fw-semibold text-dark"><?= count($users) ?></span> dari <span class="fw-semibold text-dark"><?= $totalFiltered ?? count($users) ?></span> total mahasiswa
+                    </div>
+                    <!-- Pilihan Baris Per Halaman -->
+                    <div class="d-flex align-items-center gap-1.5 small text-muted">
+                        <label for="perPageSelect" class="text-nowrap mb-0" style="font-size: 0.8rem;">Tampilkan:</label>
+                        <select id="perPageSelect" class="form-select form-select-sm py-0 px-2 shadow-none" style="width: 70px; height: 28px; font-size: 0.8rem;" onchange="changePerPage(this.value)">
+                            <option value="5" <?= (($perPage ?? 10) == 5) ? 'selected' : '' ?>>5</option>
+                            <option value="10" <?= (($perPage ?? 10) == 10) ? 'selected' : '' ?>>10</option>
+                            <option value="25" <?= (($perPage ?? 10) == 25) ? 'selected' : '' ?>>25</option>
+                            <option value="50" <?= (($perPage ?? 10) == 50) ? 'selected' : '' ?>>50</option>
+                        </select>
+                        <span style="font-size: 0.8rem;">baris</span>
+                    </div>
                 </div>
                 <div>
-                    <?= $pager->links('default', 'bootstrap') ?>
+                    <?php if (!empty($pager) && $pager->getPageCount() > 1): ?>
+                        <?= $pager->links('default', 'bootstrap') ?>
+                    <?php else: ?>
+                        <!-- Single page indicator -->
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item disabled"><span class="page-link text-muted opacity-50">&laquo;</span></li>
+                            <li class="page-item active"><span class="page-link fw-semibold">1</span></li>
+                            <li class="page-item disabled"><span class="page-link text-muted opacity-50">&raquo;</span></li>
+                        </ul>
+                    <?php endif; ?>
                 </div>
-            </div>
-        <?php elseif (!empty($users)): ?>
-            <div class="card-footer bg-white border-top py-2 px-4 text-muted small">
-                Menampilkan seluruh <span class="fw-semibold text-dark"><?= count($users) ?></span> pengguna
             </div>
         <?php endif; ?>
     </div>
 
 </div>
 
-<!-- Modal Tambah Pengguna Modern -->
+<!-- Modal Tambah Pengguna Modern (Khusus Mahasiswa) -->
 <div class="modal fade" id="modalTambahUser" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <form action="<?= base_url('admin/tambah-user') ?>" method="POST" id="formTambahUserPengguna" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <?= csrf_field() ?>
             <div class="modal-header bg-success text-white py-3 flex-shrink-0">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-person-plus"></i>
-                    <span>Tambah Pengguna Baru</span>
+                    <i class="bi bi-mortarboard-fill"></i>
+                    <span>Tambah Mahasiswa Baru</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-start p-4">
                 <div class="mb-3">
                     <label class="form-label fw-semibold small text-dark">Nama Lengkap</label>
-                    <input type="text" name="nama" class="form-control" placeholder="Contoh: Ahmad Fauzi, S.Pd." required>
+                    <input type="text" name="nama" class="form-control" placeholder="Contoh: Ahmad Fauzi" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-semibold small text-dark">Username</label>
-                    <input type="text" name="username" class="form-control" placeholder="Contoh: ahmad123" required>
+                    <label class="form-label fw-semibold small text-dark">Username / NIM</label>
+                    <input type="text" name="username" class="form-control" placeholder="Contoh: ahmad123 / NIM" required>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3 d-none">
                     <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
                     <select name="role" class="form-select" id="tambahRoleSelect" onchange="toggleJurusanField('tambahRoleSelect', 'tambahJurusanWrapper', 'tambahUniversitasWrapper', 'tambahPeriodeWrapper', 'tambahUniversitas', 'tambahJurusan')" required>
                         <option value="mahasiswa" selected>Mahasiswa Praktikan (PPL/PK)</option>
@@ -648,14 +624,14 @@ function getInitials($name)
             <div class="modal-footer border-0 bg-light py-2 px-4 flex-shrink-0">
                 <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
                 <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitTambahUserPengguna">
-                    <i class="bi bi-plus-circle me-1"></i> Tambah Pengguna
+                    <i class="bi bi-plus-circle me-1"></i> Tambah Mahasiswa
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Modal Edit Pengguna Modern -->
+<!-- Modal Edit Pengguna Modern (Khusus Mahasiswa) -->
 <div class="modal fade" id="modalEditUser" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <form action="<?= base_url('admin/edit-user') ?>" method="POST" id="formEditUserPengguna" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
@@ -664,7 +640,7 @@ function getInitials($name)
             <div class="modal-header bg-success text-white py-3 flex-shrink-0">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
                     <i class="bi bi-pencil-square"></i>
-                    <span>Edit Data Pengguna</span>
+                    <span>Edit Data Mahasiswa</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -674,13 +650,13 @@ function getInitials($name)
                     <input type="text" name="nama" id="editNama" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-semibold small text-dark">Username</label>
+                    <label class="form-label fw-semibold small text-dark">Username / NIM</label>
                     <input type="text" name="username" id="editUsername" class="form-control" required>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3 d-none">
                     <label class="form-label fw-semibold small text-dark">Role / Hak Akses</label>
                     <select name="role" id="editRole" class="form-select" onchange="toggleJurusanField('editRole', 'editJurusanWrapper', 'editUniversitasWrapper', 'editPeriodeWrapper', 'editUniversitas', 'editJurusan')" required>
-                        <option value="mahasiswa">Mahasiswa Praktikan (PPL/PK)</option>
+                        <option value="mahasiswa" selected>Mahasiswa Praktikan (PPL/PK)</option>
                         <option value="guru">Guru Pamong / GTT</option>
                     </select>
                 </div>
@@ -732,7 +708,7 @@ function getInitials($name)
     </div>
 </div>
 
-<!-- Modal Reset Password Modern -->
+<!-- Modal Reset Password Modern (Khusus Mahasiswa) -->
 <div class="modal fade" id="modalResetPassword" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <form action="<?= base_url('admin/reset-password') ?>" method="POST" id="formResetPassPengguna" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
@@ -741,15 +717,15 @@ function getInitials($name)
             <div class="modal-header bg-warning text-dark py-3 flex-shrink-0">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
                     <i class="bi bi-key"></i>
-                    <span>Reset Password Pengguna</span>
+                    <span>Reset Password Mahasiswa</span>
                 </h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-start p-4">
                 <div class="alert alert-light border d-flex align-items-center gap-2 py-2 px-3 rounded-3 mb-3">
-                    <i class="bi bi-person-check text-warning fs-5"></i>
+                    <i class="bi bi-mortarboard text-warning fs-5"></i>
                     <div class="small">
-                        Reset password akun: <strong id="resetUserNama" class="text-dark"></strong>
+                        Reset password akun mahasiswa: <strong id="resetUserNama" class="text-dark"></strong>
                     </div>
                 </div>
 
@@ -1007,10 +983,17 @@ function getInitials($name)
         modal.show();
     }
 
+    function changePerPage(val) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('per_page', val);
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+    }
+
     function konfirmasiHapus(id, nama) {
         Swal.fire({
-            title: 'Hapus Pengguna?',
-            html: `Akun <strong>${nama}</strong> dan seluruh riwayat presensi terkait akan dihapus permanen.`,
+            title: 'Hapus Mahasiswa?',
+            html: `Akun mahasiswa <strong>${nama}</strong> dan seluruh riwayat presensi terkait akan dihapus permanen.`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc3545',
