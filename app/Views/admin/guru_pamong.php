@@ -376,29 +376,24 @@
                                 <?php endif; ?>
                             </div>
 
-                            <!-- Tombol Aksi Mobile Touch-Friendly -->
-                            <div class="d-flex align-items-center gap-1.5 pt-1 border-top">
-                                <button type="button" class="btn btn-sm btn-outline-success rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
+                            <!-- Tombol Aksi Mobile Touch-Friendly (Unified All-in-One) -->
+                            <div class="d-flex align-items-center gap-1.5 pt-2 border-top">
+                                <button type="button" class="btn btn-sm btn-outline-success rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1.5" style="font-size: 0.82rem;"
+                                    title="Edit Profil, Password &amp; Atur Jurusan"
                                     onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanIdsJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>', <?= $jurusanJson ?>)">
-                                    <i class="bi bi-diagram-3-fill"></i>
-                                    <span><?= $isMapped ? 'Ubah Jurusan' : 'Atur Pemetaan' ?></span>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-light border text-primary rounded-circle p-1" style="width: 32px; height: 32px;" title="Edit Akun" onclick="bukaModalEditGuru(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>')">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-light border text-warning rounded-circle p-1" style="width: 32px; height: 32px;" title="Reset Password" onclick="bukaModalResetGuru(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>')">
-                                    <i class="bi bi-key"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-light border text-danger rounded-circle p-1" style="width: 32px; height: 32px;" title="Hapus Akun" onclick="konfirmasiHapusGuru(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>')">
-                                    <i class="bi bi-trash"></i>
+                                    <i class="bi bi-pencil-square"></i>
+                                    <span><?= $isMapped ? 'Edit &amp; Kelola' : 'Petakan &amp; Kelola' ?></span>
                                 </button>
                                 <?php if ($isMapped): ?>
-                                    <button type="button" class="btn btn-sm btn-light border text-secondary rounded-circle p-1" style="width: 32px; height: 32px;"
-                                        title="Reset Pemetaan Jurusan"
+                                    <button type="button" class="btn btn-sm btn-light border text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;"
+                                        title="Reset Pemetaan Jurusan Saja"
                                         onclick="konfirmasiReset(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>')">
                                         <i class="bi bi-arrow-counterclockwise"></i>
                                     </button>
                                 <?php endif; ?>
+                                <button type="button" class="btn btn-sm btn-light border text-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;" title="Hapus Akun" onclick="konfirmasiHapusGuru(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -417,7 +412,7 @@
                             <th>Jurusan Bimbingan</th>
                             <th class="text-center" style="width: 140px;">Mahasiswa</th>
                             <th>Catatan / Keterangan</th>
-                            <th class="text-center" style="width: 220px;">Aksi</th>
+                            <th class="text-center" style="width: 200px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -487,28 +482,13 @@
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
-                                    <div class="d-inline-flex align-items-center gap-1">
-                                        <!-- Tombol Petakan / Ubah Pemetaan -->
-                                        <button type="button" class="btn btn-sm btn-light border text-success rounded-pill px-2.5 py-1 shadow-xs d-inline-flex align-items-center gap-1"
-                                            title="Atur Pemetaan Jurusan"
+                                    <div class="d-inline-flex align-items-center gap-1.5">
+                                        <!-- Tombol Edit & Kelola Terpadu (All-in-One: Profil, Password & Pemetaan Jurusan) -->
+                                        <button type="button" class="btn btn-sm btn-light border text-success rounded-pill px-3 py-1 shadow-xs d-inline-flex align-items-center gap-1.5"
+                                            title="Edit Profil, Password &amp; Kelola Jurusan"
                                             onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanIdsJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>', <?= $jurusanJson ?>)">
-                                            <i class="bi bi-diagram-3-fill"></i>
-                                            <span><?= $isMapped ? 'Ubah' : 'Petakan' ?></span>
-                                        </button>
-
-                                        <!-- Tombol Edit Akun Pamong -->
-                                        <button type="button" class="btn btn-sm btn-light border text-primary btn-action-circle shadow-xs" title="Edit Data Guru" onclick="bukaModalEditGuru(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>')">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-
-                                        <!-- Tombol Reset Password -->
-                                        <button type="button" class="btn btn-sm btn-light border text-warning btn-action-circle shadow-xs" title="Reset Password" onclick="bukaModalResetGuru(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>')">
-                                            <i class="bi bi-key"></i>
-                                        </button>
-
-                                        <!-- Tombol Hapus Akun Guru -->
-                                        <button type="button" class="btn btn-sm btn-light border text-danger btn-action-circle shadow-xs" title="Hapus Akun Guru" onclick="konfirmasiHapusGuru(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>')">
-                                            <i class="bi bi-trash"></i>
+                                            <i class="bi bi-pencil-square"></i>
+                                            <span><?= $isMapped ? 'Edit &amp; Kelola' : 'Petakan &amp; Kelola' ?></span>
                                         </button>
 
                                         <!-- Tombol Reset Pemetaan jika sudah terpetakan -->
@@ -519,6 +499,13 @@
                                                 <i class="bi bi-arrow-counterclockwise"></i>
                                             </button>
                                         <?php endif; ?>
+
+                                        <!-- Tombol Hapus Akun Guru -->
+                                        <button type="button" class="btn btn-sm btn-light border text-danger btn-action-circle shadow-xs"
+                                            title="Hapus Akun Guru"
+                                            onclick="konfirmasiHapusGuru(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -531,14 +518,14 @@
 
 </div>
 
-<!-- Modal Pemetaan Guru Pamong Modern -->
+<!-- Modal Pemetaan Guru Pamong Modern (All-in-One: Profil, Password & Jurusan) -->
 <div class="modal fade" id="modalPemetaan" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header bg-success text-white py-3">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-diagram-3-fill"></i>
-                    <span>Atur Pemetaan Jurusan Guru Pamong</span>
+                    <i class="bi bi-person-gear"></i>
+                    <span>Edit Data &amp; Pemetaan Guru Pamong</span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -547,14 +534,48 @@
                 <input type="hidden" name="guru_id" id="pemetaanGuruId">
 
                 <div class="modal-body text-start p-4">
-                    <!-- Preview Guru Yang Dipetakan -->
-                    <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3 mb-4">
-                        <div class="avatar-initial" id="modalAvatarInitial" style="width: 44px; height: 44px; font-size: 1.1rem;">
-                            G
+                    <!-- Informasi Profil & Kredensial Akun -->
+                    <div class="p-3 bg-light rounded-3 border mb-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                            <span class="fw-bold small text-dark d-flex align-items-center gap-2">
+                                <i class="bi bi-person-badge text-success fs-5"></i>
+                                <span>Informasi Profil &amp; Kredensial Akun</span>
+                            </span>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-initial" id="modalAvatarInitial" style="width: 28px; height: 28px; font-size: 0.8rem;">
+                                    G
+                                </div>
+                                <span class="badge bg-white text-secondary border font-monospace" id="modalGuruUsernameBadge">@username</span>
+                            </div>
                         </div>
-                        <div>
-                            <h6 class="fw-bold text-dark mb-0" id="modalGuruNama">Nama Guru</h6>
-                            <small class="text-muted font-monospace" id="modalGuruUsername">@username</small>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold small text-dark mb-1">
+                                    Nama Lengkap Guru <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="nama" id="modalEditNama" class="form-control" required placeholder="Contoh: Budi Santoso, S.Pd.">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold small text-dark mb-1">
+                                    Username Akun <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 text-muted">@</span>
+                                    <input type="text" name="username" id="modalEditUsername" class="form-control border-start-0" required placeholder="username_pamong">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small text-dark mb-1">
+                                    Password Baru
+                                    <span class="text-muted fw-normal">(Kosongkan bila tidak ingin mengubah password)</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" name="password" id="inputModalEditPassword" class="form-control border-end-0" placeholder="Minimal 6 karakter bila diisi" autocomplete="new-password">
+                                    <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibilityGuru('inputModalEditPassword', 'iconToggleModalEditPassword')">
+                                        <i class="bi bi-eye" id="iconToggleModalEditPassword"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -632,7 +653,7 @@
                 <div class="modal-footer border-0 bg-light py-2 px-4">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitPemetaan">
-                        <i class="bi bi-check2-circle me-1"></i> Simpan Pemetaan
+                        <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
                     </button>
                 </div>
             </form>
@@ -759,81 +780,6 @@
     <input type="hidden" name="guru_id" id="resetGuruId">
 </form>
 
-<!-- Modal Edit Guru Pamong Modern -->
-<div class="modal fade" id="modalEditGuruPamong" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <form action="<?= base_url('admin/edit-user') ?>" method="POST" id="formEditGuruPamong" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <?= csrf_field() ?>
-            <input type="hidden" name="id" id="editGuruId">
-            <input type="hidden" name="role" value="guru">
-            <div class="modal-header bg-success text-white py-3 flex-shrink-0">
-                <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-pencil-square"></i>
-                    <span>Edit Data Guru Pamong</span>
-                </h6>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-start p-4">
-                <div class="mb-3">
-                    <label class="form-label fw-semibold small text-dark">Nama Lengkap Guru</label>
-                    <input type="text" name="nama" id="editGuruNama" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold small text-dark">Username</label>
-                    <input type="text" name="username" id="editGuruUsername" class="form-control" required>
-                </div>
-            </div>
-            <div class="modal-footer border-0 bg-light py-2 px-4 flex-shrink-0">
-                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitEditGuru">
-                    <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Modal Reset Password Guru Pamong Modern -->
-<div class="modal fade" id="modalResetPasswordGuru" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <form action="<?= base_url('admin/reset-password') ?>" method="POST" id="formResetPassGuru" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <?= csrf_field() ?>
-            <input type="hidden" name="user_id" id="resetGuruPassId">
-            <div class="modal-header bg-warning text-dark py-3 flex-shrink-0">
-                <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-key"></i>
-                    <span>Reset Password Guru Pamong</span>
-                </h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-start p-4">
-                <div class="alert alert-light border d-flex align-items-center gap-2 py-2 px-3 rounded-3 mb-3">
-                    <i class="bi bi-person-badge text-warning fs-5"></i>
-                    <div class="small">
-                        Reset password akun Guru Pamong: <strong id="resetGuruNamaLabel" class="text-dark"></strong>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-semibold small text-dark">Password Baru</label>
-                    <div class="input-group">
-                        <input type="password" name="new_password" id="inputResetGuruPassword" class="form-control border-end-0" placeholder="Minimal 6 karakter" required>
-                        <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibilityGuru('inputResetGuruPassword', 'iconToggleResetGuru')">
-                            <i class="bi bi-eye" id="iconToggleResetGuru"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer border-0 bg-light py-2 px-4 flex-shrink-0">
-                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-sm btn-warning rounded-pill px-4" id="btnSubmitResetPassGuru">
-                    <i class="bi bi-arrow-repeat me-1"></i> Reset Password
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <!-- Form Tersembunyi untuk Hapus Guru via POST + CSRF -->
 <form id="formHapusGuruUser" action="<?= base_url('admin/hapus-user') ?>" method="POST" style="display: none;">
     <?= csrf_field() ?>
@@ -881,9 +827,26 @@
 
     function bukaModalPemetaan(guruId, nama, username, jurusanIds, keterangan, jurusanNames) {
         document.getElementById('pemetaanGuruId').value = guruId;
-        document.getElementById('modalGuruNama').innerText = nama;
-        document.getElementById('modalGuruUsername').innerText = '@' + username;
-        document.getElementById('modalAvatarInitial').innerText = nama.trim().charAt(0).toUpperCase();
+        const inputNama = document.getElementById('modalEditNama');
+        if (inputNama) inputNama.value = nama;
+        const inputUsername = document.getElementById('modalEditUsername');
+        if (inputUsername) inputUsername.value = username;
+        const badgeUsername = document.getElementById('modalGuruUsernameBadge');
+        if (badgeUsername) badgeUsername.innerText = '@' + username;
+        const avatarInitial = document.getElementById('modalAvatarInitial');
+        if (avatarInitial) avatarInitial.innerText = nama.trim().charAt(0).toUpperCase();
+
+        const inputPassword = document.getElementById('inputModalEditPassword');
+        if (inputPassword) {
+            inputPassword.value = '';
+            inputPassword.type = 'password';
+            const iconEye = document.getElementById('iconToggleModalEditPassword');
+            if (iconEye) {
+                iconEye.classList.remove('bi-eye-slash');
+                iconEye.classList.add('bi-eye');
+            }
+        }
+
         document.getElementById('pemetaanKeterangan').value = keterangan || '';
 
         // Uncheck all checkboxes first
@@ -1016,23 +979,6 @@
             const cardId = chk.getAttribute('id').replace('chk_tambah_', 'cardTambahJurusan_');
             updateCardCheckStyle(chk, cardId);
         });
-    }
-
-    function bukaModalEditGuru(id, nama, username) {
-        document.getElementById('editGuruId').value = id;
-        document.getElementById('editGuruNama').value = nama;
-        document.getElementById('editGuruUsername').value = username;
-        const modal = new bootstrap.Modal(document.getElementById('modalEditGuruPamong'));
-        modal.show();
-    }
-
-    function bukaModalResetGuru(id, nama) {
-        document.getElementById('resetGuruPassId').value = id;
-        document.getElementById('resetGuruNamaLabel').innerText = nama;
-        const input = document.getElementById('inputResetGuruPassword');
-        if (input) input.value = '';
-        const modal = new bootstrap.Modal(document.getElementById('modalResetPasswordGuru'));
-        modal.show();
     }
 
     function konfirmasiHapusGuru(id, nama) {

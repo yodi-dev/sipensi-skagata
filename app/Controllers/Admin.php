@@ -484,13 +484,54 @@ class Admin extends BaseController
             return redirect()->back()->with('error', 'Data Guru Pamong tidak ditemukan!');
         }
 
+        $nama = trim(strip_tags((string) $this->request->getPost('nama')));
+        $username = trim((string) $this->request->getPost('username'));
+        $password = (string) $this->request->getPost('password');
+
+        $userUpdate = [];
+        if (!empty($nama)) {
+            $userUpdate['nama'] = $nama;
+        }
+        if (!empty($username) && $username !== $guru['username']) {
+            $cekUser = $this->userModel->where('username', $username)->where('id !=', $guruId)->first();
+            if ($cekUser) {
+                return redirect()->back()->withInput()->with('error', "Username '{$username}' sudah digunakan oleh pengguna lain!");
+            }
+            $userUpdate['username'] = $username;
+        }
+        if (!empty($password)) {
+            if (strlen($password) < 6) {
+                return redirect()->back()->withInput()->with('error', 'Password baru minimal 6 karakter!');
+            }
+            $userUpdate['password'] = password_hash($password, PASSWORD_BCRYPT);
+        }
+
         $jurusan = $this->request->getPost('jurusan');
         $jurusanList = is_array($jurusan) ? $jurusan : (!empty($jurusan) ? [$jurusan] : []);
         $keterangan = trim(strip_tags((string) $this->request->getPost('keterangan')));
 
+        if (!empty($jurusanList)) {
+            $firstJId = reset($jurusanList);
+            if (is_numeric($firstJId)) {
+                $jRecord = $this->jurusanModel->find((int) $firstJId);
+                if ($jRecord) {
+                    $userUpdate['jurusan'] = $jRecord['nama_jurusan'];
+                }
+            } else {
+                $userUpdate['jurusan'] = (string) $firstJId;
+            }
+        } else {
+            $userUpdate['jurusan'] = null;
+        }
+
+        if (!empty($userUpdate)) {
+            $this->userModel->update($guruId, $userUpdate);
+        }
+
         $this->guruPamongModel->assignJurusanToGuru((int) $guruId, $jurusanList, $keterangan);
 
-        return redirect()->to('/admin/guru-pamong')->with('pesan', "Pemetaan jurusan untuk {$guru['nama']} berhasil disimpan!");
+        $namaFinal = !empty($nama) ? $nama : $guru['nama'];
+        return redirect()->to('/admin/guru-pamong')->with('pesan', "Data dan pemetaan jurusan untuk {$namaFinal} berhasil diperbarui!");
     }
 
     public function hapusPemetaanGuru()
