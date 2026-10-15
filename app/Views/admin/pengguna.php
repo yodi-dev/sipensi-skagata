@@ -380,21 +380,27 @@ function getInitials($name)
                                 </div>
                             </div>
 
-                            <!-- Detail: Jurusan, Universitas, Periode -->
+                            <!-- Detail: Universitas, Jurusan, Periode -->
                             <div class="bg-light p-2.5 rounded-3 mb-3" style="font-size: 0.8rem;">
-                                <div class="d-flex align-items-center justify-content-between mb-1.5">
-                                    <span class="text-muted">Jurusan:</span>
-                                    <span class="fw-semibold text-dark text-end"><?= !empty($u['jurusan']) ? esc($u['jurusan']) : '-' ?></span>
-                                </div>
                                 <?php if (!empty($u['universitas'])): ?>
                                     <div class="d-flex align-items-center justify-content-between mb-1.5">
-                                        <span class="text-muted">Universitas:</span>
+                                        <span class="text-muted d-flex align-items-center">
+                                            <i class="bi bi-buildings text-success" style="font-size: 0.85rem; margin-right: 6px;"></i>Universitas:
+                                        </span>
                                         <span class="fw-semibold text-dark text-truncate text-end" style="max-width: 190px;" title="<?= esc($u['universitas']) ?>"><?= esc($u['universitas']) ?></span>
                                     </div>
                                 <?php endif; ?>
+                                <div class="d-flex align-items-center justify-content-between mb-1.5">
+                                    <span class="text-muted d-flex align-items-center">
+                                        <i class="bi bi-journal-bookmark text-success" style="font-size: 0.85rem; margin-right: 6px;"></i>Jurusan:
+                                    </span>
+                                    <span class="fw-semibold text-dark text-end"><?= !empty($u['jurusan']) ? esc($u['jurusan']) : '-' ?></span>
+                                </div>
                                 <?php if (!empty($u['nama_periode_relasi'])): ?>
                                     <div class="d-flex align-items-center justify-content-between">
-                                        <span class="text-muted">Periode:</span>
+                                        <span class="text-muted d-flex align-items-center">
+                                            <i class="bi bi-calendar-range text-primary" style="font-size: 0.85rem; margin-right: 6px;"></i>Periode:
+                                        </span>
                                         <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill"><?= esc($u['nama_periode_relasi']) ?></span>
                                     </div>
                                 <?php endif; ?>
@@ -429,8 +435,7 @@ function getInitials($name)
                         <tr>
                             <th class="text-center" style="width: 50px;">No</th>
                             <th>Mahasiswa Praktikan</th>
-                            <th>Konsentrasi Keahlian / Jurusan</th>
-                            <th>Asal Universitas Mitra</th>
+                            <th>Universitas &amp; Jurusan</th>
                             <th>Periode Gelombang</th>
                             <th class="text-center" style="width: 140px;">Aksi</th>
                         </tr>
@@ -455,23 +460,26 @@ function getInitials($name)
                                     </div>
                                 </td>
                                 <td>
-                                    <?php if (!empty($u['jurusan'])): ?>
-                                        <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1 fw-semibold">
-                                            <i class="bi bi-journal-bookmark text-success me-1"></i><?= esc($u['jurusan']) ?>
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="text-muted small fst-italic">Belum Ditentukan</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php if (!empty($u['universitas'])): ?>
-                                        <div class="d-flex align-items-center gap-1.5" title="Asal Universitas: <?= esc($u['universitas']) ?>">
-                                            <i class="bi bi-buildings text-success" style="font-size: 0.85rem;"></i>
-                                            <span class="fw-medium text-dark text-truncate" style="max-width: 220px;"><?= esc($u['universitas']) ?></span>
-                                        </div>
-                                    <?php else: ?>
-                                        <span class="text-muted small fst-italic">Umum / Mandiri</span>
-                                    <?php endif; ?>
+                                    <!-- 1. Asal Universitas Mitra (Atas) -->
+                                    <div class="d-flex align-items-center mb-1.5" title="Asal Universitas: <?= !empty($u['universitas']) ? esc($u['universitas']) : 'Umum / Mandiri' ?>">
+                                        <i class="bi bi-buildings text-success flex-shrink-0" style="font-size: 0.92rem; margin-right: 8px;"></i>
+                                        <?php if (!empty($u['universitas'])): ?>
+                                            <span class="fw-semibold text-dark text-truncate" style="max-width: 260px; font-size: 0.9rem;"><?= esc($u['universitas']) ?></span>
+                                        <?php else: ?>
+                                            <span class="text-muted small fst-italic">Umum / Mandiri</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <!-- 2. Konsentrasi Keahlian / Jurusan (Bawah) -->
+                                    <div class="d-flex align-items-center" style="padding-left: 2px;">
+                                        <?php if (!empty($u['jurusan'])): ?>
+                                            <span class="badge bg-light text-secondary border rounded-pill px-2.5 py-1 fw-semibold d-inline-flex align-items-center" style="font-size: 0.76rem;">
+                                                <i class="bi bi-journal-bookmark text-success" style="margin-right: 6px;"></i>
+                                                <span class="text-dark"><?= esc($u['jurusan']) ?></span>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="text-muted small fst-italic" style="font-size: 0.75rem;">Jurusan belum ditentukan</span>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                                 <td>
                                     <?php if (!empty($u['nama_periode_relasi'])): ?>
