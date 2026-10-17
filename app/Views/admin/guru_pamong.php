@@ -377,8 +377,8 @@
                             </div>
 
                             <!-- Tombol Aksi Mobile Touch-Friendly (Unified All-in-One) -->
-                            <div class="d-flex align-items-center gap-1.5 pt-2 border-top">
-                                <button type="button" class="btn btn-sm btn-outline-success rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1.5" style="font-size: 0.82rem;"
+                            <div class="d-flex align-items-center gap-2 pt-2 border-top">
+                                <button type="button" class="btn btn-sm btn-outline-success rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-2" style="font-size: 0.82rem;"
                                     title="Edit Data Guru &amp; Pemetaan Jurusan"
                                     onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanIdsJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>', <?= $jurusanJson ?>)">
                                     <i class="bi bi-pencil-square"></i>
@@ -484,7 +484,7 @@
                                 <td class="text-center">
                                     <div class="d-inline-flex align-items-center gap-1.5">
                                         <!-- Tombol Edit Terpadu (All-in-One: Profil, Password & Pemetaan Jurusan) -->
-                                        <button type="button" class="btn btn-sm btn-light border text-success rounded-pill px-3 py-1 shadow-xs d-inline-flex align-items-center gap-1.5"
+                                        <button type="button" class="btn btn-sm btn-light border text-success rounded-pill px-3 py-1 shadow-xs d-inline-flex align-items-center gap-2"
                                             title="Edit Data Guru &amp; Pemetaan Jurusan"
                                             onclick="bukaModalPemetaan(<?= (int) $g['id'] ?>, '<?= esc($g['nama'], 'js') ?>', '<?= esc($g['username'], 'js') ?>', <?= $jurusanIdsJson ?>, '<?= esc($g['keterangan'] ?? '', 'js') ?>', <?= $jurusanJson ?>)">
                                             <i class="bi bi-pencil-square"></i>

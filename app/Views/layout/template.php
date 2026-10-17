@@ -93,6 +93,18 @@
             color: #ffffff;
         }
 
+        .shadow-xs {
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .gap-1\.5 {
+            gap: 0.375rem !important;
+        }
+
+        .gap-2\.5 {
+            gap: 0.625rem !important;
+        }
+
         /* ======================================= */
         /* DEDICATED SKAGATA SIDEBAR LAYOUT STYLES */
         /* ======================================= */
