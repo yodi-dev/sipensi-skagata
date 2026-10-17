@@ -405,7 +405,7 @@
         $greetingTemplate = ($hourTemplate >= 5 && $hourTemplate < 11) ? 'Selamat Pagi' : (($hourTemplate >= 11 && $hourTemplate < 15) ? 'Selamat Siang' : (($hourTemplate >= 15 && $hourTemplate < 18) ? 'Selamat Sore' : 'Selamat Malam'));
 
         $pageTitleDesktop = 'Presensi Harian';
-        if ($role === 'guru' || $role === 'guru_pamong' || $role === 'gtt') {
+        if ($role === 'guru' || $role === 'guru_pamong') {
             if (strpos($currentUri, 'guru/laporan_piket') !== false) {
                 $pageTitleDesktop = 'Laporan Piket KBM';
             } elseif (strpos($currentUri, 'guru/laporan') !== false) {
@@ -413,9 +413,9 @@
             } elseif (strpos($currentUri, 'profil') !== false || strpos($currentUri, 'ubah_password') !== false) {
                 $pageTitleDesktop = 'Profil & Keamanan';
             } else {
-                $pageTitleDesktop = 'Presensi Harian';
+                $pageTitleDesktop = 'Monitoring Presensi';
             }
-        } elseif ($role === 'mahasiswa') {
+        } elseif ($role === 'mahasiswa' || $role === 'gtt') {
             if (strpos($currentUri, 'mahasiswa/piket') !== false) {
                 $pageTitleDesktop = 'Presensi Piket KBM';
             } elseif (strpos($currentUri, 'mahasiswa/riwayat') !== false) {
@@ -528,7 +528,7 @@
                             <span>Pengaturan Presensi</span>
                         </a>
 
-                    <?php elseif ($role === 'guru' || $role === 'guru_pamong' || $role === 'gtt'): ?>
+                    <?php elseif ($role === 'guru' || $role === 'guru_pamong'): ?>
                         <div class="sidebar-section-label">Menu Pamong</div>
                         <a href="<?= base_url('guru') ?>" class="sidebar-nav-item <?= ($currentUri === 'guru' || $currentUri === 'guru/') ? 'active' : '' ?>">
                             <i class="bi bi-calendar2-check-fill"></i>
@@ -545,8 +545,8 @@
                             <span>Rekapitulasi Bulanan</span>
                         </a>
 
-                    <?php else: /* Mahasiswa */ ?>
-                        <div class="sidebar-section-label">Menu Praktikan</div>
+                    <?php else: /* Mahasiswa & GTT */ ?>
+                        <div class="sidebar-section-label"><?= ($role === 'gtt') ? 'Menu GTT' : 'Menu Praktikan' ?></div>
                         <a href="<?= base_url('mahasiswa') ?>" class="sidebar-nav-item <?= ($currentUri === 'mahasiswa' || $currentUri === 'mahasiswa/') ? 'active' : '' ?>">
                             <i class="bi bi-clock-fill"></i>
                             <span>Presensi Harian</span>
@@ -803,7 +803,7 @@
             <!-- 2. MOBILE BOTTOM NAVIGATION (THUMB ZONE)       -->
             <!-- ============================================== -->
             <nav class="skagata-bottom-nav d-md-none" aria-label="Navigasi Utama Mobile">
-                <?php if ($role === 'guru' || $role === 'guru_pamong' || $role === 'gtt'): ?>
+                <?php if ($role === 'guru' || $role === 'guru_pamong'): ?>
                     <a href="<?= base_url('guru') ?>" class="bottom-nav-item <?= ($currentUri === 'guru' || $currentUri === 'guru/') ? 'active' : '' ?>">
                         <i class="bi bi-calendar2-check-fill"></i>
                         <span>Presensi</span>
@@ -816,7 +816,7 @@
                         <i class="bi bi-file-earmark-spreadsheet-fill"></i>
                         <span>Rekap</span>
                     </a>
-                <?php else: /* Mahasiswa */ ?>
+                <?php else: /* Mahasiswa & GTT */ ?>
                     <a href="<?= base_url('mahasiswa') ?>" class="bottom-nav-item <?= ($currentUri === 'mahasiswa' || $currentUri === 'mahasiswa/') ? 'active' : '' ?>">
                         <i class="bi bi-clock-fill"></i>
                         <span>Presensi</span>

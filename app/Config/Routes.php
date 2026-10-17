@@ -16,8 +16,8 @@ $routes->get('/ubah_password', 'Auth::ubahPasswordView', ['filter' => 'auth']);
 $routes->post('/auth/proses_ubah_password', 'Auth::prosesUbahPassword', ['filter' => 'auth']);
 $routes->match(['get', 'post'], '/auth/logout', 'Auth::logout');
 
-// Rute khusus Guru
-$routes->group('guru', ['filter' => ['auth', 'role:guru']], static function ($routes) {
+// Rute khusus Guru Pamong
+$routes->group('guru', ['filter' => ['auth', 'role:guru,guru_pamong']], static function ($routes) {
     $routes->get('/', 'Guru::index');
     $routes->get('laporan', 'Guru::laporan');
     $routes->get('laporan/export-excel', 'Guru::exportExcel');
@@ -25,8 +25,8 @@ $routes->group('guru', ['filter' => ['auth', 'role:guru']], static function ($ro
     $routes->post('update-status', 'Guru::update_status');
 });
 
-// Rute khusus Mahasiswa
-$routes->group('mahasiswa', ['filter' => ['auth', 'role:mahasiswa']], static function ($routes) {
+// Rute khusus Mahasiswa & Guru Tidak Tetap (GTT)
+$routes->group('mahasiswa', ['filter' => ['auth', 'role:mahasiswa,gtt']], static function ($routes) {
     $routes->get('/', 'Mahasiswa::index');
     $routes->post('datang', 'Mahasiswa::datang');
     $routes->post('pulang', 'Mahasiswa::pulang');

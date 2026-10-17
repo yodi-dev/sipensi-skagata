@@ -1240,6 +1240,61 @@ $runner->it("Layout template harus menyediakan navigasi profil terpadu untuk sem
     $runner->assertTrue(strpos($content, 'userDropdownGeneral') !== false, "Template harus memiliki userDropdownGeneral");
 });
 
+$runner->describe("23. Pengujian Hak Akses & Penyelarasan Peran GTT vs Guru Pamong");
+
+$runner->it("Rute dan RoleFilter harus mendukung akses presensi untuk role gtt dan supervisi untuk guru_pamong", function() use ($runner) {
+    $routesFile = APPPATH . 'Config/Routes.php';
+    $runner->assertTrue(file_exists($routesFile));
+    $routesContent = file_get_contents($routesFile);
+    $runner->assertTrue(strpos($routesContent, "'role:mahasiswa,gtt'") !== false, "Group mahasiswa harus mengizinkan mahasiswa dan gtt");
+    $runner->assertTrue(strpos($routesContent, "'role:guru,guru_pamong'") !== false, "Group guru harus mengizinkan guru dan guru_pamong");
+
+    $filter = new \App\Filters\RoleFilter();
+    $request = \Config\Services::request();
+
+    // Simulasi GTT login mengakses rute mahasiswa (diizinkan)
+    $_SESSION['isLoggedIn'] = true;
+    $_SESSION['role'] = 'gtt';
+    $res = $filter->before($request, ['mahasiswa', 'gtt']);
+    $runner->assertEquals(null, $res, "Role gtt mengakses rute mahasiswa harus diizinkan (return null)");
+
+    // Simulasi GTT mencoba mengakses rute guru (dialihkan ke /mahasiswa)
+    $resGuru = $filter->before($request, ['guru', 'guru_pamong']);
+    $runner->assertTrue($resGuru instanceof \CodeIgniter\HTTP\RedirectResponse, "Role gtt mengakses rute guru harus dialihkan");
+    $runner->assertTrue(strpos($resGuru->getHeaderLine('Location'), '/mahasiswa') !== false, "Redirect URL untuk gtt harus /mahasiswa");
+
+    // Simulasi Guru Pamong mencoba mengakses rute admin (dialihkan ke /guru)
+    $_SESSION['role'] = 'guru_pamong';
+    $resAdmin = $filter->before($request, ['admin']);
+    $runner->assertTrue($resAdmin instanceof \CodeIgniter\HTTP\RedirectResponse, "Role guru_pamong mengakses admin harus dialihkan");
+    $runner->assertTrue(strpos($resAdmin->getHeaderLine('Location'), '/guru') !== false, "Redirect URL untuk guru_pamong harus /guru");
+});
+
+$runner->it("Controller Admin harus mendukung whitelist role gtt dan penanganan tab pada pengguna()", function() use ($runner) {
+    $adminFile = APPPATH . 'Controllers/Admin.php';
+    $runner->assertTrue(file_exists($adminFile));
+    $content = file_get_contents($adminFile);
+    $runner->assertTrue(strpos($content, 'in_list[mahasiswa,gtt,guru,admin]') !== false, "tambahUser dan editUser harus memvalidasi role gtt");
+    $runner->assertTrue(strpos($content, 'tab=gtt') !== false, "Admin harus menangani redirect dan filter tab=gtt");
+    $runner->assertTrue(strpos($content, 'totalGtt') !== false, "Admin::pengguna harus menghitung totalGtt");
+});
+
+$runner->it("View profil, template, dan admin pengguna harus memisahkan label dan navigasi GTT secara tegas", function() use ($runner) {
+    $profilFile = APPPATH . 'Views/auth/profil.php';
+    $profilContent = file_get_contents($profilFile);
+    $runner->assertTrue(strpos($profilContent, "'gtt'         => 'Guru Tidak Tetap (GTT)'") !== false, "profil.php harus melabeli gtt sebagai Guru Tidak Tetap (GTT)");
+    $runner->assertTrue(strpos($profilContent, "'guru'        => 'Guru Pamong'") !== false, "profil.php harus melabeli guru sebagai Guru Pamong");
+
+    $templateFile = APPPATH . 'Views/layout/template.php';
+    $templateContent = file_get_contents($templateFile);
+    $runner->assertTrue(strpos($templateContent, "role === 'guru' || \$role === 'guru_pamong'") !== false, "template.php harus mengisolasi menu pamong hanya untuk guru dan guru_pamong");
+
+    $penggunaFile = APPPATH . 'Views/admin/pengguna.php';
+    $penggunaContent = file_get_contents($penggunaFile);
+    $runner->assertTrue(strpos($penggunaContent, 'tab=gtt') !== false, "admin/pengguna.php harus memuat tab navigasi gtt");
+    $runner->assertTrue(strpos($penggunaContent, 'Guru Tidak Tetap (GTT)') !== false, "admin/pengguna.php harus memuat teks Guru Tidak Tetap (GTT)");
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());
 

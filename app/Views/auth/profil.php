@@ -250,9 +250,9 @@ $dashboardUrl = ($role === 'admin') ? 'admin' : (($role === 'guru') ? 'guru' : '
     <?php
     $roleLabels = [
         'admin'       => 'Administrator Sistem',
-        'guru'        => 'Guru Pamong / GTT',
+        'guru'        => 'Guru Pamong',
         'guru_pamong' => 'Guru Pamong',
-        'gtt'         => 'Guru Pamong / GTT',
+        'gtt'         => 'Guru Tidak Tetap (GTT)',
         'mahasiswa'   => 'Mahasiswa Praktikan (PPL/PK)'
     ];
     $roleName = $roleLabels[$user['role']] ?? ucfirst($user['role']);

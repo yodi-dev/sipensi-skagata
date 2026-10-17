@@ -106,6 +106,8 @@ class Admin extends BaseController
         // Parameter pencarian, filter, dan pagination
         $keyword = trim((string) $this->request->getGet('keyword'));
         $roleFilter = $this->request->getGet('role');
+        $tabInput = $this->request->getGet('tab');
+        $activeTab = ($tabInput === 'gtt' || $roleFilter === 'gtt') ? 'gtt' : 'mahasiswa';
         $jurusanFilter = $this->request->getGet('jurusan');
         $universitasFilter = $this->request->getGet('universitas');
         $periodeFilter = $this->request->getGet('periode');
@@ -116,8 +118,9 @@ class Admin extends BaseController
         $daftarPeriode = $this->periodeModel->getDaftarPilihan();
         $periodeAktif = $this->periodeModel->getPeriodeAktif();
 
-        // Hitung statistik khusus Mahasiswa & Pengguna
+        // Hitung statistik khusus Mahasiswa, GTT & Pengguna
         $totalMahasiswa = $this->userModel->where('role', 'mahasiswa')->countAllResults();
+        $totalGtt = $this->userModel->where('role', 'gtt')->countAllResults();
         $totalGuru = $this->userModel->where('role', 'guru')->countAllResults();
         $totalMahasiswaAktif = 0;
         if ($periodeAktif) {
@@ -126,15 +129,17 @@ class Admin extends BaseController
         $totalJurusanTerwakili = $db->table('users')->where('role', 'mahasiswa')->where('jurusan IS NOT NULL')->where('jurusan !=', '')->select('jurusan')->distinct()->countAllResults();
         $totalUnivTerwakili = $db->table('users')->where('role', 'mahasiswa')->where('universitas IS NOT NULL')->where('universitas !=', '')->select('universitas')->distinct()->countAllResults();
 
-        // Siapkan query pengguna: default khusus Mahasiswa (non-admin)
+        // Siapkan query pengguna: default khusus Mahasiswa atau GTT sesuai tab aktif (non-admin)
         $userQuery = $this->userModel->select('users.*, periode.nama_periode AS nama_periode_relasi')
             ->join('periode', 'periode.id = users.periode_id', 'left')
             ->where('role !=', 'admin');
 
-        if (empty($roleFilter)) {
-            $userQuery->where('users.role', 'mahasiswa');
-        } elseif (in_array($roleFilter, ['mahasiswa', 'guru'], true)) {
+        if ($activeTab === 'gtt') {
+            $userQuery->where('users.role', 'gtt');
+        } elseif (!empty($roleFilter) && in_array($roleFilter, ['mahasiswa', 'guru'], true)) {
             $userQuery->where('users.role', $roleFilter);
+        } else {
+            $userQuery->where('users.role', 'mahasiswa');
         }
 
         // Terapkan filter query
@@ -149,12 +154,14 @@ class Admin extends BaseController
             $userQuery->where('users.jurusan', $jurusanFilter);
         }
 
-        if (!empty($universitasFilter)) {
-            $userQuery->where('users.universitas', $universitasFilter);
-        }
+        if ($activeTab === 'mahasiswa') {
+            if (!empty($universitasFilter)) {
+                $userQuery->where('users.universitas', $universitasFilter);
+            }
 
-        if (!empty($periodeFilter)) {
-            $userQuery->where('users.periode_id', (int) $periodeFilter);
+            if (!empty($periodeFilter)) {
+                $userQuery->where('users.periode_id', (int) $periodeFilter);
+            }
         }
 
         $users = $userQuery->orderBy('users.nama', 'ASC')
@@ -198,13 +205,15 @@ class Admin extends BaseController
             'perPage'               => $perPage,
             'totalFiltered'         => $pager ? $pager->getTotal() : count($users),
             'current_admin'         => $currentAdmin,
+            'active_tab'            => $activeTab,
             'totalMahasiswa'        => $totalMahasiswa,
+            'totalGtt'              => $totalGtt,
             'totalGuru'             => $totalGuru,
             'totalMahasiswaAktif'   => $totalMahasiswaAktif,
             'totalJurusanTerwakili' => $totalJurusanTerwakili,
             'totalUnivTerwakili'    => $totalUnivTerwakili,
             'keyword'               => $keyword,
-            'role_terpilih'         => $roleFilter,
+            'role_terpilih'         => $activeTab,
             'jurusan_pilih'         => $jurusanFilter,
             'universitas_pilih'     => $universitasFilter,
             'periode_pilih'         => $periodeFilter,
@@ -214,7 +223,7 @@ class Admin extends BaseController
             'jurusan_univ_map'      => $this->jurusanModel->getJurusanMappingByUniversitas(),
             'daftar_periode'        => $daftarPeriode,
             'periode_aktif'         => $periodeAktif,
-            'title'                 => 'Manajemen Data Mahasiswa - SIPENSI SKAGATA'
+            'title'                 => ($activeTab === 'gtt') ? 'Manajemen Guru Tidak Tetap (GTT) - SIPENSI SKAGATA' : 'Manajemen Data Mahasiswa - SIPENSI SKAGATA'
         ];
 
         return view('admin/pengguna', $data);
@@ -225,7 +234,7 @@ class Admin extends BaseController
         $rules = [
             'username' => 'required|min_length[3]|max_length[50]|alpha_numeric|is_unique[users.username]',
             'nama'     => 'required|min_length[2]|max_length[100]',
-            'role'     => 'required|in_list[mahasiswa,guru,admin]',
+            'role'     => 'required|in_list[mahasiswa,gtt,guru,admin]',
             'password' => 'required|min_length[6]'
         ];
 
@@ -276,13 +285,17 @@ class Admin extends BaseController
             'nama'        => $nama,
             'role'        => $role,
             'jurusan'     => ($role === 'guru') ? $primaryJurusanName : (!empty($jurusan) ? $jurusan : null),
-            'universitas' => ($role === 'mahasiswa' && !empty($universitas)) ? $universitas : null,
+            'universitas' => ($role === 'mahasiswa' && !empty($universitas)) ? $universitas : (($role === 'gtt') ? 'SMK Negeri 3 Yogyakarta' : null),
             'periode_id'  => $periodeId,
             'password'    => password_hash($password, PASSWORD_BCRYPT)
         ]);
 
         if ($role === 'guru' && !empty($jurusanAssignment) && $newId) {
             $this->guruPamongModel->assignJurusanToGuru((int) $newId, $jurusanAssignment);
+        }
+
+        if ($role === 'gtt') {
+            return redirect()->to('/admin/pengguna?tab=gtt')->with('pesan', "Guru Tidak Tetap {$nama} ({$username}) berhasil ditambahkan!");
         }
 
         return redirect()->to('/admin/pengguna')->with('pesan', "Pengguna {$nama} ({$username}) berhasil ditambahkan!");
@@ -303,7 +316,7 @@ class Admin extends BaseController
         $rules = [
             'username' => "required|min_length[3]|max_length[50]|alpha_numeric|is_unique[users.username,id,{$userId}]",
             'nama'     => 'required|min_length[2]|max_length[100]',
-            'role'     => 'required|in_list[mahasiswa,guru,admin]'
+            'role'     => 'required|in_list[mahasiswa,gtt,guru,admin]'
         ];
 
         if (!$this->validate($rules)) {
@@ -346,6 +359,10 @@ class Admin extends BaseController
         if ($role === 'mahasiswa') {
             $updateData['jurusan'] = !empty($jurusan) ? $jurusan : null;
             $updateData['universitas'] = !empty($universitas) ? $universitas : null;
+        } elseif ($role === 'gtt') {
+            $updateData['jurusan'] = !empty($jurusan) ? $jurusan : null;
+            $updateData['universitas'] = 'SMK Negeri 3 Yogyakarta';
+            $updateData['periode_id'] = null;
         } elseif ($role === 'guru') {
             if (!empty($primaryJurusanName)) {
                 $updateData['jurusan'] = $primaryJurusanName;
@@ -360,6 +377,10 @@ class Admin extends BaseController
                 $this->guruPamongModel->assignJurusanToGuru((int) $userId, $jurusanAssignment);
             }
             return redirect()->to('/admin/guru-pamong')->with('pesan', "Data Guru Pamong {$nama} berhasil diperbarui!");
+        }
+
+        if ($role === 'gtt') {
+            return redirect()->to('/admin/pengguna?tab=gtt')->with('pesan', "Data Guru Tidak Tetap {$nama} berhasil diperbarui!");
         }
 
         return redirect()->to('/admin/pengguna')->with('pesan', "Data mahasiswa {$nama} berhasil diperbarui!");
@@ -582,8 +603,12 @@ class Admin extends BaseController
             return redirect()->back()->with('error', 'Gagal menghapus pengguna karena terjadi kendala pada transaksi database.');
         }
 
-        if ($user['role'] === 'guru') {
+        if ($user['role'] === 'guru' || $user['role'] === 'guru_pamong') {
             return redirect()->to('/admin/guru-pamong')->with('pesan', "Akun Guru Pamong {$user['nama']} (@{$user['username']}) berhasil dihapus!");
+        }
+
+        if ($user['role'] === 'gtt') {
+            return redirect()->to('/admin/pengguna?tab=gtt')->with('pesan', "Guru Tidak Tetap {$user['nama']} (@{$user['username']}) berhasil dihapus!");
         }
 
         return redirect()->to('/admin/pengguna')->with('pesan', "Mahasiswa {$user['nama']} (@{$user['username']}) berhasil dihapus!");
@@ -613,8 +638,12 @@ class Admin extends BaseController
             'password' => password_hash($passwordToSet, PASSWORD_BCRYPT)
         ]);
 
-        if ($user['role'] === 'guru') {
+        if ($user['role'] === 'guru' || $user['role'] === 'guru_pamong') {
             return redirect()->to('/admin/guru-pamong')->with('pesan', "Password untuk Guru Pamong {$user['nama']} berhasil direset!");
+        }
+
+        if ($user['role'] === 'gtt') {
+            return redirect()->to('/admin/pengguna?tab=gtt')->with('pesan', "Password untuk Guru Tidak Tetap {$user['nama']} berhasil direset!");
         }
 
         return redirect()->to('/admin/pengguna')->with('pesan', "Password untuk mahasiswa {$user['nama']} berhasil direset!");

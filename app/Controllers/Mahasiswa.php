@@ -23,7 +23,7 @@ class Mahasiswa extends BaseController
         $data = [
             'presensi_hari_ini' => $presensiHariIni,
             'config'            => $config,
-            'title'             => 'Dashboard Mahasiswa - Presensi PPL'
+            'title'             => (session()->get('role') === 'gtt') ? 'Dashboard Presensi GTT - SIPENSI SKAGATA' : 'Dashboard Mahasiswa - Presensi PPL'
         ];
 
         return view('mahasiswa/index', $data);
