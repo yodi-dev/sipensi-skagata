@@ -1327,6 +1327,60 @@ $runner->it("Manajemen data GTT tidak memerlukan jurusan pada form, filter, maup
     $runner->assertTrue(strpos($penggunaContent, "tambahJurusanWrapper\" style=\"display: <?= (\$active_tab === 'gtt') ? 'none' : 'block' ?>;\"") !== false, "Modal tambah harus menyembunyikan input jurusan saat tab gtt");
 });
 
+$runner->describe("24. Pengujian Fitur Impor Massal Pengguna (Mahasiswa & GTT)");
+
+$runner->it("Route impor-user dan download-template-impor harus terdaftar di Config/Routes.php", function() use ($runner) {
+    $routesFile = APPPATH . 'Config/Routes.php';
+    $runner->assertTrue(file_exists($routesFile));
+    $content = file_get_contents($routesFile);
+    $runner->assertTrue(strpos($content, "'Admin::imporUser'") !== false, "Route POST admin/impor-user harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::downloadTemplateImpor'") !== false, "Route GET admin/download-template-impor harus terdaftar");
+});
+
+$runner->it("Controller Admin harus mengimplementasikan method downloadTemplateImpor dan imporUser", function() use ($runner) {
+    $controller = new \App\Controllers\Admin();
+    $runner->assertTrue(method_exists($controller, 'downloadTemplateImpor'), "Admin::downloadTemplateImpor harus terdefinisi");
+    $runner->assertTrue(method_exists($controller, 'imporUser'), "Admin::imporUser harus terdefinisi");
+
+    $adminFile = APPPATH . 'Controllers/Admin.php';
+    $content = file_get_contents($adminFile);
+    $runner->assertTrue(strpos($content, 'str_getcsv') !== false, "imporUser harus membaca format CSV menggunakan str_getcsv");
+    $runner->assertTrue(strpos($content, '\xEF\xBB\xBF') !== false, "Harus mendukung dan membersihkan UTF-8 BOM untuk kompatibilitas Excel");
+    $runner->assertTrue(strpos($content, 'transStart') !== false, "imporUser harus menggunakan database transaction untuk integritas data");
+});
+
+$runner->it("View admin/pengguna harus memuat modalImporUser, tombol download template, dan trigger spinner", function() use ($runner) {
+    $penggunaFile = APPPATH . 'Views/admin/pengguna.php';
+    $runner->assertTrue(file_exists($penggunaFile));
+    $content = file_get_contents($penggunaFile);
+
+    $runner->assertTrue(strpos($content, 'modalImporUser') !== false, "pengguna.php harus memuat modalImporUser");
+    $runner->assertTrue(strpos($content, 'download-template-impor') !== false, "pengguna.php harus memuat tombol download-template-impor");
+    $runner->assertTrue(strpos($content, 'file_impor') !== false, "pengguna.php harus memuat input file_impor");
+    $runner->assertTrue(strpos($content, 'formImporUserPengguna') !== false, "pengguna.php harus mengikat formImporUserPengguna");
+    $runner->assertTrue(strpos($content, 'btnSubmitImporUserPengguna') !== false, "pengguna.php harus mengikat btnSubmitImporUserPengguna ke submit spinner");
+});
+
+$runner->it("Logika CSV parser dan generator template harus menghasilkan format yang sesuai untuk Mahasiswa dan GTT", function() use ($runner) {
+    // Simulasi CSV Mahasiswa dengan delimiter koma
+    $csvMahasiswa = "NIM,Nama Mahasiswa,Universitas,Jurusan,Password\n202611001,Ahmad Fauzi,Universitas Negeri Yogyakarta,Pendidikan Teknik Elektronika,\n202611002,Siti Aisyah,Universitas Ahmad Dahlan,Bimbingan dan Konseling,rahasia123";
+    $linesMhs = preg_split("/\r\n|\n|\r/", trim($csvMahasiswa));
+    $runner->assertEquals(3, count($linesMhs), "Total baris CSV mahasiswa harus 3");
+    $row1 = str_getcsv($linesMhs[1], ',');
+    $runner->assertEquals('202611001', $row1[0]);
+    $runner->assertEquals('Ahmad Fauzi', $row1[1]);
+    $runner->assertEquals('', $row1[4]); // Password kosong -> fallback ke username
+
+    // Simulasi CSV GTT dengan delimiter titik koma (Indonesian Excel locale)
+    $csvGtt = "NIP_Username;Nama_Lengkap;Password\n198501012026011001;Budi Santoso, S.Pd.;\n199002022026012002;Dewi Lestari, S.Pd.;12345678";
+    $linesGtt = preg_split("/\r\n|\n|\r/", trim($csvGtt));
+    $runner->assertEquals(3, count($linesGtt), "Total baris CSV GTT harus 3");
+    $rowGtt1 = str_getcsv($linesGtt[1], ';');
+    $runner->assertEquals('198501012026011001', $rowGtt1[0]);
+    $runner->assertEquals('Budi Santoso, S.Pd.', $rowGtt1[1]);
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());
+
 

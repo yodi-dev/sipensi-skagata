@@ -46,6 +46,8 @@ $routes->group('admin', ['filter' => ['auth', 'role:admin']], static function ($
     $routes->post('guru-pamong/simpan', 'Admin::simpanPemetaanGuru');
     $routes->post('guru-pamong/hapus', 'Admin::hapusPemetaanGuru');
     $routes->post('tambah-user', 'Admin::tambahUser');
+    $routes->post('impor-user', 'Admin::imporUser');
+    $routes->get('download-template-impor', 'Admin::downloadTemplateImpor');
     $routes->post('edit-user', 'Admin::editUser');
     $routes->post('hapus-user', 'Admin::hapusUser');
     $routes->post('reset-password', 'Admin::resetPassword');

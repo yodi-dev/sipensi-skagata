@@ -301,6 +301,265 @@ class Admin extends BaseController
         return redirect()->to('/admin/pengguna')->with('pesan', "Pengguna {$nama} ({$username}) berhasil ditambahkan!");
     }
 
+    /**
+     * Download template CSV impor pengguna terstandarisasi untuk Mahasiswa & GTT
+     */
+    public function downloadTemplateImpor()
+    {
+        $role = $this->request->getGet('role');
+        if ($role === 'gtt') {
+            $filename = 'template_impor_gtt.csv';
+            $headers  = ['NIP_Username', 'Nama_Lengkap', 'Password'];
+            $samples  = [
+                ['198501012026011001', 'Budi Santoso, S.Pd.', ''],
+                ['199002022026012002', 'Dewi Lestari, S.Pd.', '']
+            ];
+        } else {
+            $filename = 'template_impor_mahasiswa.csv';
+            $headers  = ['NIM', 'Nama_Mahasiswa', 'Universitas', 'Jurusan', 'Password'];
+            $samples  = [
+                ['202611001', 'Ahmad Fauzi', 'Universitas Negeri Yogyakarta', 'Pendidikan Teknik Elektronika', ''],
+                ['202611002', 'Siti Aisyah', 'Universitas Ahmad Dahlan', 'Bimbingan dan Konseling', '']
+            ];
+        }
+
+        // Output CSV dengan UTF-8 BOM untuk kompatibilitas Microsoft Excel
+        $output = fopen('php://temp', 'r+');
+        fputs($output, "\xEF\xBB\xBF");
+        fputcsv($output, $headers, ',');
+        foreach ($samples as $sample) {
+            fputcsv($output, $sample, ',');
+        }
+        rewind($output);
+        $csvContent = stream_get_contents($output);
+        fclose($output);
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->setHeader('Pragma', 'no-cache')
+            ->setHeader('Expires', '0')
+            ->setBody($csvContent);
+    }
+
+    /**
+     * Memproses impor massal data pengguna (Mahasiswa & GTT) via file CSV
+     */
+    public function imporUser()
+    {
+        $role = $this->request->getPost('role');
+        $validRoles = ['mahasiswa', 'gtt'];
+        if (!in_array($role, $validRoles, true)) {
+            $role = 'mahasiswa';
+        }
+
+        $file = $this->request->getFile('file_impor');
+        if (!$file || !$file->isValid() || $file->hasMoved()) {
+            return redirect()->back()->with('error', 'Silakan pilih file CSV/Excel CSV yang valid untuk diimpor!');
+        }
+
+        $extension = strtolower((string) $file->getClientExtension());
+        if (!in_array($extension, ['csv', 'txt'], true)) {
+            return redirect()->back()->with('error', 'Format file tidak didukung! Harap unggah file berformat .csv');
+        }
+
+        $filePath = $file->getTempName();
+        if (!file_exists($filePath) || !is_readable($filePath)) {
+            return redirect()->back()->with('error', 'File unggahan tidak dapat dibaca oleh server.');
+        }
+
+        $content = file_get_contents($filePath);
+        // Hapus UTF-8 BOM jika ada
+        $content = preg_replace('/^\xEF\xBB\xBF/', '', $content);
+        $lines = preg_split("/\r\n|\n|\r/", trim($content));
+
+        if (empty($lines)) {
+            return redirect()->back()->with('error', 'File yang diunggah kosong!');
+        }
+
+        // Deteksi delimiter (koma atau titik koma)
+        $firstLine = $lines[0];
+        $commaCount = substr_count($firstLine, ',');
+        $semicolonCount = substr_count($firstLine, ';');
+        $delimiter = ($semicolonCount > $commaCount) ? ';' : ',';
+
+        // Baca header
+        $headerRow = str_getcsv($firstLine, $delimiter);
+        $headerMap = [];
+        foreach ($headerRow as $idx => $colName) {
+            $cleanName = strtolower(trim((string) $colName));
+            $cleanName = str_replace([' ', '_', '-', '/'], '', $cleanName);
+            $headerMap[$cleanName] = $idx;
+        }
+
+        // Pemetaan kolom
+        $colUsername = null;
+        $colNama     = null;
+        $colUniv     = null;
+        $colJurusan  = null;
+        $colPassword = null;
+
+        foreach ($headerMap as $key => $idx) {
+            if ($colUsername === null && in_array($key, ['nim', 'nip', 'username', 'nomorinduk', 'id'], true)) {
+                $colUsername = $idx;
+            } elseif ($colNama === null && in_array($key, ['nama', 'namamahasiswa', 'namalengkap', 'namaguru', 'name'], true)) {
+                $colNama = $idx;
+            } elseif ($colUniv === null && in_array($key, ['universitas', 'kampus', 'perguruantinggi', 'univ'], true)) {
+                $colUniv = $idx;
+            } elseif ($colJurusan === null && in_array($key, ['jurusan', 'prodi', 'programstudi', 'kejuruan'], true)) {
+                $colJurusan = $idx;
+            } elseif ($colPassword === null && in_array($key, ['password', 'katasandi', 'pass'], true)) {
+                $colPassword = $idx;
+            }
+        }
+
+        // Fallback positional jika header tidak cocok
+        if ($role === 'mahasiswa') {
+            if ($colUsername === null) $colUsername = 0;
+            if ($colNama === null) $colNama = 1;
+            if ($colUniv === null) $colUniv = 2;
+            if ($colJurusan === null) $colJurusan = 3;
+            if ($colPassword === null) $colPassword = 4;
+        } else {
+            if ($colUsername === null) $colUsername = 0;
+            if ($colNama === null) $colNama = 1;
+            if ($colPassword === null) $colPassword = 2;
+        }
+
+        // Data pendukung mahasiswa
+        $periodeId = null;
+        $defaultUniv = null;
+        if ($role === 'mahasiswa') {
+            $periodeInput = $this->request->getPost('periode_id');
+            if (!empty($periodeInput) && is_numeric($periodeInput)) {
+                $periodeId = (int) $periodeInput;
+            } else {
+                $periodeAktif = $this->periodeModel->getPeriodeAktif();
+                $periodeId = $periodeAktif ? (int) $periodeAktif['id'] : null;
+            }
+            $defaultUniv = trim((string) $this->request->getPost('universitas_default'));
+        }
+
+        // Ambil semua username yang sudah terdaftar di sistem untuk mencegah duplikasi
+        $db = Database::connect();
+        $existingUsernames = array_column(
+            $db->table('users')->select('username')->get()->getResultArray(),
+            'username'
+        );
+        $existingMap = array_fill_keys(array_map('strtolower', $existingUsernames), true);
+
+        $toInsert = [];
+        $skipped = [];
+        $seenInFile = [];
+
+        // Loop baris data (mulai baris index 1 karena index 0 adalah header)
+        for ($i = 1; $i < count($lines); $i++) {
+            $line = trim($lines[$i]);
+            if ($line === '') continue;
+
+            $row = str_getcsv($line, $delimiter);
+            if (empty($row) || !is_array($row)) continue;
+
+            $username = isset($row[$colUsername]) ? trim((string) $row[$colUsername]) : '';
+            $nama     = isset($row[$colNama]) ? trim(strip_tags((string) $row[$colNama])) : '';
+            $password = ($colPassword !== null && isset($row[$colPassword])) ? trim((string) $row[$colPassword]) : '';
+
+            // Jika baris kosong atau header terulang
+            if ($username === '' && $nama === '') continue;
+            if (in_array(strtolower($username), ['nim', 'nip', 'username', 'nomor induk'], true)) continue;
+
+            if ($username === '') {
+                $skipped[] = "Baris " . ($i + 1) . ": Username/NIM kosong";
+                continue;
+            }
+
+            if ($nama === '') {
+                $skipped[] = "Baris " . ($i + 1) . " (@{$username}): Nama tidak boleh kosong";
+                continue;
+            }
+
+            $uLower = strtolower($username);
+            if (isset($existingMap[$uLower])) {
+                $skipped[] = "Baris " . ($i + 1) . ": @{$username} ({$nama}) sudah terdaftar di sistem";
+                continue;
+            }
+
+            if (isset($seenInFile[$uLower])) {
+                $skipped[] = "Baris " . ($i + 1) . ": @{$username} terduplikasi di dalam file impor";
+                continue;
+            }
+
+            $seenInFile[$uLower] = true;
+
+            // Password handling
+            $finalPassword = (!empty($password) && strlen($password) >= 6) ? $password : $username;
+
+            if ($role === 'mahasiswa') {
+                $univ = ($colUniv !== null && isset($row[$colUniv])) ? trim((string) $row[$colUniv]) : '';
+                if ($univ === '' && !empty($defaultUniv)) {
+                    $univ = $defaultUniv;
+                }
+                $jurusan = ($colJurusan !== null && isset($row[$colJurusan])) ? trim((string) $row[$colJurusan]) : '';
+
+                $toInsert[] = [
+                    'username'    => $username,
+                    'nama'        => $nama,
+                    'role'        => 'mahasiswa',
+                    'universitas' => !empty($univ) ? $univ : null,
+                    'jurusan'     => !empty($jurusan) ? $jurusan : null,
+                    'periode_id'  => $periodeId,
+                    'password'    => password_hash($finalPassword, PASSWORD_BCRYPT)
+                ];
+            } else {
+                // Role GTT
+                $toInsert[] = [
+                    'username'    => $username,
+                    'nama'        => $nama,
+                    'role'        => 'gtt',
+                    'universitas' => 'SMK Negeri 3 Yogyakarta',
+                    'jurusan'     => null,
+                    'periode_id'  => null,
+                    'password'    => password_hash($finalPassword, PASSWORD_BCRYPT)
+                ];
+            }
+        }
+
+        if (empty($toInsert)) {
+            $msg = 'Tidak ada data pengguna baru yang berhasil diimpor.';
+            if (!empty($skipped)) {
+                $msg .= ' Alasan: ' . implode('; ', array_slice($skipped, 0, 5));
+                if (count($skipped) > 5) {
+                    $msg .= ' ... dan ' . (count($skipped) - 5) . ' data lainnya.';
+                }
+            }
+            $redirectUrl = ($role === 'gtt') ? '/admin/pengguna?tab=gtt' : '/admin/pengguna?tab=mahasiswa';
+            return redirect()->to($redirectUrl)->with('error', $msg);
+        }
+
+        // Simpan secara transaksional
+        $db->transStart();
+        foreach ($toInsert as $userData) {
+            $this->userModel->insert($userData);
+        }
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            $redirectUrl = ($role === 'gtt') ? '/admin/pengguna?tab=gtt' : '/admin/pengguna?tab=mahasiswa';
+            return redirect()->to($redirectUrl)->with('error', 'Terjadi kesalahan basis data saat menyimpan data impor.');
+        }
+
+        $totalBerhasil = count($toInsert);
+        $labelTarget = ($role === 'gtt') ? 'Guru Tidak Tetap (GTT)' : 'Mahasiswa Praktikan';
+        $successMsg = "Berhasil mengimpor {$totalBerhasil} akun {$labelTarget} baru!";
+
+        if (!empty($skipped)) {
+            $successMsg .= " (" . count($skipped) . " baris dilewati karena duplikasi/tidak lengkap)";
+        }
+
+        $redirectUrl = ($role === 'gtt') ? '/admin/pengguna?tab=gtt' : '/admin/pengguna?tab=mahasiswa';
+        return redirect()->to($redirectUrl)->with('pesan', $successMsg);
+    }
+
     public function editUser()
     {
         $userId = $this->request->getPost('id');

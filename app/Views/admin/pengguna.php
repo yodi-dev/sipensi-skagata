@@ -193,7 +193,11 @@ function getInitials($name)
                     <p class="text-muted small mt-1 mb-0">Kelola akun, penempatan kejuruan, asal universitas mitra, dan periode gelombang mahasiswa praktikan PPL/PK</p>
                 <?php endif; ?>
             </div>
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 py-2 shadow-xs d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalImporUser">
+                    <i class="bi bi-file-earmark-arrow-up"></i>
+                    <span><?= ($active_tab === 'gtt') ? 'Impor Guru GTT' : 'Impor Mahasiswa' ?></span>
+                </button>
                 <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
                     <i class="bi bi-person-plus"></i>
                     <span><?= ($active_tab === 'gtt') ? 'Tambah Guru GTT Baru' : 'Tambah Mahasiswa Baru' ?></span>
@@ -664,6 +668,106 @@ function getInitials($name)
 
 </div>
 
+<!-- Modal Impor Pengguna Modern (Mahasiswa & GTT) -->
+<div class="modal fade" id="modalImporUser" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <form action="<?= base_url('admin/impor-user') ?>" method="POST" enctype="multipart/form-data" id="formImporUserPengguna" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <?= csrf_field() ?>
+            <input type="hidden" name="role" value="<?= esc($active_tab) ?>">
+            <div class="modal-header bg-success text-white py-3 flex-shrink-0">
+                <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-file-earmark-arrow-up"></i>
+                    <span>Impor Data <?= ($active_tab === 'gtt') ? 'Guru Tidak Tetap (GTT)' : 'Mahasiswa Praktikan' ?></span>
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start p-4">
+                <!-- Info & Download Template Box -->
+                <div class="card border border-success-subtle bg-success-subtle bg-opacity-25 rounded-3 p-3 mb-3">
+                    <div class="d-flex align-items-start justify-content-between gap-2">
+                        <div>
+                            <h6 class="fw-bold text-success mb-1" style="font-size: 0.9rem;">
+                                <i class="bi bi-info-circle me-1"></i> Format File Impor
+                            </h6>
+                            <p class="text-secondary small mb-2" style="font-size: 0.8rem;">
+                                Unggah file berformat <strong>.CSV</strong> sesuai template resmi. Kolom data harus tersusun urut:
+                            </p>
+                            <?php if ($active_tab === 'gtt'): ?>
+                                <span class="badge bg-white text-dark border font-monospace px-2 py-1 mb-1" style="font-size: 0.75rem;">
+                                    NIP_Username, Nama_Lengkap, Password
+                                </span>
+                            <?php else: ?>
+                                <span class="badge bg-white text-dark border font-monospace px-2 py-1 mb-1" style="font-size: 0.75rem;">
+                                    NIM, Nama_Mahasiswa, Universitas, Jurusan, Password
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="mt-2 pt-2 border-top border-success-subtle">
+                        <a href="<?= base_url('admin/download-template-impor?role=' . $active_tab) ?>" class="btn btn-sm btn-success rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1.5" style="font-size: 0.8rem;">
+                            <i class="bi bi-download"></i>
+                            <span>Unduh Template CSV</span>
+                        </a>
+                    </div>
+                </div>
+
+                <?php if ($active_tab !== 'gtt'): ?>
+                    <!-- Pilihan Periode Gelombang (Khusus Mahasiswa) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-dark">Periode PPL / Gelombang Mahasiswa</label>
+                        <select name="periode_id" class="form-select" required>
+                            <option value="">-- Pilih Periode PPL / Gelombang --</option>
+                            <?php if (!empty($daftar_periode)): ?>
+                                <?php foreach ($daftar_periode as $prd): ?>
+                                    <option value="<?= $prd['id'] ?>" <?= ((int)$prd['is_aktif'] === 1) ? 'selected' : '' ?>>
+                                        <?= esc($prd['nama_periode']) ?><?= ((int)$prd['is_aktif'] === 1) ? ' (Aktif Saat Ini)' : '' ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                        <small class="text-muted" style="font-size: 0.75rem;">Mahasiswa yang diimpor akan langsung terdaftar pada periode gelombang ini.</small>
+                    </div>
+
+                    <!-- Pilihan Default Asal Universitas (Khusus Mahasiswa, Opsional) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-dark">Default Asal Universitas <span class="text-muted fw-normal">(Opsional)</span></label>
+                        <select name="universitas_default" class="form-select">
+                            <option value="">-- Sesuai Kolom Universitas di File CSV --</option>
+                            <?php if (!empty($daftar_universitas)): ?>
+                                <?php foreach ($daftar_universitas as $univ): ?>
+                                    <option value="<?= esc($univ) ?>"><?= esc($univ) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                        <small class="text-muted" style="font-size: 0.75rem;">Digunakan otomatis jika kolom universitas pada baris file CSV kosong.</small>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Input File CSV -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-dark">Pilih File CSV (.csv)</label>
+                    <input type="file" name="file_impor" id="inputFileImpor" class="form-control" accept=".csv, text/csv, text/plain" required>
+                    <small class="text-muted" style="font-size: 0.75rem;">Mendukung pemisah koma (,) maupun titik koma (;).</small>
+                </div>
+
+                <!-- Petunjuk Password Otomatis -->
+                <div class="alert alert-light border d-flex align-items-start gap-2 py-2 px-3 rounded-3 mb-0">
+                    <i class="bi bi-shield-lock text-success fs-5 flex-shrink-0 mt-0.5"></i>
+                    <div style="font-size: 0.78rem;" class="text-secondary">
+                        <strong>Password Otomatis:</strong> Kolom password pada file CSV boleh dikosongkan. Jika dikosongkan, sistem akan otomatis menggunakan <strong><?= ($active_tab === 'gtt') ? 'Username/NIP' : 'NIM' ?></strong> sebagai password awal akun pengguna.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light py-2 px-4 flex-shrink-0">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4" id="btnSubmitImporUserPengguna">
+                    <i class="bi bi-file-earmark-arrow-up me-1"></i> Mulai Impor Data
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Modal Tambah Pengguna Modern (Khusus Mahasiswa) -->
 <div class="modal fade" id="modalTambahUser" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -905,6 +1009,7 @@ function getInitials($name)
         };
 
         bindSubmitSpinner('formTambahUserPengguna', 'btnSubmitTambahUserPengguna', 'Menyimpan...');
+        bindSubmitSpinner('formImporUserPengguna', 'btnSubmitImporUserPengguna', 'Mengimpor...');
         bindSubmitSpinner('formEditUserPengguna', 'btnSubmitEditUserPengguna', 'Menyimpan...');
         bindSubmitSpinner('formResetPassPengguna', 'btnSubmitResetPassPengguna', 'Memproses...');
 
