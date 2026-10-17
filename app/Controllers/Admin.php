@@ -150,7 +150,7 @@ class Admin extends BaseController
                 ->groupEnd();
         }
 
-        if (!empty($jurusanFilter)) {
+        if ($activeTab === 'mahasiswa' && !empty($jurusanFilter)) {
             $userQuery->where('users.jurusan', $jurusanFilter);
         }
 
@@ -284,7 +284,7 @@ class Admin extends BaseController
             'username'    => $username,
             'nama'        => $nama,
             'role'        => $role,
-            'jurusan'     => ($role === 'guru') ? $primaryJurusanName : (!empty($jurusan) ? $jurusan : null),
+            'jurusan'     => ($role === 'guru') ? $primaryJurusanName : (($role === 'mahasiswa' && !empty($jurusan)) ? $jurusan : null),
             'universitas' => ($role === 'mahasiswa' && !empty($universitas)) ? $universitas : (($role === 'gtt') ? 'SMK Negeri 3 Yogyakarta' : null),
             'periode_id'  => $periodeId,
             'password'    => password_hash($password, PASSWORD_BCRYPT)
@@ -360,7 +360,7 @@ class Admin extends BaseController
             $updateData['jurusan'] = !empty($jurusan) ? $jurusan : null;
             $updateData['universitas'] = !empty($universitas) ? $universitas : null;
         } elseif ($role === 'gtt') {
-            $updateData['jurusan'] = !empty($jurusan) ? $jurusan : null;
+            $updateData['jurusan'] = null;
             $updateData['universitas'] = 'SMK Negeri 3 Yogyakarta';
             $updateData['periode_id'] = null;
         } elseif ($role === 'guru') {

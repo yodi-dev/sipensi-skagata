@@ -1306,6 +1306,19 @@ $runner->it("Layout template harus menentukan status active menu dashboard dan p
     $runner->assertTrue(strpos($content, "\$isMahasiswaDashboard ? 'active' : ''") !== false, "Sidebar mahasiswa/gtt harus menggunakan \$isMahasiswaDashboard untuk status active");
 });
 
+$runner->it("Manajemen data GTT tidak memerlukan jurusan pada form, filter, maupun penyimpanan database", function() use ($runner) {
+    $adminFile = APPPATH . 'Controllers/Admin.php';
+    $adminContent = file_get_contents($adminFile);
+    $runner->assertTrue(strpos($adminContent, "role === 'mahasiswa' && !empty(\$jurusan)") !== false, "Admin::tambahUser hanya menyimpan jurusan untuk role mahasiswa");
+    $runner->assertTrue(strpos($adminContent, "\$updateData['jurusan'] = null;") !== false, "Admin::editUser mengatur jurusan = null untuk GTT");
+
+    $penggunaFile = APPPATH . 'Views/admin/pengguna.php';
+    $penggunaContent = file_get_contents($penggunaFile);
+    $runner->assertTrue(strpos($penggunaContent, "role === 'gtt'") !== false, "pengguna.php harus menangani role gtt");
+    $runner->assertTrue(strpos($penggunaContent, "jWrapper.style.display = 'none'") !== false, "toggleJurusanField harus menyembunyikan jurusan untuk GTT");
+    $runner->assertTrue(strpos($penggunaContent, "tambahJurusanWrapper\" style=\"display: <?= (\$active_tab === 'gtt') ? 'none' : 'block' ?>;\"") !== false, "Modal tambah harus menyembunyikan input jurusan saat tab gtt");
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());
 

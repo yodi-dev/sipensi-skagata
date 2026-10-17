@@ -384,27 +384,32 @@ function getInitials($name)
                 <input type="hidden" name="tab" value="<?= esc($active_tab ?? 'mahasiswa') ?>">
                 <input type="hidden" name="per_page" value="<?= (int) ($perPage ?? 10) ?>">
                 <div class="row g-2 align-items-center">
-                    <div class="col-12 <?= ($active_tab === 'gtt') ? 'col-md-7 col-xl-6' : 'col-md-6 col-xl-4' ?>">
+                    <div class="col-12 <?= ($active_tab === 'gtt') ? '' : 'col-md-6 col-xl-4' ?>">
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-white border-end-0 text-muted ps-2.5">
                                 <i class="bi bi-search text-success"></i>
                             </span>
-                            <input type="text" name="keyword" class="form-control border-start-0 ps-1 fw-medium" placeholder="<?= ($active_tab === 'gtt') ? 'Cari nama / username / NIP...' : 'Cari nama / username / NIM...' ?>" value="<?= esc($keyword ?? '') ?>">
+                            <input type="text" name="keyword" class="form-control border-start-0 ps-1 fw-medium" placeholder="<?= ($active_tab === 'gtt') ? 'Cari nama / username / NIP guru GTT...' : 'Cari nama / username / NIM...' ?>" value="<?= esc($keyword ?? '') ?>">
+                            <?php if ($active_tab === 'gtt' && !empty($keyword)): ?>
+                                <a href="<?= base_url('admin/pengguna?tab=gtt') ?>" class="btn btn-outline-secondary border-start-0 bg-white" title="Hapus Pencarian">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                            <?php endif; ?>
                         </div>
                     </div>
 
-                    <div class="col-12 <?= ($active_tab === 'gtt') ? 'col-md-5 col-xl-6' : 'col-sm-6 col-md-6 col-xl-3' ?>">
-                        <select name="jurusan" class="form-select form-select-sm fw-medium" onchange="this.form.submit()" aria-label="Filter Jurusan">
-                            <option value=""><?= ($active_tab === 'gtt') ? 'Semua Mata Pelajaran / Kejuruan' : 'Semua Jurusan / Kejuruan' ?></option>
-                            <?php if (!empty($daftar_jurusan)): ?>
-                                <?php foreach ($daftar_jurusan as $jrs): ?>
-                                    <option value="<?= esc($jrs) ?>" <?= (($jurusan_pilih ?? '') === $jrs) ? 'selected' : '' ?>><?= esc($jrs) ?></option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-
                     <?php if ($active_tab !== 'gtt'): ?>
+                        <div class="col-12 col-sm-6 col-md-6 col-xl-3">
+                            <select name="jurusan" class="form-select form-select-sm fw-medium" onchange="this.form.submit()" aria-label="Filter Jurusan">
+                                <option value="">Semua Jurusan / Kejuruan</option>
+                                <?php if (!empty($daftar_jurusan)): ?>
+                                    <?php foreach ($daftar_jurusan as $jrs): ?>
+                                        <option value="<?= esc($jrs) ?>" <?= (($jurusan_pilih ?? '') === $jrs) ? 'selected' : '' ?>><?= esc($jrs) ?></option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+
                         <div class="col-12 col-sm-6 col-md-6 col-xl-3">
                             <select name="universitas" class="form-select form-select-sm fw-medium" onchange="this.form.submit()" aria-label="Filter Universitas">
                                 <option value="">Semua Universitas Mitra</option>
@@ -479,15 +484,15 @@ function getInitials($name)
                                 <?php if ($active_tab === 'gtt'): ?>
                                     <div class="d-flex align-items-center justify-content-between mb-1.5">
                                         <span class="text-muted d-flex align-items-center">
-                                            <i class="bi bi-journal-bookmark text-success" style="font-size: 0.85rem; margin-right: 6px;"></i>Bidang / Mapel:
+                                            <i class="bi bi-building text-success" style="font-size: 0.85rem; margin-right: 6px;"></i>Institusi:
                                         </span>
-                                        <span class="fw-semibold text-dark text-end"><?= !empty($u['jurusan']) ? esc($u['jurusan']) : 'Semua Mapel / Umum' ?></span>
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill">SMKN 3 Yogyakarta</span>
                                     </div>
                                     <div class="d-flex align-items-center justify-content-between">
                                         <span class="text-muted d-flex align-items-center">
-                                            <i class="bi bi-building text-primary" style="font-size: 0.85rem; margin-right: 6px;"></i>Institusi:
+                                            <i class="bi bi-shield-check text-primary" style="font-size: 0.85rem; margin-right: 6px;"></i>Akses:
                                         </span>
-                                        <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill">SMKN 3 Yogyakarta</span>
+                                        <span class="fw-semibold text-dark text-end">Presensi Mandiri &amp; Piket</span>
                                     </div>
                                 <?php else: ?>
                                     <?php if (!empty($u['universitas'])): ?>
@@ -544,8 +549,8 @@ function getInitials($name)
                         <tr>
                             <th class="text-center" style="width: 50px;">No</th>
                             <th><?= ($active_tab === 'gtt') ? 'Guru Tidak Tetap (GTT)' : 'Mahasiswa Praktikan' ?></th>
-                            <th><?= ($active_tab === 'gtt') ? 'Mata Pelajaran / Tugas' : 'Universitas &amp; Jurusan' ?></th>
-                            <th><?= ($active_tab === 'gtt') ? 'Institusi &amp; Status' : 'Periode Gelombang' ?></th>
+                            <th><?= ($active_tab === 'gtt') ? 'Unit Kerja &amp; Institusi' : 'Universitas &amp; Jurusan' ?></th>
+                            <th><?= ($active_tab === 'gtt') ? 'Hak Akses Sistem' : 'Periode Gelombang' ?></th>
                             <th class="text-center" style="width: 140px;">Aksi</th>
                         </tr>
                     </thead>
@@ -571,14 +576,10 @@ function getInitials($name)
                                 <td>
                                     <?php if ($active_tab === 'gtt'): ?>
                                         <div class="d-flex align-items-center">
-                                            <?php if (!empty($u['jurusan'])): ?>
-                                                <span class="badge bg-light text-secondary border rounded-pill px-2.5 py-1 fw-semibold d-inline-flex align-items-center" style="font-size: 0.76rem;">
-                                                    <i class="bi bi-journal-bookmark text-success" style="margin-right: 6px;"></i>
-                                                    <span class="text-dark"><?= esc($u['jurusan']) ?></span>
-                                                </span>
-                                            <?php else: ?>
-                                                <span class="text-muted small fst-italic" style="font-size: 0.75rem;">Semua Mapel / Umum</span>
-                                            <?php endif; ?>
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-semibold d-inline-flex align-items-center" style="font-size: 0.76rem;">
+                                                <i class="bi bi-building me-1.5"></i>
+                                                <span>SMK Negeri 3 Yogyakarta</span>
+                                            </span>
                                         </div>
                                     <?php else: ?>
                                         <!-- 1. Asal Universitas Mitra (Atas) -->
@@ -605,8 +606,8 @@ function getInitials($name)
                                 </td>
                                 <td>
                                     <?php if ($active_tab === 'gtt'): ?>
-                                        <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill px-2.5 py-1">
-                                            <i class="bi bi-building me-1"></i>SMKN 3 Yogyakarta
+                                        <span class="badge bg-light text-secondary border rounded-pill px-2.5 py-1">
+                                            <i class="bi bi-check2-circle text-success me-1"></i>Presensi Mandiri &amp; Piket
                                         </span>
                                     <?php else: ?>
                                         <?php if (!empty($u['nama_periode_relasi'])): ?>
@@ -708,10 +709,10 @@ function getInitials($name)
                     <select name="role" class="form-select" id="tambahRoleSelect" onchange="toggleJurusanField('tambahRoleSelect', 'tambahJurusanWrapper', 'tambahUniversitasWrapper', 'tambahPeriodeWrapper', 'tambahUniversitas', 'tambahJurusan')" required>
                         <option value="mahasiswa" <?= ($active_tab !== 'gtt') ? 'selected' : '' ?>>Mahasiswa Praktikan (PPL/PK)</option>
                         <option value="gtt" <?= ($active_tab === 'gtt') ? 'selected' : '' ?>>Guru Tidak Tetap (GTT)</option>
-                        <option value="guru">Guru Pamong / GTT</option>
+                        <option value="guru">Guru Pamong</option>
                     </select>
                 </div>
-                <div class="mb-3" id="tambahUniversitasWrapper">
+                <div class="mb-3" id="tambahUniversitasWrapper" style="display: <?= ($active_tab === 'gtt') ? 'none' : 'block' ?>;">
                     <label class="form-label fw-semibold small text-dark">Asal Universitas / Kampus</label>
                     <select name="universitas" id="tambahUniversitas" class="form-select" onchange="updateJurusanOptions('tambahUniversitas', 'tambahJurusan')">
                         <option value="">-- Pilih Asal Universitas --</option>
@@ -723,7 +724,7 @@ function getInitials($name)
                     </select>
                     <small class="text-muted" style="font-size: 0.75rem;">Pilih kampus pengirim terlebih dahulu untuk memfilter jurusan/prodi.</small>
                 </div>
-                <div class="mb-3" id="tambahJurusanWrapper">
+                <div class="mb-3" id="tambahJurusanWrapper" style="display: <?= ($active_tab === 'gtt') ? 'none' : 'block' ?>;">
                     <label class="form-label fw-semibold small text-dark">Jurusan Mahasiswa</label>
                     <select name="jurusan" id="tambahJurusan" class="form-select">
                         <option value="">-- Pilih Universitas Terlebih Dahulu --</option>
@@ -735,7 +736,7 @@ function getInitials($name)
                     </select>
                     <small class="text-muted" style="font-size: 0.75rem;" id="tambahJurusanHelp">Program studi yang dibuka oleh kampus mitra terkait.</small>
                 </div>
-                <div class="mb-3" id="tambahPeriodeWrapper">
+                <div class="mb-3" id="tambahPeriodeWrapper" style="display: <?= ($active_tab === 'gtt') ? 'none' : 'block' ?>;">
                     <label class="form-label fw-semibold small text-dark">Periode PPL / PK</label>
                     <select name="periode_id" class="form-select">
                         <option value="">-- Pilih Periode PPL / PK --</option>
@@ -795,7 +796,7 @@ function getInitials($name)
                     <select name="role" id="editRole" class="form-select" onchange="toggleJurusanField('editRole', 'editJurusanWrapper', 'editUniversitasWrapper', 'editPeriodeWrapper', 'editUniversitas', 'editJurusan')" required>
                         <option value="mahasiswa">Mahasiswa Praktikan (PPL/PK)</option>
                         <option value="gtt">Guru Tidak Tetap (GTT)</option>
-                        <option value="guru">Guru Pamong / GTT</option>
+                        <option value="guru">Guru Pamong</option>
                     </select>
                 </div>
                 <div class="mb-3" id="editUniversitasWrapper">
@@ -1013,23 +1014,10 @@ function getInitials($name)
                 updateJurusanOptions(univSelectId, jurusanSelectId, currentJurVal);
             }
         } else if (role === 'gtt') {
-            if (jWrapper) jWrapper.style.display = 'block';
-            if (jLabel) jLabel.textContent = 'Mata Pelajaran / Kejuruan';
-            if (jHelp) jHelp.textContent = 'Mata pelajaran atau bidang keahlian yang diampu di SMK Negeri 3 Yogyakarta.';
+            if (jWrapper) jWrapper.style.display = 'none';
             if (uWrapper) uWrapper.style.display = 'none';
             if (pWrapper) pWrapper.style.display = 'none';
-
-            if (jSelect) {
-                const currentVal = jSelect.value;
-                jSelect.innerHTML = '<option value="">-- Pilih Mata Pelajaran / Kejuruan --</option>';
-                allJurusans.forEach(jrs => {
-                    const opt = document.createElement('option');
-                    opt.value = jrs;
-                    opt.textContent = jrs;
-                    if (jrs === currentVal) opt.selected = true;
-                    jSelect.appendChild(opt);
-                });
-            }
+            if (jSelect) jSelect.value = '';
         } else if (role === 'guru') {
             if (jWrapper) jWrapper.style.display = 'block';
             if (jLabel) jLabel.textContent = 'Jurusan Bimbingan / Pamong';
@@ -1122,7 +1110,7 @@ function getInitials($name)
             }
         } else if (role === 'gtt') {
             if (document.getElementById('editJurusan')) {
-                document.getElementById('editJurusan').value = jurusan || '';
+                document.getElementById('editJurusan').value = '';
             }
         } else if (role === 'guru') {
             const jSelect = document.getElementById('editJurusan');
