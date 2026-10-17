@@ -202,25 +202,6 @@ function getInitials($name)
         </div>
     </div>
 
-    <!-- Alert Edukasi & Pintasan ke Manajemen Guru Pamong -->
-    <div class="alert alert-light border border-success-subtle bg-white rounded-4 shadow-xs p-3 mb-4">
-        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="p-2 rounded-3 bg-success-subtle text-success flex-shrink-0" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
-                    <i class="bi bi-person-badge-fill"></i>
-                </div>
-                <div>
-                    <span class="fw-bold text-dark d-block" style="font-size: 0.88rem;">Pemisahan Manajemen Pamong &amp; Praktikan</span>
-                    <small class="text-muted" style="font-size: 0.78rem;">
-                        Pengelolaan akun Guru Pamong dan penugasan <strong>Jurusan Bimbingan / Pamong</strong> dikelola terpusat di menu <a href="<?= base_url('admin/guru-pamong') ?>" class="text-success fw-semibold text-decoration-underline">Data Guru Pamong</a>.
-                    </small>
-                </div>
-            </div>
-            <a href="<?= base_url('admin/guru-pamong') ?>" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-xs text-nowrap align-self-start align-self-sm-center" style="font-size: 0.8rem;">
-                <i class="bi bi-person-badge me-1"></i>Buka Data Pamong
-            </a>
-        </div>
-    </div>
 
     <!-- Ringkasan Statistik Modern Sesuai Tab Aktif -->
     <div class="row g-3 mb-4">
