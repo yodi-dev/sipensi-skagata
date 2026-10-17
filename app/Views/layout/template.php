@@ -452,7 +452,67 @@
                 $currentRoute === 'admin' ||
                 $currentRoute === 'admin/index' ||
                 $currentRoute === '' ||
-                (bool) preg_match('#(^|/)admin(/index)?$#i', $currentUri)
+                (bool) preg_match('#(^|/)admin(/index)?$#i', $currentUri) ||
+                (bool) preg_match('#(^|/)admin(/index)?$#i', $currentRoute)
+            ) && (
+                strpos($currentUri, 'admin/pengguna') === false &&
+                strpos($currentRoute, 'admin/pengguna') === false &&
+                strpos($currentUri, 'admin/guru-pamong') === false &&
+                strpos($currentRoute, 'admin/guru-pamong') === false &&
+                strpos($currentUri, 'admin/jurusan') === false &&
+                strpos($currentRoute, 'admin/jurusan') === false &&
+                strpos($currentUri, 'admin/universitas') === false &&
+                strpos($currentRoute, 'admin/universitas') === false &&
+                strpos($currentUri, 'admin/periode') === false &&
+                strpos($currentRoute, 'admin/periode') === false &&
+                strpos($currentUri, 'admin/pengaturan') === false &&
+                strpos($currentRoute, 'admin/pengaturan') === false &&
+                strpos($currentUri, 'profil') === false &&
+                strpos($currentRoute, 'profil') === false &&
+                strpos($currentUri, 'ubah_password') === false &&
+                strpos($currentRoute, 'ubah_password') === false
+            )
+        );
+
+        $isGuruDashboard = (
+            in_array($role, ['guru', 'guru_pamong'], true) && (
+                $pageTitleDesktop === 'Monitoring Presensi' ||
+                (isset($title) && stripos($title, 'Dashboard') !== false) ||
+                $currentRoute === 'guru' ||
+                $currentRoute === 'guru/index' ||
+                $currentRoute === '' ||
+                (bool) preg_match('#(^|/)guru(/index)?$#i', $currentUri) ||
+                (bool) preg_match('#(^|/)guru(/index)?$#i', $currentRoute)
+            ) && (
+                strpos($currentUri, 'guru/laporan') === false &&
+                strpos($currentRoute, 'guru/laporan') === false &&
+                strpos($currentUri, 'guru/laporan_piket') === false &&
+                strpos($currentRoute, 'guru/laporan_piket') === false &&
+                strpos($currentUri, 'profil') === false &&
+                strpos($currentRoute, 'profil') === false &&
+                strpos($currentUri, 'ubah_password') === false &&
+                strpos($currentRoute, 'ubah_password') === false
+            )
+        );
+
+        $isMahasiswaDashboard = (
+            in_array($role, ['mahasiswa', 'gtt'], true) && (
+                $pageTitleDesktop === 'Presensi Harian' ||
+                (isset($title) && stripos($title, 'Dashboard') !== false) ||
+                $currentRoute === 'mahasiswa' ||
+                $currentRoute === 'mahasiswa/index' ||
+                $currentRoute === '' ||
+                (bool) preg_match('#(^|/)mahasiswa(/index)?$#i', $currentUri) ||
+                (bool) preg_match('#(^|/)mahasiswa(/index)?$#i', $currentRoute)
+            ) && (
+                strpos($currentUri, 'mahasiswa/piket') === false &&
+                strpos($currentRoute, 'mahasiswa/piket') === false &&
+                strpos($currentUri, 'mahasiswa/riwayat') === false &&
+                strpos($currentRoute, 'mahasiswa/riwayat') === false &&
+                strpos($currentUri, 'profil') === false &&
+                strpos($currentRoute, 'profil') === false &&
+                strpos($currentUri, 'ubah_password') === false &&
+                strpos($currentRoute, 'ubah_password') === false
             )
         );
         ?>
@@ -530,7 +590,7 @@
 
                     <?php elseif ($role === 'guru' || $role === 'guru_pamong'): ?>
                         <div class="sidebar-section-label">Menu Pamong</div>
-                        <a href="<?= base_url('guru') ?>" class="sidebar-nav-item <?= ($currentUri === 'guru' || $currentUri === 'guru/') ? 'active' : '' ?>">
+                        <a href="<?= base_url('guru') ?>" class="sidebar-nav-item <?= $isGuruDashboard ? 'active' : '' ?>">
                             <i class="bi bi-calendar2-check-fill"></i>
                             <span>Presensi Harian</span>
                         </a>
@@ -547,7 +607,7 @@
 
                     <?php else: /* Mahasiswa & GTT */ ?>
                         <div class="sidebar-section-label"><?= ($role === 'gtt') ? 'Menu GTT' : 'Menu Praktikan' ?></div>
-                        <a href="<?= base_url('mahasiswa') ?>" class="sidebar-nav-item <?= ($currentUri === 'mahasiswa' || $currentUri === 'mahasiswa/') ? 'active' : '' ?>">
+                        <a href="<?= base_url('mahasiswa') ?>" class="sidebar-nav-item <?= $isMahasiswaDashboard ? 'active' : '' ?>">
                             <i class="bi bi-clock-fill"></i>
                             <span>Presensi Harian</span>
                         </a>
@@ -615,6 +675,10 @@
                                 <?php if ($role === 'mahasiswa'): ?>
                                     <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small px-2 py-0.5" style="font-size: 0.7rem;">
                                         PPL 2026
+                                    </span>
+                                <?php elseif ($role === 'gtt'): ?>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small px-2 py-0.5" style="font-size: 0.7rem;">
+                                        GTT SKAGATA
                                     </span>
                                 <?php endif; ?>
                             </div>
@@ -804,7 +868,7 @@
             <!-- ============================================== -->
             <nav class="skagata-bottom-nav d-md-none" aria-label="Navigasi Utama Mobile">
                 <?php if ($role === 'guru' || $role === 'guru_pamong'): ?>
-                    <a href="<?= base_url('guru') ?>" class="bottom-nav-item <?= ($currentUri === 'guru' || $currentUri === 'guru/') ? 'active' : '' ?>">
+                    <a href="<?= base_url('guru') ?>" class="bottom-nav-item <?= $isGuruDashboard ? 'active' : '' ?>">
                         <i class="bi bi-calendar2-check-fill"></i>
                         <span>Presensi</span>
                     </a>
@@ -817,7 +881,7 @@
                         <span>Rekap</span>
                     </a>
                 <?php else: /* Mahasiswa & GTT */ ?>
-                    <a href="<?= base_url('mahasiswa') ?>" class="bottom-nav-item <?= ($currentUri === 'mahasiswa' || $currentUri === 'mahasiswa/') ? 'active' : '' ?>">
+                    <a href="<?= base_url('mahasiswa') ?>" class="bottom-nav-item <?= $isMahasiswaDashboard ? 'active' : '' ?>">
                         <i class="bi bi-clock-fill"></i>
                         <span>Presensi</span>
                     </a>

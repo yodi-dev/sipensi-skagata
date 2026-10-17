@@ -1295,6 +1295,17 @@ $runner->it("View profil, template, dan admin pengguna harus memisahkan label da
     $runner->assertTrue(strpos($penggunaContent, 'Guru Tidak Tetap (GTT)') !== false, "admin/pengguna.php harus memuat teks Guru Tidak Tetap (GTT)");
 });
 
+$runner->it("Layout template harus menentukan status active menu dashboard dan presensi harian secara adaptif untuk semua role", function() use ($runner) {
+    $templateFile = APPPATH . 'Views/layout/template.php';
+    $content = file_get_contents($templateFile);
+
+    $runner->assertTrue(strpos($content, '$isGuruDashboard') !== false, "template.php harus mendefinisikan \$isGuruDashboard");
+    $runner->assertTrue(strpos($content, '$isMahasiswaDashboard') !== false, "template.php harus mendefinisikan \$isMahasiswaDashboard");
+    $runner->assertTrue(strpos($content, '$isAdminDashboard') !== false, "template.php harus mendefinisikan \$isAdminDashboard");
+    $runner->assertTrue(strpos($content, "\$isGuruDashboard ? 'active' : ''") !== false, "Sidebar guru harus menggunakan \$isGuruDashboard untuk status active");
+    $runner->assertTrue(strpos($content, "\$isMahasiswaDashboard ? 'active' : ''") !== false, "Sidebar mahasiswa/gtt harus menggunakan \$isMahasiswaDashboard untuk status active");
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());
 
