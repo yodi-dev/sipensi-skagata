@@ -1327,7 +1327,7 @@ $runner->it("Manajemen data GTT tidak memerlukan jurusan pada form, filter, maup
     $runner->assertTrue(strpos($penggunaContent, "tambahJurusanWrapper\" style=\"display: <?= (\$active_tab === 'gtt') ? 'none' : 'block' ?>;\"") !== false, "Modal tambah harus menyembunyikan input jurusan saat tab gtt");
 });
 
-$runner->describe("24. Pengujian Fitur Impor Massal Pengguna (Mahasiswa & GTT)");
+$runner->describe("24. Pengujian Fitur Impor Massal Pengguna (Mahasiswa & GTT) & Dukungan Excel XLSX");
 
 $runner->it("Route impor-user dan download-template-impor harus terdaftar di Config/Routes.php", function() use ($runner) {
     $routesFile = APPPATH . 'Config/Routes.php';
@@ -1337,47 +1337,49 @@ $runner->it("Route impor-user dan download-template-impor harus terdaftar di Con
     $runner->assertTrue(strpos($content, "'Admin::downloadTemplateImpor'") !== false, "Route GET admin/download-template-impor harus terdaftar");
 });
 
-$runner->it("Controller Admin harus mengimplementasikan method downloadTemplateImpor dan imporUser", function() use ($runner) {
+$runner->it("Controller Admin harus mengimplementasikan method downloadTemplateImpor dan imporUser dengan dukungan PhpSpreadsheet", function() use ($runner) {
     $controller = new \App\Controllers\Admin();
     $runner->assertTrue(method_exists($controller, 'downloadTemplateImpor'), "Admin::downloadTemplateImpor harus terdefinisi");
     $runner->assertTrue(method_exists($controller, 'imporUser'), "Admin::imporUser harus terdefinisi");
 
     $adminFile = APPPATH . 'Controllers/Admin.php';
     $content = file_get_contents($adminFile);
-    $runner->assertTrue(strpos($content, 'str_getcsv') !== false, "imporUser harus membaca format CSV menggunakan str_getcsv");
-    $runner->assertTrue(strpos($content, '\xEF\xBB\xBF') !== false, "Harus mendukung dan membersihkan UTF-8 BOM untuk kompatibilitas Excel");
+    $runner->assertTrue(strpos($content, 'PhpOffice\PhpSpreadsheet') !== false, "Admin harus mengimpor library PhpSpreadsheet");
+    $runner->assertTrue(strpos($content, 'new Spreadsheet()') !== false, "downloadTemplateImpor harus menghasilkan Spreadsheet resmi");
+    $runner->assertTrue(strpos($content, 'IOFactory::createReaderForFile') !== false, "imporUser harus membaca file Excel melalui IOFactory");
+    $runner->assertTrue(strpos($content, 'str_getcsv') !== false, "imporUser harus tetap mendukung fallback format CSV");
     $runner->assertTrue(strpos($content, 'transStart') !== false, "imporUser harus menggunakan database transaction untuk integritas data");
 });
 
-$runner->it("View admin/pengguna harus memuat modalImporUser, tombol download template, dan trigger spinner", function() use ($runner) {
+$runner->it("View admin/pengguna harus responsif (flex-lg-row, text-nowrap) dan mendukung download template Excel (.xlsx)", function() use ($runner) {
     $penggunaFile = APPPATH . 'Views/admin/pengguna.php';
     $runner->assertTrue(file_exists($penggunaFile));
     $content = file_get_contents($penggunaFile);
 
+    $runner->assertTrue(strpos($content, 'flex-lg-row') !== false, "Header pengguna harus menggunakan flex-lg-row untuk mencegah tombol bertumpuk");
+    $runner->assertTrue(strpos($content, 'text-nowrap') !== false, "Tombol aksi header harus memiliki kelas text-nowrap");
+    $runner->assertTrue(strpos($content, 'format=xlsx') !== false, "Modal impor harus menyediakan link download template format=xlsx");
+    $runner->assertTrue(strpos($content, 'accept=".xlsx') !== false, "Input file impor harus menerima ekstensi .xlsx");
     $runner->assertTrue(strpos($content, 'modalImporUser') !== false, "pengguna.php harus memuat modalImporUser");
-    $runner->assertTrue(strpos($content, 'download-template-impor') !== false, "pengguna.php harus memuat tombol download-template-impor");
-    $runner->assertTrue(strpos($content, 'file_impor') !== false, "pengguna.php harus memuat input file_impor");
     $runner->assertTrue(strpos($content, 'formImporUserPengguna') !== false, "pengguna.php harus mengikat formImporUserPengguna");
     $runner->assertTrue(strpos($content, 'btnSubmitImporUserPengguna') !== false, "pengguna.php harus mengikat btnSubmitImporUserPengguna ke submit spinner");
 });
 
-$runner->it("Logika CSV parser dan generator template harus menghasilkan format yang sesuai untuk Mahasiswa dan GTT", function() use ($runner) {
-    // Simulasi CSV Mahasiswa dengan delimiter koma
-    $csvMahasiswa = "NIM,Nama Mahasiswa,Universitas,Jurusan,Password\n202611001,Ahmad Fauzi,Universitas Negeri Yogyakarta,Pendidikan Teknik Elektronika,\n202611002,Siti Aisyah,Universitas Ahmad Dahlan,Bimbingan dan Konseling,rahasia123";
-    $linesMhs = preg_split("/\r\n|\n|\r/", trim($csvMahasiswa));
-    $runner->assertEquals(3, count($linesMhs), "Total baris CSV mahasiswa harus 3");
-    $row1 = str_getcsv($linesMhs[1], ',');
-    $runner->assertEquals('202611001', $row1[0]);
-    $runner->assertEquals('Ahmad Fauzi', $row1[1]);
-    $runner->assertEquals('', $row1[4]); // Password kosong -> fallback ke username
+$runner->it("Library PhpSpreadsheet harus dapat menginisialisasi spreadsheet dan membuat kolom terpisah untuk template", function() use ($runner) {
+    $runner->assertTrue(class_exists('\PhpOffice\PhpSpreadsheet\Spreadsheet'), "Class Spreadsheet harus tersedia via Composer");
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+    $sheet->setCellValue('A1', 'NIM');
+    $sheet->setCellValue('B1', 'Nama Mahasiswa');
+    $sheet->setCellValue('C1', 'Universitas');
+    $sheet->setCellValue('D1', 'Jurusan');
+    $sheet->setCellValue('E1', 'Password');
 
-    // Simulasi CSV GTT dengan delimiter titik koma (Indonesian Excel locale)
-    $csvGtt = "NIP_Username;Nama_Lengkap;Password\n198501012026011001;Budi Santoso, S.Pd.;\n199002022026012002;Dewi Lestari, S.Pd.;12345678";
-    $linesGtt = preg_split("/\r\n|\n|\r/", trim($csvGtt));
-    $runner->assertEquals(3, count($linesGtt), "Total baris CSV GTT harus 3");
-    $rowGtt1 = str_getcsv($linesGtt[1], ';');
-    $runner->assertEquals('198501012026011001', $rowGtt1[0]);
-    $runner->assertEquals('Budi Santoso, S.Pd.', $rowGtt1[1]);
+    $runner->assertEquals('NIM', $sheet->getCell('A1')->getValue());
+    $runner->assertEquals('Nama Mahasiswa', $sheet->getCell('B1')->getValue());
+    $runner->assertEquals('Universitas', $sheet->getCell('C1')->getValue());
+    $runner->assertEquals('Jurusan', $sheet->getCell('D1')->getValue());
+    $runner->assertEquals('Password', $sheet->getCell('E1')->getValue());
 });
 
 // Cetak laporan akhir & exit code

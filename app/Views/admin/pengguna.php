@@ -177,7 +177,7 @@ function getInitials($name)
 
     <!-- Breadcrumb & Top Header -->
     <div class="mb-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
             <div>
                 <?php if ($active_tab === 'gtt'): ?>
                     <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
@@ -193,14 +193,14 @@ function getInitials($name)
                     <p class="text-muted small mt-1 mb-0">Kelola akun, penempatan kejuruan, asal universitas mitra, dan periode gelombang mahasiswa praktikan PPL/PK</p>
                 <?php endif; ?>
             </div>
-            <div class="d-flex align-items-center flex-wrap gap-2">
-                <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 py-2 shadow-xs d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalImporUser">
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 py-1.5 shadow-xs d-inline-flex align-items-center gap-1.5 text-nowrap" data-bs-toggle="modal" data-bs-target="#modalImporUser">
                     <i class="bi bi-file-earmark-arrow-up"></i>
                     <span><?= ($active_tab === 'gtt') ? 'Impor Guru GTT' : 'Impor Mahasiswa' ?></span>
                 </button>
-                <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
+                <button type="button" class="btn btn-skagata btn-sm rounded-pill px-3 py-1.5 shadow-sm d-inline-flex align-items-center gap-1.5 text-nowrap" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
                     <i class="bi bi-person-plus"></i>
-                    <span><?= ($active_tab === 'gtt') ? 'Tambah Guru GTT Baru' : 'Tambah Mahasiswa Baru' ?></span>
+                    <span><?= ($active_tab === 'gtt') ? 'Tambah Guru GTT' : 'Tambah Mahasiswa' ?></span>
                 </button>
             </div>
         </div>
@@ -375,8 +375,8 @@ function getInitials($name)
                                 <i class="bi bi-search text-success"></i>
                             </span>
                             <input type="text" name="keyword" class="form-control border-start-0 ps-1 fw-medium" placeholder="<?= ($active_tab === 'gtt') ? 'Cari nama / username / NIP guru GTT...' : 'Cari nama / username / NIM...' ?>" value="<?= esc($keyword ?? '') ?>">
-                            <?php if ($active_tab === 'gtt' && !empty($keyword)): ?>
-                                <a href="<?= base_url('admin/pengguna?tab=gtt') ?>" class="btn btn-outline-secondary border-start-0 bg-white" title="Hapus Pencarian">
+                            <?php if (!empty($keyword)): ?>
+                                <a href="<?= base_url('admin/pengguna?tab=' . ($active_tab ?? 'mahasiswa')) ?>" class="btn btn-outline-secondary border-start-0 bg-white" title="Hapus Pencarian">
                                     <i class="bi bi-x-lg"></i>
                                 </a>
                             <?php endif; ?>
@@ -676,7 +676,7 @@ function getInitials($name)
             <input type="hidden" name="role" value="<?= esc($active_tab) ?>">
             <div class="modal-header bg-success text-white py-3 flex-shrink-0">
                 <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-file-earmark-arrow-up"></i>
+                    <i class="bi bi-file-earmark-spreadsheet"></i>
                     <span>Impor Data <?= ($active_tab === 'gtt') ? 'Guru Tidak Tetap (GTT)' : 'Mahasiswa Praktikan' ?></span>
                 </h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -687,26 +687,36 @@ function getInitials($name)
                     <div class="d-flex align-items-start justify-content-between gap-2">
                         <div>
                             <h6 class="fw-bold text-success mb-1" style="font-size: 0.9rem;">
-                                <i class="bi bi-info-circle me-1"></i> Format File Impor
+                                <i class="bi bi-file-earmark-excel-fill text-success me-1"></i> Format File Excel (.xlsx) / CSV
                             </h6>
                             <p class="text-secondary small mb-2" style="font-size: 0.8rem;">
-                                Unggah file berformat <strong>.CSV</strong> sesuai template resmi. Kolom data harus tersusun urut:
+                                Gunakan template Excel resmi. Setiap data telah dipisahkan rapi per kolom agar mudah diisi:
                             </p>
                             <?php if ($active_tab === 'gtt'): ?>
-                                <span class="badge bg-white text-dark border font-monospace px-2 py-1 mb-1" style="font-size: 0.75rem;">
-                                    NIP_Username, Nama_Lengkap, Password
-                                </span>
+                                <div class="d-flex flex-wrap gap-1 mb-1">
+                                    <span class="badge bg-white text-success border font-monospace px-2 py-1" style="font-size: 0.74rem;">Kolom A: NIP_Username</span>
+                                    <span class="badge bg-white text-dark border font-monospace px-2 py-1" style="font-size: 0.74rem;">Kolom B: Nama_Lengkap</span>
+                                    <span class="badge bg-white text-muted border font-monospace px-2 py-1" style="font-size: 0.74rem;">Kolom C: Password (Opsional)</span>
+                                </div>
                             <?php else: ?>
-                                <span class="badge bg-white text-dark border font-monospace px-2 py-1 mb-1" style="font-size: 0.75rem;">
-                                    NIM, Nama_Mahasiswa, Universitas, Jurusan, Password
-                                </span>
+                                <div class="d-flex flex-wrap gap-1 mb-1">
+                                    <span class="badge bg-white text-success border font-monospace px-2 py-1" style="font-size: 0.74rem;">Kolom A: NIM</span>
+                                    <span class="badge bg-white text-dark border font-monospace px-2 py-1" style="font-size: 0.74rem;">Kolom B: Nama_Mahasiswa</span>
+                                    <span class="badge bg-white text-dark border font-monospace px-2 py-1" style="font-size: 0.74rem;">Kolom C: Universitas</span>
+                                    <span class="badge bg-white text-dark border font-monospace px-2 py-1" style="font-size: 0.74rem;">Kolom D: Jurusan</span>
+                                    <span class="badge bg-white text-muted border font-monospace px-2 py-1" style="font-size: 0.74rem;">Kolom E: Password (Opsional)</span>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="mt-2 pt-2 border-top border-success-subtle">
-                        <a href="<?= base_url('admin/download-template-impor?role=' . $active_tab) ?>" class="btn btn-sm btn-success rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1.5" style="font-size: 0.8rem;">
-                            <i class="bi bi-download"></i>
-                            <span>Unduh Template CSV</span>
+                    <div class="mt-2 pt-2 border-top border-success-subtle d-flex align-items-center flex-wrap gap-2">
+                        <a href="<?= base_url('admin/download-template-impor?role=' . $active_tab . '&format=xlsx') ?>" class="btn btn-sm btn-success rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 shadow-xs fw-semibold" style="font-size: 0.82rem;">
+                            <i class="bi bi-file-earmark-excel"></i>
+                            <span>Unduh Template Excel (.xlsx)</span>
+                        </a>
+                        <a href="<?= base_url('admin/download-template-impor?role=' . $active_tab . '&format=csv') ?>" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1.5 d-inline-flex align-items-center gap-1" style="font-size: 0.78rem;" title="Unduh Format CSV Alternatif">
+                            <i class="bi bi-filetype-csv"></i>
+                            <span>Versi .CSV</span>
                         </a>
                     </div>
                 </div>
@@ -732,29 +742,29 @@ function getInitials($name)
                     <div class="mb-3">
                         <label class="form-label fw-semibold small text-dark">Default Asal Universitas <span class="text-muted fw-normal">(Opsional)</span></label>
                         <select name="universitas_default" class="form-select">
-                            <option value="">-- Sesuai Kolom Universitas di File CSV --</option>
+                            <option value="">-- Sesuai Kolom Universitas di File Excel --</option>
                             <?php if (!empty($daftar_universitas)): ?>
                                 <?php foreach ($daftar_universitas as $univ): ?>
                                     <option value="<?= esc($univ) ?>"><?= esc($univ) ?></option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
-                        <small class="text-muted" style="font-size: 0.75rem;">Digunakan otomatis jika kolom universitas pada baris file CSV kosong.</small>
+                        <small class="text-muted" style="font-size: 0.75rem;">Digunakan otomatis jika kolom universitas pada baris file Excel kosong.</small>
                     </div>
                 <?php endif; ?>
 
-                <!-- Input File CSV -->
+                <!-- Input File Excel / CSV -->
                 <div class="mb-3">
-                    <label class="form-label fw-semibold small text-dark">Pilih File CSV (.csv)</label>
-                    <input type="file" name="file_impor" id="inputFileImpor" class="form-control" accept=".csv, text/csv, text/plain" required>
-                    <small class="text-muted" style="font-size: 0.75rem;">Mendukung pemisah koma (,) maupun titik koma (;).</small>
+                    <label class="form-label fw-semibold small text-dark">Pilih File Excel (.xlsx) atau CSV (.csv)</label>
+                    <input type="file" name="file_impor" id="inputFileImpor" class="form-control" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv, text/plain" required>
+                    <small class="text-muted" style="font-size: 0.75rem;">Mendukung file Microsoft Excel (.xlsx / .xls) maupun CSV.</small>
                 </div>
 
                 <!-- Petunjuk Password Otomatis -->
                 <div class="alert alert-light border d-flex align-items-start gap-2 py-2 px-3 rounded-3 mb-0">
                     <i class="bi bi-shield-lock text-success fs-5 flex-shrink-0 mt-0.5"></i>
                     <div style="font-size: 0.78rem;" class="text-secondary">
-                        <strong>Password Otomatis:</strong> Kolom password pada file CSV boleh dikosongkan. Jika dikosongkan, sistem akan otomatis menggunakan <strong><?= ($active_tab === 'gtt') ? 'Username/NIP' : 'NIM' ?></strong> sebagai password awal akun pengguna.
+                        <strong>Password Otomatis:</strong> Kolom password pada file boleh dikosongkan. Jika dikosongkan, sistem akan otomatis menggunakan <strong><?= ($active_tab === 'gtt') ? 'Username/NIP' : 'NIM' ?></strong> sebagai password awal akun pengguna.
                     </div>
                 </div>
             </div>

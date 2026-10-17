@@ -9,6 +9,14 @@ use App\Models\SettingModel;
 use App\Models\UniversitasModel;
 use App\Models\UserModel;
 use Config\Database;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 
 class Admin extends BaseController
 {
@@ -302,48 +310,127 @@ class Admin extends BaseController
     }
 
     /**
-     * Download template CSV impor pengguna terstandarisasi untuk Mahasiswa & GTT
+     * Download template impor pengguna terstandarisasi untuk Mahasiswa & GTT
+     * Mendukung format Excel (.xlsx) dengan kolom terpisah rapi maupun format CSV (.csv)
      */
     public function downloadTemplateImpor()
     {
-        $role = $this->request->getGet('role');
+        $role   = $this->request->getGet('role');
+        $format = strtolower((string) ($this->request->getGet('format') ?? 'xlsx'));
+
         if ($role === 'gtt') {
-            $filename = 'template_impor_gtt.csv';
+            $baseName = 'template_impor_gtt_skagata';
             $headers  = ['NIP_Username', 'Nama_Lengkap', 'Password'];
             $samples  = [
                 ['198501012026011001', 'Budi Santoso, S.Pd.', ''],
                 ['199002022026012002', 'Dewi Lestari, S.Pd.', '']
             ];
+            $sheetTitle = 'Template GTT';
         } else {
-            $filename = 'template_impor_mahasiswa.csv';
+            $baseName = 'template_impor_mahasiswa_skagata';
             $headers  = ['NIM', 'Nama_Mahasiswa', 'Universitas', 'Jurusan', 'Password'];
             $samples  = [
-                ['202611001', 'Ahmad Fauzi', 'Universitas Negeri Yogyakarta', 'Pendidikan Teknik Elektronika', ''],
+                ['202611001', 'Ahmad Fauzi', 'Universitas Negeri Yogyakarta', 'Pendidikan Teknik Informatika', ''],
                 ['202611002', 'Siti Aisyah', 'Universitas Ahmad Dahlan', 'Bimbingan dan Konseling', '']
             ];
+            $sheetTitle = 'Template Mahasiswa';
         }
 
-        // Output CSV dengan UTF-8 BOM untuk kompatibilitas Microsoft Excel
-        $output = fopen('php://temp', 'r+');
-        fputs($output, "\xEF\xBB\xBF");
-        fputcsv($output, $headers, ',');
-        foreach ($samples as $sample) {
-            fputcsv($output, $sample, ',');
+        // Jika user secara spesifik meminta format CSV
+        if ($format === 'csv') {
+            $filename = $baseName . '.csv';
+            $output   = fopen('php://temp', 'r+');
+            fputs($output, "\xEF\xBB\xBF");
+            fputcsv($output, $headers, ',');
+            foreach ($samples as $sample) {
+                fputcsv($output, $sample, ',');
+            }
+            rewind($output);
+            $csvContent = stream_get_contents($output);
+            fclose($output);
+
+            return $this->response
+                ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
+                ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
+                ->setHeader('Pragma', 'no-cache')
+                ->setHeader('Expires', '0')
+                ->setBody($csvContent);
         }
-        rewind($output);
-        $csvContent = stream_get_contents($output);
-        fclose($output);
+
+        // Format Utama: File Excel Asli (.xlsx) dengan kolom rapi dan terpisah
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle($sheetTitle);
+
+        // Tulis Header
+        foreach ($headers as $colIdx => $headerText) {
+            $colLetter = Coordinate::stringFromColumnIndex($colIdx + 1);
+            $sheet->setCellValue($colLetter . '1', $headerText);
+        }
+
+        // Tulis Data Contoh
+        $rowNum = 2;
+        foreach ($samples as $row) {
+            foreach ($row as $colIdx => $val) {
+                $colLetter = Coordinate::stringFromColumnIndex($colIdx + 1);
+                $sheet->setCellValueExplicit($colLetter . $rowNum, (string) $val, DataType::TYPE_STRING);
+            }
+            $rowNum++;
+        }
+
+        // Styling Header Hijau Skagata Emerald (#0F5132)
+        $lastColLetter = Coordinate::stringFromColumnIndex(count($headers));
+        $headerRange = 'A1:' . $lastColLetter . '1';
+        $sheet->getStyle($headerRange)->applyFromArray([
+            'font' => [
+                'bold'  => true,
+                'color' => ['rgb' => 'FFFFFF'],
+                'size'  => 11,
+            ],
+            'fill' => [
+                'fillType'   => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '0F5132'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical'   => Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(28);
+
+        // Auto-size kolom dan border tipis
+        for ($c = 1; $c <= count($headers); $c++) {
+            $colLetter = Coordinate::stringFromColumnIndex($c);
+            $sheet->getColumnDimension($colLetter)->setAutoSize(true);
+        }
+
+        $allDataRange = 'A1:' . $lastColLetter . ($rowNum - 1);
+        $sheet->getStyle($allDataRange)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color'       => ['rgb' => 'D0D5DD'],
+                ],
+            ],
+        ]);
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = $baseName . '.xlsx';
+
+        ob_start();
+        $writer->save('php://output');
+        $excelData = ob_get_clean();
 
         return $this->response
-            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
+            ->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
             ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
-            ->setHeader('Pragma', 'no-cache')
-            ->setHeader('Expires', '0')
-            ->setBody($csvContent);
+            ->setHeader('Cache-Control', 'max-age=0')
+            ->setHeader('Pragma', 'public')
+            ->setBody($excelData);
     }
 
     /**
-     * Memproses impor massal data pengguna (Mahasiswa & GTT) via file CSV
+     * Memproses impor massal data pengguna (Mahasiswa & GTT) via file Excel (.xlsx) atau CSV (.csv)
      */
     public function imporUser()
     {
@@ -355,12 +442,12 @@ class Admin extends BaseController
 
         $file = $this->request->getFile('file_impor');
         if (!$file || !$file->isValid() || $file->hasMoved()) {
-            return redirect()->back()->with('error', 'Silakan pilih file CSV/Excel CSV yang valid untuk diimpor!');
+            return redirect()->back()->with('error', 'Silakan pilih file Excel (.xlsx) atau CSV (.csv) yang valid untuk diimpor!');
         }
 
         $extension = strtolower((string) $file->getClientExtension());
-        if (!in_array($extension, ['csv', 'txt'], true)) {
-            return redirect()->back()->with('error', 'Format file tidak didukung! Harap unggah file berformat .csv');
+        if (!in_array($extension, ['xlsx', 'xls', 'csv', 'txt'], true)) {
+            return redirect()->back()->with('error', 'Format file tidak didukung! Harap unggah file berformat .xlsx atau .csv');
         }
 
         $filePath = $file->getTempName();
@@ -368,23 +455,40 @@ class Admin extends BaseController
             return redirect()->back()->with('error', 'File unggahan tidak dapat dibaca oleh server.');
         }
 
-        $content = file_get_contents($filePath);
-        // Hapus UTF-8 BOM jika ada
-        $content = preg_replace('/^\xEF\xBB\xBF/', '', $content);
-        $lines = preg_split("/\r\n|\n|\r/", trim($content));
-
-        if (empty($lines)) {
-            return redirect()->back()->with('error', 'File yang diunggah kosong!');
+        $rows = [];
+        if (in_array($extension, ['xlsx', 'xls'], true)) {
+            try {
+                $reader = IOFactory::createReaderForFile($filePath);
+                $reader->setReadDataOnly(true);
+                $spreadsheet = $reader->load($filePath);
+                $sheet = $spreadsheet->getActiveSheet();
+                $rows = $sheet->toArray(null, true, true, false);
+            } catch (\Throwable $e) {
+                return redirect()->back()->with('error', 'Gagal membaca file Excel: ' . $e->getMessage());
+            }
+        } else {
+            // Parsing CSV / TXT
+            $content = file_get_contents($filePath);
+            $content = preg_replace('/^\xEF\xBB\xBF/', '', $content);
+            $lines = preg_split("/\r\n|\n|\r/", trim($content));
+            if (!empty($lines)) {
+                $firstLine = $lines[0];
+                $commaCount = substr_count($firstLine, ',');
+                $semicolonCount = substr_count($firstLine, ';');
+                $delimiter = ($semicolonCount > $commaCount) ? ';' : ',';
+                foreach ($lines as $line) {
+                    if (trim($line) === '') continue;
+                    $rows[] = str_getcsv($line, $delimiter);
+                }
+            }
         }
 
-        // Deteksi delimiter (koma atau titik koma)
-        $firstLine = $lines[0];
-        $commaCount = substr_count($firstLine, ',');
-        $semicolonCount = substr_count($firstLine, ';');
-        $delimiter = ($semicolonCount > $commaCount) ? ';' : ',';
+        if (empty($rows) || count($rows) < 2) {
+            return redirect()->back()->with('error', 'File yang diunggah tidak memiliki baris data.');
+        }
 
-        // Baca header
-        $headerRow = str_getcsv($firstLine, $delimiter);
+        // Baca header di baris pertama
+        $headerRow = $rows[0];
         $headerMap = [];
         foreach ($headerRow as $idx => $colName) {
             $cleanName = strtolower(trim((string) $colName));
@@ -453,11 +557,8 @@ class Admin extends BaseController
         $seenInFile = [];
 
         // Loop baris data (mulai baris index 1 karena index 0 adalah header)
-        for ($i = 1; $i < count($lines); $i++) {
-            $line = trim($lines[$i]);
-            if ($line === '') continue;
-
-            $row = str_getcsv($line, $delimiter);
+        for ($i = 1; $i < count($rows); $i++) {
+            $row = $rows[$i];
             if (empty($row) || !is_array($row)) continue;
 
             $username = isset($row[$colUsername]) ? trim((string) $row[$colUsername]) : '';
