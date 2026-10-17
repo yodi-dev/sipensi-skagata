@@ -301,8 +301,16 @@
                                                 <i class="bi bi-archive me-1"></i>Arsip
                                             </span>
                                         <?php endif; ?>
-                                        <span class="badge <?= $badgeClass ?> rounded-pill" style="font-size: 0.68rem;">
-                                            <?= esc($p['timeline_status']) ?>
+                                        <?php
+                                        $timelineBadgeClass = 'bg-secondary bg-opacity-10 text-secondary border';
+                                        if ($p['timeline_badge'] === 'success') {
+                                            $timelineBadgeClass = 'bg-success-subtle text-success border border-success-subtle';
+                                        } elseif ($p['timeline_badge'] === 'info') {
+                                            $timelineBadgeClass = 'bg-info-subtle text-info-emphasis border border-info-subtle';
+                                        }
+                                        ?>
+                                        <span class="badge <?= $timelineBadgeClass ?> rounded-pill" style="font-size: 0.68rem;">
+                                            <i class="bi <?= ($p['timeline_badge'] === 'success') ? 'bi-clock-history' : (($p['timeline_badge'] === 'info') ? 'bi-hourglass-split' : 'bi-check2-all') ?> me-1"></i><?= esc($p['timeline_status']) ?>
                                         </span>
                                     </div>
                                 </div>
@@ -333,26 +341,33 @@
                             </div>
 
                             <?php if (!empty($p['keterangan'])): ?>
-                                <div class="p-2 bg-light rounded-3 small text-muted mb-3" style="font-size: 0.78rem;">
-                                    <?= esc($p['keterangan']) ?>
+                                <div class="p-2 bg-light rounded-3 small text-muted mb-3 d-flex align-items-start gap-1.5" style="font-size: 0.78rem;">
+                                    <i class="bi bi-info-circle text-secondary flex-shrink-0 mt-0.5"></i>
+                                    <span><?= esc($p['keterangan']) ?></span>
                                 </div>
                             <?php endif; ?>
 
                             <!-- Tombol Aksi Mobile Touch-Friendly -->
                             <div class="d-flex align-items-center gap-2 pt-2 border-top">
-                                <?php if ((int)$p['is_aktif'] !== 1): ?>
-                                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2.5 py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.78rem;"
+                                <?php if ((int)$p['is_aktif'] === 1): ?>
+                                    <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-2.5 py-1.5 d-flex align-items-center justify-content-center gap-1 shadow-xs" style="font-size: 0.78rem;"
+                                        title="Nonaktifkan Periode" onclick="konfirmasiSetNonaktif(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>')">
+                                        <i class="bi bi-pause-circle"></i>
+                                        <span>Nonaktifkan</span>
+                                    </button>
+                                <?php else: ?>
+                                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2.5 py-1.5 d-flex align-items-center justify-content-center gap-1 shadow-xs" style="font-size: 0.78rem;"
                                         title="Tetapkan Aktif" onclick="konfirmasiSetAktif(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>')">
                                         <i class="bi bi-check-circle"></i>
                                         <span>Aktifkan</span>
                                     </button>
                                 <?php endif; ?>
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill flex-fill py-1.5 d-flex align-items-center justify-content-center gap-1 shadow-xs" style="font-size: 0.82rem;"
                                     onclick="bukaModalEditPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', '<?= esc($p['tahun_ajaran'], 'js') ?>', '<?= esc($p['semester'], 'js') ?>', '<?= esc($p['tanggal_mulai'], 'js') ?>', '<?= esc($p['tanggal_selesai'], 'js') ?>', <?= (int)$p['is_aktif'] ?>, '<?= esc($p['keterangan'] ?? '', 'js') ?>')">
                                     <i class="bi bi-pencil-square"></i>
                                     <span>Edit</span>
                                 </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;"
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 d-flex align-items-center justify-content-center gap-1 shadow-xs" style="font-size: 0.82rem;"
                                     onclick="konfirmasiHapusPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', <?= $jml ?>, <?= (int)$p['is_aktif'] ?>)">
                                     <i class="bi bi-trash"></i>
                                     <span>Hapus</span>
@@ -378,11 +393,10 @@
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 50px;">No</th>
-                            <th style="width: 260px;">Nama Periode &amp; Status</th>
-                            <th style="width: 150px;">Tahun Ajaran</th>
-                            <th style="width: 220px;">Rentang Waktu &amp; Timeline</th>
-                            <th class="text-center" style="width: 150px;">Mahasiswa</th>
-                            <th>Keterangan</th>
+                            <th>Nama Periode</th>
+                            <th style="width: 160px;">Tahun Ajaran</th>
+                            <th style="width: 230px;">Rentang Pelaksanaan</th>
+                            <th class="text-center" style="width: 160px;">Mahasiswa</th>
                             <th class="text-center" style="width: 140px;">Aksi</th>
                         </tr>
                     </thead>
@@ -396,19 +410,25 @@
                             <tr class="baris-periode-desktop" data-status="<?= $statusStr ?>" data-search="<?= esc($searchKeywords) ?>">
                                 <td class="text-center text-muted fw-semibold nomor-urut"><?= $no++ ?></td>
                                 <td>
-                                    <div class="fw-bold text-dark"><?= esc($p['nama_periode']) ?></div>
-                                    <div class="mt-1">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span class="fw-bold text-dark"><?= esc($p['nama_periode']) ?></span>
                                         <?php if ((int)$p['is_aktif'] === 1): ?>
-                                            <span class="badge-aktif">
+                                            <span class="badge-aktif" style="font-size: 0.72rem; padding: 2px 8px;">
                                                 <span class="pulse-dot"></span>
-                                                <span>Periode Aktif</span>
+                                                <span>Aktif</span>
                                             </span>
                                         <?php else: ?>
-                                            <span class="badge-arsip">
-                                                <i class="bi bi-archive me-1"></i>Arsip / Nonaktif
+                                            <span class="badge-arsip" style="font-size: 0.72rem; padding: 2px 8px;">
+                                                <i class="bi bi-archive me-1"></i>Arsip
                                             </span>
                                         <?php endif; ?>
                                     </div>
+                                    <?php if (!empty($p['keterangan'])): ?>
+                                        <div class="small text-muted mt-1 d-flex align-items-start gap-1.5" style="font-size: 0.8rem;">
+                                            <i class="bi bi-info-circle text-secondary flex-shrink-0 mt-0.5"></i>
+                                            <span><?= esc($p['keterangan']) ?></span>
+                                        </div>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <span class="fw-semibold text-dark d-block"><?= esc($p['tahun_ajaran']) ?></span>
@@ -421,15 +441,15 @@
                                     </div>
                                     <div class="mt-1">
                                         <?php
-                                        $badgeClass = 'bg-secondary';
+                                        $timelineBadgeClass = 'bg-secondary bg-opacity-10 text-secondary border';
                                         if ($p['timeline_badge'] === 'success') {
-                                            $badgeClass = 'bg-success';
+                                            $timelineBadgeClass = 'bg-success-subtle text-success border border-success-subtle';
                                         } elseif ($p['timeline_badge'] === 'info') {
-                                            $badgeClass = 'bg-info text-dark';
+                                            $timelineBadgeClass = 'bg-info-subtle text-info-emphasis border border-info-subtle';
                                         }
                                         ?>
-                                        <span class="badge <?= $badgeClass ?> rounded-pill" style="font-size: 0.7rem;">
-                                            <?= esc($p['timeline_status']) ?>
+                                        <span class="badge <?= $timelineBadgeClass ?> rounded-pill" style="font-size: 0.7rem;">
+                                            <i class="bi <?= ($p['timeline_badge'] === 'success') ? 'bi-clock-history' : (($p['timeline_badge'] === 'info') ? 'bi-hourglass-split' : 'bi-check2-all') ?> me-1"></i><?= esc($p['timeline_status']) ?>
                                         </span>
                                     </div>
                                 </td>
@@ -447,31 +467,26 @@
                                         </span>
                                     <?php endif; ?>
                                 </td>
-                                <td>
-                                    <?php if (!empty($p['keterangan'])): ?>
-                                        <div class="small text-muted text-truncate" style="max-width: 250px;" title="<?= esc($p['keterangan']) ?>">
-                                            <?= esc($p['keterangan']) ?>
-                                        </div>
-                                    <?php else: ?>
-                                        <small class="text-muted fst-italic">-</small>
-                                    <?php endif; ?>
-                                </td>
                                 <td class="text-center">
                                     <div class="d-inline-flex align-items-center gap-1">
-                                        <!-- Tombol Set Aktif jika belum aktif -->
-                                        <?php if ((int)$p['is_aktif'] !== 1): ?>
-                                            <button type="button" class="btn btn-sm btn-light border text-success rounded-circle p-1" style="width: 32px; height: 32px;" title="Tetapkan Sebagai Periode Aktif" onclick="konfirmasiSetAktif(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>')">
+                                        <!-- Tombol Toggle Status Aktif / Nonaktif -->
+                                        <?php if ((int)$p['is_aktif'] === 1): ?>
+                                            <button type="button" class="btn btn-sm btn-light border text-warning rounded-circle p-1 shadow-xs" style="width: 32px; height: 32px;" title="Nonaktifkan Periode Ini" onclick="konfirmasiSetNonaktif(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>')">
+                                                <i class="bi bi-pause-circle-fill"></i>
+                                            </button>
+                                        <?php else: ?>
+                                            <button type="button" class="btn btn-sm btn-light border text-success rounded-circle p-1 shadow-xs" style="width: 32px; height: 32px;" title="Tetapkan Sebagai Periode Aktif" onclick="konfirmasiSetAktif(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>')">
                                                 <i class="bi bi-check-circle-fill"></i>
                                             </button>
                                         <?php endif; ?>
 
                                         <!-- Tombol Edit -->
-                                        <button type="button" class="btn btn-sm btn-light border text-primary rounded-circle p-1" style="width: 32px; height: 32px;" title="Edit Periode" onclick="bukaModalEditPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', '<?= esc($p['tahun_ajaran'], 'js') ?>', '<?= esc($p['semester'], 'js') ?>', '<?= esc($p['tanggal_mulai'], 'js') ?>', '<?= esc($p['tanggal_selesai'], 'js') ?>', <?= (int)$p['is_aktif'] ?>, '<?= esc($p['keterangan'] ?? '', 'js') ?>')">
+                                        <button type="button" class="btn btn-sm btn-light border text-primary rounded-circle p-1 shadow-xs" style="width: 32px; height: 32px;" title="Edit Periode" onclick="bukaModalEditPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', '<?= esc($p['tahun_ajaran'], 'js') ?>', '<?= esc($p['semester'], 'js') ?>', '<?= esc($p['tanggal_mulai'], 'js') ?>', '<?= esc($p['tanggal_selesai'], 'js') ?>', <?= (int)$p['is_aktif'] ?>, '<?= esc($p['keterangan'] ?? '', 'js') ?>')">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
 
                                         <!-- Tombol Hapus -->
-                                        <button type="button" class="btn btn-sm btn-light border text-danger rounded-circle p-1" style="width: 32px; height: 32px;" title="Hapus Periode" onclick="konfirmasiHapusPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', <?= $jml ?>, <?= (int)$p['is_aktif'] ?>)">
+                                        <button type="button" class="btn btn-sm btn-light border text-danger rounded-circle p-1 shadow-xs" style="width: 32px; height: 32px;" title="Hapus Periode" onclick="konfirmasiHapusPeriode(<?= (int) $p['id'] ?>, '<?= esc($p['nama_periode'], 'js') ?>', <?= $jml ?>, <?= (int)$p['is_aktif'] ?>)">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
@@ -481,7 +496,7 @@
 
                         <!-- Pesan Tidak Ditemukan Desktop -->
                         <tr id="emptySearchDesktop" style="display: none;">
-                            <td colspan="7" class="text-center py-5">
+                            <td colspan="6" class="text-center py-5">
                                 <i class="bi bi-search text-muted opacity-50 d-block fs-2 mb-2"></i>
                                 <h6 class="fw-semibold text-muted mb-1">Periode Tidak Ditemukan</h6>
                                 <p class="text-muted small mb-0">Tidak ada data periode yang sesuai dengan filter "<span id="textSearchDesktop" class="fw-bold text-dark"></span>".</p>
@@ -641,6 +656,12 @@
     <input type="hidden" name="id" id="setAktifPeriodeId">
 </form>
 
+<!-- Form Tersembunyi untuk Set Nonaktif Periode -->
+<form id="formSetNonaktifPeriode" action="<?= base_url('admin/periode/set-nonaktif') ?>" method="POST" style="display: none;">
+    <?= csrf_field() ?>
+    <input type="hidden" name="id" id="setNonaktifPeriodeId">
+</form>
+
 <!-- Form Tersembunyi untuk Hapus Periode -->
 <form id="formHapusPeriode" action="<?= base_url('admin/periode/hapus') ?>" method="POST" style="display: none;">
     <?= csrf_field() ?>
@@ -699,6 +720,24 @@
             if (result.isConfirmed) {
                 document.getElementById('setAktifPeriodeId').value = id;
                 document.getElementById('formSetAktifPeriode').submit();
+            }
+        });
+    }
+
+    function konfirmasiSetNonaktif(id, nama) {
+        Swal.fire({
+            title: 'Nonaktifkan Periode Ini?',
+            html: `Apakah Anda ingin menonaktifkan <strong>${nama}</strong>?<br><small class="text-muted">Sistem sementara waktu tidak akan memiliki periode aktif berjalan sampai Anda mengaktifkan periode lainnya.</small>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f59e0b',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Nonaktifkan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('setNonaktifPeriodeId').value = id;
+                document.getElementById('formSetNonaktifPeriode').submit();
             }
         });
     }

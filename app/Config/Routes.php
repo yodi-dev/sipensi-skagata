@@ -62,6 +62,7 @@ $routes->group('admin', ['filter' => ['auth', 'role:admin']], static function ($
     $routes->post('periode/edit', 'Admin::editPeriode');
     $routes->post('periode/hapus', 'Admin::hapusPeriode');
     $routes->post('periode/set-aktif', 'Admin::setAktifPeriode');
+    $routes->post('periode/set-nonaktif', 'Admin::setNonaktifPeriode');
     $routes->get('pengaturan', 'Admin::pengaturan');
     $routes->post('pengaturan/simpan', 'Admin::simpanPengaturan');
     $routes->post('update-profil', 'Admin::updateProfil');

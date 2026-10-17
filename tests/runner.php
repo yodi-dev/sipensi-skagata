@@ -838,6 +838,7 @@ $runner->it("Route master data periode harus terdaftar di Config/Routes.php", fu
     $runner->assertTrue(strpos($content, "'Admin::editPeriode'") !== false, "Route POST admin/periode/edit harus terdaftar");
     $runner->assertTrue(strpos($content, "'Admin::hapusPeriode'") !== false, "Route POST admin/periode/hapus harus terdaftar");
     $runner->assertTrue(strpos($content, "'Admin::setAktifPeriode'") !== false, "Route POST admin/periode/set-aktif harus terdaftar");
+    $runner->assertTrue(strpos($content, "'Admin::setNonaktifPeriode'") !== false, "Route POST admin/periode/set-nonaktif harus terdaftar");
 });
 
 $runner->it("Controller Admin harus mengimplementasikan CRUD periode, aktivasi gelombang, dan proteksi integritas", function() use ($runner) {
@@ -847,6 +848,10 @@ $runner->it("Controller Admin harus mengimplementasikan CRUD periode, aktivasi g
     $runner->assertTrue(method_exists($controller, 'editPeriode'), "Admin::editPeriode harus terdefinisi");
     $runner->assertTrue(method_exists($controller, 'hapusPeriode'), "Admin::hapusPeriode harus terdefinisi");
     $runner->assertTrue(method_exists($controller, 'setAktifPeriode'), "Admin::setAktifPeriode harus terdefinisi");
+    $runner->assertTrue(method_exists($controller, 'setNonaktifPeriode'), "Admin::setNonaktifPeriode harus terdefinisi");
+
+    $model = new \App\Models\PeriodeModel();
+    $runner->assertTrue(method_exists($model, 'setNonaktif'), "PeriodeModel::setNonaktif harus terdefinisi");
 
     $controllerFile = APPPATH . 'Controllers/Admin.php';
     $content = file_get_contents($controllerFile);
@@ -862,6 +867,7 @@ $runner->it("View admin/periode harus memuat stat-card, tabel interaktif, dan mo
     $runner->assertTrue(strpos($content, 'modalTambahPeriode') !== false, "Harus memuat modalTambahPeriode");
     $runner->assertTrue(strpos($content, 'modalEditPeriode') !== false, "Harus memuat modalEditPeriode");
     $runner->assertTrue(strpos($content, 'konfirmasiSetAktif') !== false, "Harus memuat konfirmasiSetAktif");
+    $runner->assertTrue(strpos($content, 'konfirmasiSetNonaktif') !== false, "Harus memuat konfirmasiSetNonaktif");
     $runner->assertTrue(strpos($content, 'konfirmasiHapusPeriode') !== false, "Harus memuat konfirmasiHapusPeriode");
     $runner->assertTrue(strpos($content, 'Swal.fire') !== false, "Harus memuat integrasi SweetAlert2");
     $runner->assertTrue(strpos($content, 'inputCariPeriode') !== false, "Harus memuat inputCariPeriode instan tanpa tombol cari");

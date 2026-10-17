@@ -124,6 +124,14 @@ class PeriodeModel extends Model
     }
 
     /**
+     * Nonaktifkan satu periode tertentu.
+     */
+    public function setNonaktif(int $id): bool
+    {
+        return $this->update($id, ['is_aktif' => 0]);
+    }
+
+    /**
      * Hitung total mahasiswa yang terdaftar pada periode ini.
      */
     public function countPenggunaByPeriode(int $periodeId): int

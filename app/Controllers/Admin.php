@@ -1084,6 +1084,8 @@ class Admin extends BaseController
 
         if ($isAktif === 1) {
             $this->periodeModel->setAktif((int) $id);
+        } else {
+            $this->periodeModel->setNonaktif((int) $id);
         }
 
         return redirect()->to('/admin/periode')->with('pesan', "Perubahan periode '{$nama}' berhasil disimpan!");
@@ -1104,6 +1106,23 @@ class Admin extends BaseController
         $this->periodeModel->setAktif((int) $id);
 
         return redirect()->to('/admin/periode')->with('pesan', "Periode '{$existing['nama_periode']}' berhasil ditetapkan sebagai periode aktif saat ini!");
+    }
+
+    public function setNonaktifPeriode()
+    {
+        $id = $this->request->getPost('id');
+        if (empty($id) || !is_numeric($id)) {
+            return redirect()->back()->with('error', 'ID periode tidak valid!');
+        }
+
+        $existing = $this->periodeModel->find($id);
+        if (!$existing) {
+            return redirect()->back()->with('error', 'Data periode tidak ditemukan!');
+        }
+
+        $this->periodeModel->setNonaktif((int) $id);
+
+        return redirect()->to('/admin/periode')->with('pesan', "Periode '{$existing['nama_periode']}' berhasil dinonaktifkan!");
     }
 
     public function hapusPeriode()
