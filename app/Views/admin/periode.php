@@ -301,17 +301,6 @@
                                                 <i class="bi bi-archive me-1"></i>Arsip
                                             </span>
                                         <?php endif; ?>
-                                        <?php
-                                        $timelineBadgeClass = 'bg-secondary bg-opacity-10 text-secondary border';
-                                        if ($p['timeline_badge'] === 'success') {
-                                            $timelineBadgeClass = 'bg-success-subtle text-success border border-success-subtle';
-                                        } elseif ($p['timeline_badge'] === 'info') {
-                                            $timelineBadgeClass = 'bg-info-subtle text-info-emphasis border border-info-subtle';
-                                        }
-                                        ?>
-                                        <span class="badge <?= $timelineBadgeClass ?> rounded-pill" style="font-size: 0.68rem;">
-                                            <i class="bi <?= ($p['timeline_badge'] === 'success') ? 'bi-clock-history' : (($p['timeline_badge'] === 'info') ? 'bi-hourglass-split' : 'bi-check2-all') ?> me-1"></i><?= esc($p['timeline_status']) ?>
-                                        </span>
                                     </div>
                                 </div>
                                 <div class="text-end">
@@ -437,20 +426,7 @@
                                 <td>
                                     <div class="small fw-semibold text-dark">
                                         <i class="bi bi-calendar-event me-1 text-success"></i>
-                                        <?= date('d M Y', strtotime($p['tanggal_mulai'])) ?> - <?= date('d M Y', strtotime($p['tanggal_selesai'])) ?>
-                                    </div>
-                                    <div class="mt-1">
-                                        <?php
-                                        $timelineBadgeClass = 'bg-secondary bg-opacity-10 text-secondary border';
-                                        if ($p['timeline_badge'] === 'success') {
-                                            $timelineBadgeClass = 'bg-success-subtle text-success border border-success-subtle';
-                                        } elseif ($p['timeline_badge'] === 'info') {
-                                            $timelineBadgeClass = 'bg-info-subtle text-info-emphasis border border-info-subtle';
-                                        }
-                                        ?>
-                                        <span class="badge <?= $timelineBadgeClass ?> rounded-pill" style="font-size: 0.7rem;">
-                                            <i class="bi <?= ($p['timeline_badge'] === 'success') ? 'bi-clock-history' : (($p['timeline_badge'] === 'info') ? 'bi-hourglass-split' : 'bi-check2-all') ?> me-1"></i><?= esc($p['timeline_status']) ?>
-                                        </span>
+                                        <?= date('d M Y', strtotime($p['tanggal_mulai'])) ?> &mdash; <?= date('d M Y', strtotime($p['tanggal_selesai'])) ?>
                                     </div>
                                 </td>
                                 <td class="text-center">
