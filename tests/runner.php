@@ -790,6 +790,8 @@ $runner->it("View admin/universitas harus memuat stat-card, tabel interaktif, da
     $runner->assertTrue(strpos($content, 'modalEditUniversitas') !== false, "Harus memuat modalEditUniversitas");
     $runner->assertTrue(strpos($content, 'konfirmasiHapusUniversitas') !== false, "Harus memuat konfirmasiHapusUniversitas");
     $runner->assertTrue(strpos($content, 'Swal.fire') !== false, "Harus memuat integrasi SweetAlert2");
+    $runner->assertTrue(strpos($content, 'inputCariUniversitas') !== false, "Harus memuat inputCariUniversitas instan tanpa tombol cari");
+    $runner->assertTrue(strpos($content, 'filterTabelUniversitas') !== false, "Harus memuat fungsi filterTabelUniversitas live filtering");
 });
 
 $runner->it("Layout template dan manajemen pengguna harus terintegrasi dengan Master Data Universitas", function() use ($runner) {

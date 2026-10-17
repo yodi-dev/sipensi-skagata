@@ -183,23 +183,18 @@
                 <small class="text-muted">Total: <?= count($universitas_list) ?> institusi mitra ditemukan</small>
             </div>
 
-            <!-- Toolbar Pencarian -->
-            <form action="<?= base_url('admin/universitas') ?>" method="GET" class="filter-wrapper d-flex align-items-center gap-2 m-0 shadow-xs">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-white border-0 text-muted ps-2 pe-1"><i class="bi bi-search text-success"></i></span>
-                    <input type="text" name="keyword" class="form-control border-0 bg-transparent fw-medium" placeholder="Cari nama / kode / alamat..." value="<?= esc($keyword ?? '') ?>" style="min-width: 200px;">
-                </div>
-
-                <?php if (!empty($keyword)): ?>
-                    <a href="<?= base_url('admin/universitas') ?>" class="btn btn-sm btn-link text-muted p-1" title="Reset Pencarian">
+            <!-- Toolbar Pencarian Instan (Tanpa Tombol Cari) -->
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="input-group input-group-sm shadow-xs" style="width: 260px;">
+                    <span class="input-group-text bg-white border-end-0 text-muted ps-2.5 pe-1">
+                        <i class="bi bi-search text-success"></i>
+                    </span>
+                    <input type="text" id="inputCariUniversitas" class="form-control border-start-0 ps-1 fw-medium" placeholder="Cari nama / kode / alamat..." oninput="filterTabelUniversitas()" value="<?= esc($keyword ?? '') ?>">
+                    <button type="button" id="btnResetCariUniversitas" class="btn btn-sm btn-link text-muted p-1 border-0 pe-2" onclick="resetCariUniversitas()" title="Hapus Pencarian" style="<?= empty($keyword) ? 'display: none;' : '' ?>">
                         <i class="bi bi-x-circle-fill"></i>
-                    </a>
-                <?php endif; ?>
-
-                <button type="submit" class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-success fw-semibold">
-                    Cari
-                </button>
-            </form>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <?php if (empty($universitas_list)): ?>
@@ -221,8 +216,11 @@
                 <div class="d-flex flex-column gap-3">
                     <?php $noMobile = 1;
                     foreach ($universitas_list as $u): ?>
-                        <?php $jml = (int) ($u['total_mahasiswa'] ?? 0); ?>
-                        <div class="universitas-item-card">
+                        <?php
+                        $jml = (int) ($u['total_mahasiswa'] ?? 0);
+                        $searchKeywords = strtolower($u['kode_universitas'] . ' ' . $u['nama_universitas'] . ' ' . ($u['alamat'] ?? '') . ' ' . ($u['telepon'] ?? ''));
+                        ?>
+                        <div class="universitas-item-card baris-universitas-mobile" data-search="<?= esc($searchKeywords) ?>">
                             <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
                                 <div>
                                     <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill badge-kode mb-1">
@@ -281,6 +279,13 @@
                             </div>
                         </div>
                     <?php endforeach; ?>
+
+                    <!-- Pesan Tidak Ditemukan Mobile -->
+                    <div id="emptySearchMobile" class="text-center py-5 bg-light rounded-4 border p-3" style="display: none;">
+                        <i class="bi bi-search text-muted opacity-50 d-block fs-2 mb-2"></i>
+                        <h6 class="fw-semibold text-muted mb-1">Universitas Tidak Ditemukan</h6>
+                        <p class="text-muted small mb-0">Tidak ada universitas yang sesuai dengan filter "<span id="textSearchMobile" class="fw-bold text-dark"></span>".</p>
+                    </div>
                 </div>
             </div>
 
@@ -302,8 +307,11 @@
                     <tbody>
                         <?php $no = 1;
                         foreach ($universitas_list as $u): ?>
-                            <tr>
-                                <td class="text-center text-muted fw-semibold"><?= $no++ ?></td>
+                            <?php
+                            $searchKeywords = strtolower($u['kode_universitas'] . ' ' . $u['nama_universitas'] . ' ' . ($u['alamat'] ?? '') . ' ' . ($u['telepon'] ?? ''));
+                            ?>
+                            <tr class="baris-universitas-desktop" data-search="<?= esc($searchKeywords) ?>">
+                                <td class="text-center text-muted fw-semibold nomor-urut"><?= $no++ ?></td>
                                 <td>
                                     <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill badge-kode">
                                         <?= esc($u['kode_universitas']) ?>
@@ -364,6 +372,15 @@
                                 </td>
                             </tr>
                         <?php endforeach; ?>
+
+                        <!-- Pesan Tidak Ditemukan Desktop -->
+                        <tr id="emptySearchDesktop" style="display: none;">
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-search text-muted opacity-50 d-block fs-2 mb-2"></i>
+                                <h6 class="fw-semibold text-muted mb-1">Universitas Tidak Ditemukan</h6>
+                                <p class="text-muted small mb-0">Tidak ada data universitas yang sesuai dengan kata kunci "<span id="textSearchDesktop" class="fw-bold text-dark"></span>".</p>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -479,6 +496,12 @@
 
         bindSubmitSpinner('formTambahUniversitas', 'btnSubmitTambahUniversitas', 'Menyimpan...');
         bindSubmitSpinner('formEditUniversitas', 'btnSubmitEditUniversitas', 'Menyimpan...');
+
+        // Inisialisasi filter jika terdapat query parameter dari URL
+        const input = document.getElementById('inputCariUniversitas');
+        if (input && input.value.trim() !== '') {
+            filterTabelUniversitas();
+        }
     });
 
     function bukaModalEditUniversitas(id, kode, nama, alamat, telepon) {
@@ -518,6 +541,82 @@
                 document.getElementById('formHapusUniversitas').submit();
             }
         });
+    }
+
+    // Filter Instan Real-time Tabel & Mobile Cards Tanpa Tombol Cari
+    function filterTabelUniversitas() {
+        const input = document.getElementById('inputCariUniversitas');
+        const btnReset = document.getElementById('btnResetCariUniversitas');
+
+        const keyword = input ? input.value.toLowerCase().trim() : '';
+
+        if (btnReset) {
+            btnReset.style.display = (keyword.length > 0) ? 'inline-block' : 'none';
+        }
+
+        const rows = document.querySelectorAll('.baris-universitas-desktop');
+        const cards = document.querySelectorAll('.baris-universitas-mobile');
+
+        // Filter Baris Desktop
+        let visibleDesktop = 0;
+        rows.forEach((row) => {
+            const rowSearch = row.getAttribute('data-search') || '';
+            const matchKeyword = keyword === '' || rowSearch.includes(keyword);
+
+            if (matchKeyword) {
+                row.style.display = '';
+                visibleDesktop++;
+                const numCell = row.querySelector('.nomor-urut');
+                if (numCell) numCell.textContent = visibleDesktop;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        const emptyDesktop = document.getElementById('emptySearchDesktop');
+        const textDesktop = document.getElementById('textSearchDesktop');
+        if (emptyDesktop) {
+            if (visibleDesktop === 0 && keyword !== '') {
+                emptyDesktop.style.display = '';
+                if (textDesktop) textDesktop.textContent = keyword;
+            } else {
+                emptyDesktop.style.display = 'none';
+            }
+        }
+
+        // Filter Kartu Mobile
+        let visibleMobile = 0;
+        cards.forEach((card) => {
+            const cardSearch = card.getAttribute('data-search') || '';
+            const matchKeyword = keyword === '' || cardSearch.includes(keyword);
+
+            if (matchKeyword) {
+                card.style.display = '';
+                visibleMobile++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        const emptyMobile = document.getElementById('emptySearchMobile');
+        const textMobile = document.getElementById('textSearchMobile');
+        if (emptyMobile) {
+            if (visibleMobile === 0 && keyword !== '') {
+                emptyMobile.style.display = '';
+                if (textMobile) textMobile.textContent = keyword;
+            } else {
+                emptyMobile.style.display = 'none';
+            }
+        }
+    }
+
+    function resetCariUniversitas() {
+        const input = document.getElementById('inputCariUniversitas');
+        if (input) {
+            input.value = '';
+            filterTabelUniversitas();
+            input.focus();
+        }
     }
 </script>
 <?= $this->endSection() ?>
