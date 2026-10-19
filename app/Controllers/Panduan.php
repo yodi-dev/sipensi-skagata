@@ -42,8 +42,8 @@ class Panduan extends BaseController
         $settingData = [
             'school_name'     => $this->settingModel->getSetting('school_name', $this->presensiConfig->schoolName),
             'school_radius'   => (int) $this->settingModel->getSetting('school_radius', $this->presensiConfig->schoolRadius),
-            'work_start'      => $this->settingModel->getSetting('work_start', $this->presensiConfig->workStart),
-            'work_end'        => $this->settingModel->getSetting('work_end', $this->presensiConfig->workEnd),
+            'work_start'      => $this->settingModel->getSetting('jam_masuk_max', $this->presensiConfig->jamMasukMax ?? '07:15:00'),
+            'work_end'        => $this->settingModel->getSetting('jam_pulang_min', $this->presensiConfig->jamPulangMin ?? '15:00:00'),
             'geofence_active' => (bool) $this->settingModel->getSetting('geofence_active', $this->presensiConfig->geofenceActive),
             'school_lat'      => $this->settingModel->getSetting('school_latitude', $this->presensiConfig->schoolLatitude),
             'school_lng'      => $this->settingModel->getSetting('school_longitude', $this->presensiConfig->schoolLongitude),
