@@ -671,27 +671,6 @@
         </div>
     </div>
 
-    <!-- Helpdesk / Kontak Bantuan -->
-    <div class="card card-panduan border-0 p-4 shadow-xs" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="topic-icon-circle bg-success text-white shadow-xs">
-                    <i class="bi bi-headset"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold text-dark mb-0">Butuh Bantuan Lebih Lanjut?</h6>
-                    <small class="text-muted">Hubungi pengelola teknis PPL / PK SMK Negeri 3 Yogyakarta jika mengalami kendala sistem yang tidak teratasi.</small>
-                </div>
-            </div>
-            <div>
-                <a href="https://wa.me/6281234567890" target="_blank" class="btn btn-sm btn-success rounded-pill px-3 py-2 d-inline-flex align-items-center gap-1.5 shadow-xs">
-                    <i class="bi bi-whatsapp"></i>
-                    <span>Kontak Helpdesk Skagata</span>
-                </a>
-            </div>
-        </div>
-    </div>
-
 </div>
 <?= $this->endSection() ?>
 
