@@ -639,7 +639,7 @@ $runner->it("View admin/pengguna harus memuat tabel pengguna, filter toolbar, da
     $runner->assertTrue(strpos($content, 'modalResetPassword') !== false, "Harus memuat modalResetPassword");
 });
 
-$runner->it("Layout template harus menyediakan dedicated admin-sidebar dan modal profil admin", function() use ($runner) {
+$runner->it("Layout template harus menyediakan dedicated admin-sidebar dan navigasi profil terpadu", function() use ($runner) {
     $templateFile = APPPATH . 'Views/layout/template.php';
     $runner->assertTrue(file_exists($templateFile));
     $content = file_get_contents($templateFile);
@@ -648,7 +648,7 @@ $runner->it("Layout template harus menyediakan dedicated admin-sidebar dan modal
     $runner->assertTrue(strpos($content, 'auth/logout') !== false, "Template harus memuat auth/logout");
     $runner->assertTrue(strpos($content, 'toggleAdminSidebar') !== false, "Template harus memuat toggleAdminSidebar");
     $runner->assertTrue(strpos($content, "session()->get('isLoggedIn')") !== false, "Template harus mengecek session isLoggedIn");
-    $runner->assertTrue(strpos($content, 'modalProfilAdmin') !== false, "Template harus memuat modalProfilAdmin global");
+    $runner->assertTrue(strpos($content, "base_url('profil')") !== false, "Template harus memuat navigasi profil terpadu");
 });
 
 $runner->it("Controller Admin harus memiliki method pengguna, updateProfil, dan CRUD lengkap", function() use ($runner) {

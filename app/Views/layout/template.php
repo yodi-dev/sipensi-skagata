@@ -800,11 +800,6 @@
                                             <i class="bi bi-question-circle text-success"></i> Pusat Panduan
                                         </a>
                                     </li>
-                                    <li>
-                                        <button type="button" class="dropdown-item py-2 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalProfilAdmin">
-                                            <i class="bi bi-sliders text-muted"></i> Modal Profil Admin
-                                        </button>
-                                    </li>
                                     <li><hr class="dropdown-divider my-1"></li>
                                     <li>
                                         <button type="button" class="dropdown-item py-2 text-danger d-flex align-items-center gap-2 border-0 bg-transparent w-100 text-start" onclick="konfirmasiLogout()">
@@ -826,72 +821,6 @@
                 <main class="main-content">
                     <?= $this->renderSection('content'); ?>
                 </main>
-
-                <?php if ($role === 'admin'): ?>
-                    <!-- Modal Profil Administrator Global -->
-                    <div class="modal fade" id="modalProfilAdmin" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                <div class="modal-header bg-success text-white py-3">
-                                    <h6 class="modal-title fw-bold d-flex align-items-center gap-2">
-                                        <i class="bi bi-person-gear"></i>
-                                        <span>Kelola Profil Administrator</span>
-                                    </h6>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <form action="<?= base_url('admin/update-profil') ?>" method="POST">
-                                    <?= csrf_field() ?>
-                                    <div class="modal-body text-start p-4">
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold small text-dark">Nama Administrator</label>
-                                            <input type="text" name="nama" class="form-control" value="<?= esc(session()->get('nama') ?? '') ?>" required>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold small text-dark">Username Administrator</label>
-                                            <input type="text" name="username" class="form-control" value="<?= esc(session()->get('username') ?? '') ?>" required>
-                                        </div>
-
-                                        <hr class="my-3 text-muted">
-                                        <div class="small fw-bold text-dark mb-2 d-flex align-items-center gap-1">
-                                            <i class="bi bi-shield-lock text-success"></i>
-                                            <span>Ubah Kata Sandi (Opsional)</span>
-                                        </div>
-                                        <p class="text-muted small mb-3" style="font-size: 0.78rem;">
-                                            Biarkan kolom kata sandi di bawah kosong jika Anda tidak ingin mengganti password akun admin.
-                                        </p>
-
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold small text-dark">Password Saat Ini</label>
-                                            <div class="input-group">
-                                                <input type="password" name="password_lama" id="inputAdminPasswordLamaGlobal" class="form-control border-end-0" placeholder="Masukkan jika ingin mengganti password">
-                                                <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibilityGlobal('inputAdminPasswordLamaGlobal', 'iconToggleAdminLamaGlobal')">
-                                                    <i class="bi bi-eye" id="iconToggleAdminLamaGlobal"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold small text-dark">Password Baru</label>
-                                            <div class="input-group">
-                                                <input type="password" name="password_baru" id="inputAdminPasswordBaruGlobal" class="form-control border-end-0" placeholder="Minimal 6 karakter">
-                                                <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePasswordVisibilityGlobal('inputAdminPasswordBaruGlobal', 'iconToggleAdminBaruGlobal')">
-                                                    <i class="bi bi-eye" id="iconToggleAdminBaruGlobal"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer border-0 bg-light py-2 px-4">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                                        <button type="submit" class="btn btn-sm btn-skagata rounded-pill px-4">
-                                            <i class="bi bi-check2-circle me-1"></i> Simpan Profil
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                <?php endif; ?>
 
                 <!-- Footer Skagata: Tampilan Mobile Cukup Satu Baris (Desktop Kredit di Sidebar Footer) -->
                 <footer class="footer-skagata py-3 text-center d-md-none">
