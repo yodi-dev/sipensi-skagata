@@ -417,7 +417,9 @@
         $greetingTemplate = ($hourTemplate >= 5 && $hourTemplate < 11) ? 'Selamat Pagi' : (($hourTemplate >= 11 && $hourTemplate < 15) ? 'Selamat Siang' : (($hourTemplate >= 15 && $hourTemplate < 18) ? 'Selamat Sore' : 'Selamat Malam'));
 
         $pageTitleDesktop = 'Presensi Harian';
-        if ($role === 'guru' || $role === 'guru_pamong') {
+        if (strpos($currentUri, 'panduan') !== false) {
+            $pageTitleDesktop = 'Pusat Panduan';
+        } elseif ($role === 'guru' || $role === 'guru_pamong') {
             if (strpos($currentUri, 'guru/laporan_piket') !== false) {
                 $pageTitleDesktop = 'Laporan Piket KBM';
             } elseif (strpos($currentUri, 'guru/laporan') !== false) {
@@ -479,6 +481,8 @@
                 strpos($currentRoute, 'admin/periode') === false &&
                 strpos($currentUri, 'admin/pengaturan') === false &&
                 strpos($currentRoute, 'admin/pengaturan') === false &&
+                strpos($currentUri, 'panduan') === false &&
+                strpos($currentRoute, 'panduan') === false &&
                 strpos($currentUri, 'profil') === false &&
                 strpos($currentRoute, 'profil') === false &&
                 strpos($currentUri, 'ubah_password') === false &&
@@ -500,6 +504,8 @@
                 strpos($currentRoute, 'guru/laporan') === false &&
                 strpos($currentUri, 'guru/laporan_piket') === false &&
                 strpos($currentRoute, 'guru/laporan_piket') === false &&
+                strpos($currentUri, 'panduan') === false &&
+                strpos($currentRoute, 'panduan') === false &&
                 strpos($currentUri, 'profil') === false &&
                 strpos($currentRoute, 'profil') === false &&
                 strpos($currentUri, 'ubah_password') === false &&
@@ -521,6 +527,8 @@
                 strpos($currentRoute, 'mahasiswa/piket') === false &&
                 strpos($currentUri, 'mahasiswa/riwayat') === false &&
                 strpos($currentRoute, 'mahasiswa/riwayat') === false &&
+                strpos($currentUri, 'panduan') === false &&
+                strpos($currentRoute, 'panduan') === false &&
                 strpos($currentUri, 'profil') === false &&
                 strpos($currentRoute, 'profil') === false &&
                 strpos($currentUri, 'ubah_password') === false &&
@@ -599,6 +607,10 @@
                             <i class="bi bi-geo-alt-fill"></i>
                             <span>Pengaturan Presensi</span>
                         </a>
+                        <a href="<?= base_url('panduan') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'panduan') !== false) ? 'active' : '' ?>">
+                            <i class="bi bi-journal-bookmark-fill"></i>
+                            <span>Panduan Sistem</span>
+                        </a>
 
                     <?php elseif ($role === 'guru' || $role === 'guru_pamong'): ?>
                         <div class="sidebar-section-label">Menu Pamong</div>
@@ -616,6 +628,10 @@
                             <i class="bi bi-file-earmark-spreadsheet-fill"></i>
                             <span>Rekapitulasi Bulanan</span>
                         </a>
+                        <a href="<?= base_url('panduan') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'panduan') !== false) ? 'active' : '' ?>">
+                            <i class="bi bi-journal-bookmark-fill"></i>
+                            <span>Panduan Pamong</span>
+                        </a>
 
                     <?php else: /* Mahasiswa & GTT */ ?>
                         <div class="sidebar-section-label"><?= ($role === 'gtt') ? 'Menu GTT' : 'Menu Praktikan' ?></div>
@@ -632,6 +648,10 @@
                         <a href="<?= base_url('mahasiswa/riwayat') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'mahasiswa/riwayat') !== false) ? 'active' : '' ?>">
                             <i class="bi bi-calendar-check-fill"></i>
                             <span>Riwayat Saya</span>
+                        </a>
+                        <a href="<?= base_url('panduan') ?>" class="sidebar-nav-item <?= (strpos($currentUri, 'panduan') !== false) ? 'active' : '' ?>">
+                            <i class="bi bi-journal-bookmark-fill"></i>
+                            <span>Panduan Presensi</span>
                         </a>
                     <?php endif; ?>
 
@@ -718,6 +738,11 @@
                                             <i class="bi bi-person-gear text-success"></i> Profil &amp; Keamanan
                                         </a>
                                     </li>
+                                    <li>
+                                        <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="<?= base_url('panduan') ?>">
+                                            <i class="bi bi-question-circle text-success"></i> Pusat Panduan
+                                        </a>
+                                    </li>
                                     <li><hr class="dropdown-divider my-1"></li>
                                     <li>
                                         <button type="button" class="dropdown-item py-2 text-danger d-flex align-items-center gap-2 border-0 bg-transparent w-100 text-start" onclick="konfirmasiLogout()">
@@ -768,6 +793,11 @@
                                     <li>
                                         <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="<?= base_url('profil') ?>">
                                             <i class="bi bi-person-gear text-success"></i> Profil &amp; Keamanan
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="<?= base_url('panduan') ?>">
+                                            <i class="bi bi-question-circle text-success"></i> Pusat Panduan
                                         </a>
                                     </li>
                                     <li>
@@ -936,6 +966,13 @@
                                     <div>
                                         <span class="d-block lh-sm">Profil &amp; Keamanan</span>
                                         <small class="text-muted d-block" style="font-size: 0.72rem;">Ubah nama &amp; kata sandi akun</small>
+                                    </div>
+                                </a>
+                                <a href="<?= base_url('panduan') ?>" class="btn btn-light text-start d-flex align-items-center gap-2.5 py-2.5 px-3 rounded-3 text-dark fw-medium border shadow-xs">
+                                    <i class="bi bi-journal-bookmark text-success fs-5"></i>
+                                    <div>
+                                        <span class="d-block lh-sm">Pusat Panduan</span>
+                                        <small class="text-muted d-block" style="font-size: 0.72rem;">Tata cara presensi &amp; solusi kendala</small>
                                     </div>
                                 </a>
                                 <button type="button" onclick="konfirmasiLogout()" class="btn btn-light text-start d-flex align-items-center gap-2.5 py-2.5 px-3 rounded-3 text-danger fw-medium border shadow-xs w-100">

@@ -1382,6 +1382,79 @@ $runner->it("Library PhpSpreadsheet harus dapat menginisialisasi spreadsheet dan
     $runner->assertEquals('Password', $sheet->getCell('E1')->getValue());
 });
 
+$runner->describe("25. Pengujian Halaman Panduan & Pusat Bantuan Multi-Role (Terkunci Sesuai Role)");
+
+$runner->it("Route /panduan harus terdaftar di Config/Routes.php dengan filter auth", function() use ($runner) {
+    $routesFile = APPPATH . 'Config/Routes.php';
+    $runner->assertTrue(file_exists($routesFile));
+    $content = file_get_contents($routesFile);
+    $runner->assertTrue(strpos($content, "'/panduan', 'Panduan::index'") !== false, "Route GET /panduan harus terdaftar");
+    $runner->assertTrue(strpos($content, "'filter' => 'auth'") !== false, "Route /panduan harus dilindungi filter auth");
+});
+
+$runner->it("Controller Panduan harus mengimplementasikan index dan memuat konfigurasi presensi dinamis", function() use ($runner) {
+    $runner->assertTrue(class_exists('\App\Controllers\Panduan'), "Class Panduan Controller harus terdefinisi");
+    $controller = new \App\Controllers\Panduan();
+    $runner->assertTrue(method_exists($controller, 'index'), "Panduan::index harus terdefinisi");
+
+    $file = APPPATH . 'Controllers/Panduan.php';
+    $content = file_get_contents($file);
+    $runner->assertTrue(strpos($content, 'SettingModel') !== false, "Panduan Controller harus membaca pengaturan via SettingModel");
+    $runner->assertTrue(strpos($content, 'Config\Presensi') !== false, "Panduan Controller harus membaca konfigurasi Presensi");
+});
+
+$runner->it("Panduan Controller harus menerapkan penguncian role yang ketat (role-locked)", function() use ($runner) {
+    $file = APPPATH . 'Controllers/Panduan.php';
+    $content = file_get_contents($file);
+
+    // Verifikasi bahwa role non-admin tidak dapat mengubah role panduan yang dilihat
+    $runner->assertTrue(strpos($content, "\$role = session()->get('role')") !== false, "Panduan Controller harus mengambil role dari session");
+    $runner->assertTrue(strpos($content, "\$role === 'admin'") !== false, "Hanya admin yang boleh melakukan preview supervisi");
+    $runner->assertTrue(strpos($content, "\$activeRole = \$role;") !== false, "Role non-admin harus selalu melihat panduan untuk role-nya sendiri");
+    $runner->assertTrue(strpos($content, "in_array(\$requestedRole, ['admin', 'guru', 'gtt', 'mahasiswa'], true)") !== false, "Target role harus divalidasi ke role yang sah");
+});
+
+$runner->it("View panduan/index harus memuat panduan komprehensif, FAQ troubleshooting, dan live search", function() use ($runner) {
+    $viewFile = APPPATH . 'Views/panduan/index.php';
+    $runner->assertTrue(file_exists($viewFile), "View panduan/index.php harus ada");
+    $content = file_get_contents($viewFile);
+
+    // Hero banner & search bar
+    $runner->assertTrue(strpos($content, 'inputCariPanduan') !== false, "Harus terdapat inputCariPanduan untuk live search");
+    $runner->assertTrue(strpos($content, 'filterPanduan()') !== false, "Harus mengimplementasikan fungsi live filter filterPanduan()");
+    $runner->assertTrue(strpos($content, 'resetCariPanduan()') !== false, "Harus mengimplementasikan resetCariPanduan()");
+
+    // Troubleshooting FAQ
+    $runner->assertTrue(strpos($content, 'GPS Berwarna Merah') !== false, "Harus menyediakan panduan troubleshooting GPS / Lokasi");
+    $runner->assertTrue(strpos($content, 'Kamera Piket Tidak Mau Terbuka') !== false, "Harus menyediakan panduan troubleshooting Kamera / WebCam");
+    $runner->assertTrue(strpos($content, 'Kapan Tombol Pulang Dapat Ditekan?') !== false, "Harus menyediakan panduan aturan toleransi jam kerja");
+    $runner->assertTrue(strpos($content, 'Cara Mengganti Kata Sandi') !== false, "Harus menyediakan panduan pemulihan password");
+
+    // Dynamic config indicators
+    $runner->assertTrue(strpos($content, "['school_radius']") !== false, "View harus memuat nilai dinamis radius sekolah");
+    $runner->assertTrue(strpos($content, "['work_end']") !== false, "View harus memuat jam pulang dinamis");
+});
+
+$runner->it("Layout template harus mengintegrasikan link navigasi Pusat Panduan di semua level", function() use ($runner) {
+    $templateFile = APPPATH . 'Views/layout/template.php';
+    $content = file_get_contents($templateFile);
+
+    // Desktop page title
+    $runner->assertTrue(strpos($content, "strpos(\$currentUri, 'panduan') !== false") !== false, "template.php harus mendeteksi URI panduan");
+    $runner->assertTrue(strpos($content, "\$pageTitleDesktop = 'Pusat Panduan';") !== false, "template.php harus memberi judul Pusat Panduan");
+
+    // Sidebar items
+    $runner->assertTrue(strpos($content, "Panduan Sistem") !== false, "Sidebar Admin harus memuat link Panduan Sistem");
+    $runner->assertTrue(strpos($content, "Panduan Pamong") !== false, "Sidebar Guru harus memuat link Panduan Pamong");
+    $runner->assertTrue(strpos($content, "Panduan Presensi") !== false, "Sidebar Mahasiswa & GTT harus memuat link Panduan Presensi");
+
+    // Topbar & Mobile modal
+    $runner->assertTrue(strpos($content, "id=\"userDropdownGeneral\"") !== false, "Topbar dropdown general harus ada");
+    $runner->assertTrue(strpos($content, "id=\"adminUserDropdown\"") !== false, "Topbar dropdown admin harus ada");
+    $runner->assertTrue(strpos($content, "id=\"modalMobileUserMenu\"") !== false, "Modal mobile menu harus ada");
+    $runner->assertTrue(substr_count($content, "href=\"<?= base_url('panduan') ?>\"") >= 5, "Link base_url('panduan') harus terpasang di sidebar, topbar, dan modal mobile");
+});
+
 // Cetak laporan akhir & exit code
 exit($runner->report());
 

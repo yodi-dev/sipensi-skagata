@@ -14,6 +14,7 @@ $routes->get('/profil', 'Auth::profil', ['filter' => 'auth']);
 $routes->post('/profil/simpan', 'Auth::prosesUpdateProfil', ['filter' => 'auth']);
 $routes->get('/ubah_password', 'Auth::ubahPasswordView', ['filter' => 'auth']);
 $routes->post('/auth/proses_ubah_password', 'Auth::prosesUbahPassword', ['filter' => 'auth']);
+$routes->get('/panduan', 'Panduan::index', ['filter' => 'auth']);
 $routes->match(['get', 'post'], '/auth/logout', 'Auth::logout');
 
 // Rute khusus Guru Pamong
